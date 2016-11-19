@@ -62,6 +62,7 @@ public class PlaybackEngine {
             if(now == tick) {
                 List<Updated> updatedList = iterator.peek();
                 updatedList.forEach((e) -> e.processTo(npc));
+                iterator.pollTick();
             }
             this.tick++;
 //            BoybookPlayerRecordTick tick = this.record.playBackTick(this.tick);
