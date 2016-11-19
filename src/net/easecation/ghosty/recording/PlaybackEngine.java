@@ -54,11 +54,16 @@ public class PlaybackEngine {
         this.stopped = true;
         if (this.npc != null) this.npc.kill();
         this.npc = null;
+        this.iterator = null;
     }
 
     public void onTick() {
         if (this.isPlaying()) {
             long now = iterator.peekTick();
+            if(now == -1) {
+                this.stopPlayback();
+                return;
+            }
             if(now == tick) {
                 List<Updated> updatedList = iterator.peek();
                 updatedList.forEach((e) -> e.processTo(npc));
