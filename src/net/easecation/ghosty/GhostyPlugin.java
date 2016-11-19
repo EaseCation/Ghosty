@@ -7,7 +7,9 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerJoinEvent;
 import cn.nukkit.plugin.PluginBase;
 import net.easecation.ghosty.entity.PlaybackNPC;
+import net.easecation.ghosty.recording.PlaybackEngine;
 import net.easecation.ghosty.recording.PlayerRecord;
+import net.easecation.ghosty.recording.RecordEngine;
 import net.easecation.ghosty.runnable.PlaybackRunnable;
 import net.easecation.ghosty.runnable.RecordRunnable;
 

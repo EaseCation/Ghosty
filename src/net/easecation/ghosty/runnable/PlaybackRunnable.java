@@ -1,7 +1,7 @@
 package net.easecation.ghosty.runnable;
 
 import net.easecation.ghosty.GhostyPlugin;
-import net.easecation.ghosty.PlaybackEngine;
+import net.easecation.ghosty.recording.PlaybackEngine;
 
 import java.util.ArrayList;
 import java.util.List;
