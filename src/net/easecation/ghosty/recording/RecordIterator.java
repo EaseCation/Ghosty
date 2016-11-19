@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Created by Mulan Lin('Snake1999') on 2016/11/19 15:38.
  */
-public interface RecordIterator {
+interface RecordIterator {
 
     RecordNode initialValue(long tick);
 

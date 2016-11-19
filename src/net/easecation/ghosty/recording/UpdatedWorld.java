@@ -9,9 +9,9 @@ import java.util.Objects;
 /**
  * Created by Mulan Lin('Snake1999') on 2016/11/19 15:23.
  */
-public class UpdatedWorld implements Updated {
+class UpdatedWorld implements Updated {
 
-    public static UpdatedWorld of(String tn) {
+    static UpdatedWorld of(String tn) {
         return new UpdatedWorld(tn);
     }
 

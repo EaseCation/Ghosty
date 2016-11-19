@@ -7,9 +7,9 @@ import java.util.Objects;
 /**
  * Created by Mulan Lin('Snake1999') on 2016/11/19 15:23.
  */
-public class UpdatedTagName implements Updated {
+class UpdatedTagName implements Updated {
 
-    public static UpdatedTagName of(String tn) {
+    static UpdatedTagName of(String tn) {
         return new UpdatedTagName(tn);
     }
 

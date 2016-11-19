@@ -62,67 +62,67 @@ public final class RecordNode {
         this.item = item;
     }
 
-    public double getX() {
+    double getX() {
         return x;
     }
 
-    public void setX(double x) {
+    void setX(double x) {
         this.x = x;
     }
 
-    public double getY() {
+    double getY() {
         return y;
     }
 
-    public void setY(double y) {
+    void setY(double y) {
         this.y = y;
     }
 
-    public double getZ() {
+    double getZ() {
         return z;
     }
 
-    public void setZ(double z) {
+    void setZ(double z) {
         this.z = z;
     }
 
-    public double getYaw() {
+    double getYaw() {
         return yaw;
     }
 
-    public void setYaw(double yaw) {
+    void setYaw(double yaw) {
         this.yaw = yaw;
     }
 
-    public double getPitch() {
+    double getPitch() {
         return pitch;
     }
 
-    public void setPitch(double pitch) {
+    void setPitch(double pitch) {
         this.pitch = pitch;
     }
 
-    public String getLevel() {
+    String getLevel() {
         return level;
     }
 
-    public void setLevel(String level) {
+    void setLevel(String level) {
         this.level = level;
     }
 
-    public String getTagName() {
+    String getTagName() {
         return tagName;
     }
 
-    public void setTagName(String tagName) {
+    void setTagName(String tagName) {
         this.tagName = tagName;
     }
 
-    public Item getItem() {
+    Item getItem() {
         return item;
     }
 
-    public void setItem(Item item) {
+    void setItem(Item item) {
         this.item = item;
     }
 }

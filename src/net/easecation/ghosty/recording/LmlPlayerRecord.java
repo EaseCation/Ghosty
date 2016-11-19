@@ -2,6 +2,7 @@ package net.easecation.ghosty.recording;
 
 import cn.nukkit.Player;
 import cn.nukkit.entity.data.Skin;
+import cn.nukkit.item.Item;
 
 import java.util.*;
 
@@ -37,6 +38,9 @@ class LmlPlayerRecord implements PlayerRecord{
         String lw = last.getLevel(), w = node.getLevel();
         if(!Objects.equals(lw, w))
             push(tick, UpdatedWorld.of(w));
+        Item li = last.getItem(), i = node.getItem();
+        if(!Objects.equals(li, i))
+            push(tick, UpdatedItem.of(i));
     }
 
     private void push(long t, Updated u) {

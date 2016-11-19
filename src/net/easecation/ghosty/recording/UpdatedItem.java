@@ -1,0 +1,38 @@
+package net.easecation.ghosty.recording;
+
+import cn.nukkit.item.Item;
+import net.easecation.ghosty.entity.PlaybackNPC;
+
+/**
+ * Created by Mulan Lin('Snake1999') on 2016/11/19 16:43.
+ */
+class UpdatedItem implements Updated {
+
+    private Item item;
+
+    static UpdatedItem of(Item item) {
+        return new UpdatedItem(item);
+    }
+
+    @Override
+    public void processTo(PlaybackNPC ghost) {
+        ghost.getInventory().setItemInHand(item);
+    }
+
+    @Override
+    public RecordNode applyTo(RecordNode node) {
+        node.setItem(item);
+        return node;
+    }
+
+    private UpdatedItem(Item item) {
+        this.item = item;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof UpdatedItem)) return false;
+        UpdatedItem o = (UpdatedItem) obj;
+        return (item.equals(o.item));
+    }
+}

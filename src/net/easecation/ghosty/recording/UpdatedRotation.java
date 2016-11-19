@@ -6,7 +6,7 @@ import net.easecation.ghosty.entity.PlaybackNPC;
 /**
  * Created by Mulan Lin('Snake1999') on 2016/11/19 15:26.
  */
-public class UpdatedRotation implements Updated {
+class UpdatedRotation implements Updated {
 
     private double yaw;
     private double pitch;
@@ -26,7 +26,7 @@ public class UpdatedRotation implements Updated {
         return node;
     }
 
-    public static UpdatedRotation of(double yaw, double pitch) {
+    static UpdatedRotation of(double yaw, double pitch) {
         return new UpdatedRotation(yaw, pitch);
     }
 
