@@ -4,7 +4,8 @@ import cn.nukkit.item.Item;
 import net.easecation.ghosty.entity.PlaybackNPC;
 
 /**
- * Created by Mulan Lin('Snake1999') on 2016/11/19 16:43.
+ * Created by Mulan Lin('Snake1999') on 2016/11/19 17:02.
+ * All rights reserved
  */
 class UpdatedItem implements Updated {
 

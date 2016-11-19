@@ -5,7 +5,8 @@ import cn.nukkit.Player;
 import cn.nukkit.item.Item;
 
 /**
- * Created by Mulan Lin('Snake1999') on 2016/11/19 15:13.
+ * Created by Mulan Lin('Snake1999') on 2016/11/19 15:13 17:02.
+ * All rights reserved
  */
 public final class RecordNode {
     private double x;
@@ -20,6 +21,8 @@ public final class RecordNode {
     private Item item;
 
     static RecordNode of(Player player) {
+        Item hand = null;
+        if(player.getInventory() != null) hand = player.getInventory().getItemInHand();
         return new RecordNode(
                 player.getX(),
                 player.getY(),
@@ -28,7 +31,7 @@ public final class RecordNode {
                 player.getPitch(),
                 player.getLevel().getName(),
                 player.getDisplayName(),
-                player.getInventory().getItemInHand()
+                hand
         );
     }
 
