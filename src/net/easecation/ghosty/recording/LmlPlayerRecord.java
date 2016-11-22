@@ -9,7 +9,7 @@ import java.util.*;
 /**
  * Created by Mulan Lin('Snake1999') on 2016/11/19 15:34.
  */
-class LmlPlayerRecord implements PlayerRecord{
+class LmlPlayerRecord implements PlayerRecord {
 
     private RecordNode last = RecordNode.ZERO;
 

@@ -28,8 +28,6 @@ public class GhostyPlugin extends PluginBase implements Listener {
 
     private List<PlayerRecord> playerRecords = new ArrayList<>();
 
-    private Map<String, PlayerRecord> records = new HashMap<>();
-
     public static GhostyPlugin getInstance() {
         return instance;
     }

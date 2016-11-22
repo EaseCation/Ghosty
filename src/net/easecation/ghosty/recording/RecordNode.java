@@ -1,6 +1,5 @@
 package net.easecation.ghosty.recording;
 
-import cn.nukkit.IPlayer;
 import cn.nukkit.Player;
 import cn.nukkit.item.Item;
 

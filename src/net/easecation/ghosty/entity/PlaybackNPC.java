@@ -79,6 +79,13 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
         }
     }
 
+    @Override
+    public void kill() {
+        if (this.getInventory() != null) this.getInventory().clearAll();
+        super.kill();
+    }
+
+
     public void resendPosition() {
         double y = this.y + this.getEyeHeight();
         this.getLevel().addPlayerMovement(this.chunk.getX(), this.chunk.getZ(), this.getId(), this.x, y, this.z, this.yaw, this.pitch, this.onGround);
