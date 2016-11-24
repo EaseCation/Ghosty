@@ -41,6 +41,9 @@ class LmlPlayerRecord implements PlayerRecord {
         Item li = last.getItem(), i = node.getItem();
         if(!Objects.equals(li, i))
             push(tick, UpdatedItem.of(i));
+        long lastFlags = last.getDataFlags(), flags = node.getDataFlags();
+        if(lastFlags != flags)
+            push(tick, UpdatedDataFlags.of(flags));
     }
 
     private void push(long tick, Updated updated) {

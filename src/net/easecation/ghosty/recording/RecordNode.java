@@ -1,6 +1,7 @@
 package net.easecation.ghosty.recording;
 
 import cn.nukkit.Player;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.item.Item;
 
 /**
@@ -19,6 +20,8 @@ public final class RecordNode {
     private String tagName;
     private Item item;
 
+    private long dataFlags;
+
     static RecordNode of(Player player) {
         Item hand = null;
         if(player.getInventory() != null) hand = player.getInventory().getItemInHand();
@@ -30,11 +33,12 @@ public final class RecordNode {
                 player.getPitch(),
                 player.getLevel().getName(),
                 player.getDisplayName(),
-                hand
+                hand,
+                player.getDataPropertyLong(Entity.DATA_FLAGS)
         );
     }
 
-    static RecordNode ZERO = new RecordNode(0,0,0,0,0,"","",null);
+    static RecordNode ZERO = new RecordNode(0,0,0,0,0,"","",null,0);
 
     @Override
     public boolean equals(Object obj) {
@@ -53,7 +57,7 @@ public final class RecordNode {
         return false;
     }
 
-    private RecordNode(double x, double y, double z, double yaw, double pitch, String level, String tagName, Item item) {
+    private RecordNode(double x, double y, double z, double yaw, double pitch, String level, String tagName, Item item, long dataFlags) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -62,6 +66,7 @@ public final class RecordNode {
         this.level = level;
         this.tagName = tagName;
         this.item = item;
+        this.dataFlags = dataFlags;
     }
 
     double getX() {
@@ -126,5 +131,13 @@ public final class RecordNode {
 
     void setItem(Item item) {
         this.item = item;
+    }
+
+    long getDataFlags() {
+        return dataFlags;
+    }
+
+    void setDataFlags(long dataFlags) {
+        this.dataFlags = dataFlags;
     }
 }
