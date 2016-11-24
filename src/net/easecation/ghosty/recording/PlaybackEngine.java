@@ -55,6 +55,7 @@ public class PlaybackEngine {
         if (this.npc != null) this.npc.kill();
         this.npc = null;
         this.iterator = null;
+        Server.getInstance().getLogger().warning(record.getPlayer().getName() + " PlayBack stopped!");
     }
 
     public void onTick() {

@@ -86,9 +86,9 @@ class LmlPlayerRecord implements PlayerRecord {
         public RecordNode initialValue(long tick) {
             RecordNode n = RecordNode.ZERO;
             if(queue.peek() == null) return n;
-            while(queue.peek().tick < tick) queue.poll();
+            while(!queue.isEmpty() && queue.peek().tick < tick) queue.poll();
             if(queue.peek() == null) return n;
-            while(queue.peek().tick == tick) {
+            while(!queue.isEmpty() && queue.peek().tick == tick) {
                 Updated updated = queue.poll().updated;
                 n = updated.applyTo(n);
             }
@@ -100,7 +100,7 @@ class LmlPlayerRecord implements PlayerRecord {
             List<Updated> ans = new LinkedList<>();
             if(queue.isEmpty()) return ans;
             long tick = queue.peek().tick;
-            while(queue.peek().tick == tick) {
+            while(!queue.isEmpty() && queue.peek().tick == tick) {
                 Updated u = queue.poll().updated;
                 ans.add(u);
             }
@@ -117,7 +117,7 @@ class LmlPlayerRecord implements PlayerRecord {
         public long pollTick() {
             if(queue.isEmpty()) return -1;
             long tick = queue.peek().tick;
-            while(queue.peek().tick == tick) queue.poll();
+            while(!queue.isEmpty() && queue.peek().tick == tick) queue.poll();
             return tick;
         }
     }

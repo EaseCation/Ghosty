@@ -1,5 +1,5 @@
 #name, main, version and api are required
-name: PlayersRecorder
+name: Ghosty
 main: net.easecation.ghosty.GhostyPlugin
 #remember version and api is string, don'JsonPacket write it like this: 1.0.0, or there will be an exception
 version: "0.0.1"
