@@ -36,6 +36,6 @@ class UpdatedDataFlags implements Updated {
     public boolean equals(Object obj) {
         if(!(obj instanceof UpdatedDataFlags)) return false;
         UpdatedDataFlags o = (UpdatedDataFlags) obj;
-        return (Objects.equals(flags, o.flags));
+        return flags == o.flags;
     }
 }
