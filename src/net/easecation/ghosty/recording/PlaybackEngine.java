@@ -66,7 +66,7 @@ public class PlaybackEngine {
             }
             if(now == tick) {
                 List<Updated> updatedList = iterator.peek();
-                updatedList.forEach((e) -> e.processTo(npc));
+                if (npc != null) updatedList.forEach((e) -> e.processTo(npc));
                 iterator.pollTick();
             }
             this.tick++;

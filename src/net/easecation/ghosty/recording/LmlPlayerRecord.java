@@ -15,10 +15,10 @@ class LmlPlayerRecord implements PlayerRecord {
 
     private List<RecordPair> rec = new LinkedList<>();
 
-    private Player p;
+    private Player player;
 
-    LmlPlayerRecord(Player p) {
-        this.p = p;
+    LmlPlayerRecord(Player player) {
+        this.player = player;
     }
 
     @Override
@@ -43,54 +43,54 @@ class LmlPlayerRecord implements PlayerRecord {
             push(tick, UpdatedItem.of(i));
     }
 
-    private void push(long t, Updated u) {
-        rec.add(new RecordPair(t, u));
+    private void push(long tick, Updated updated) {
+        rec.add(new RecordPair(tick, updated));
     }
 
     private class RecordPair{
-        private RecordPair(long t, Updated u) {
-            this.t = t;
-            this.u = u;
+        private RecordPair(long tick, Updated updated) {
+            this.tick = tick;
+            this.updated = updated;
         }
-        long t; Updated u;
+        long tick; Updated updated;
     }
 
     @Override
     public RecordIterator iterator() {
-        LmlRecordIterator ans = new LmlRecordIterator();
-        rec.forEach((e) -> ans.q.offer(e));
-        return ans;
+        LmlRecordIterator recordIterator = new LmlRecordIterator();
+        rec.forEach((e) -> recordIterator.queue.offer(e));
+        return recordIterator;
     }
 
     @Override
     public Player getPlayer() {
-        return p;
+        return player;
     }
 
     @Override
     public Skin getSkin() {
-        return p.getSkin();
+        return player.getSkin();
     }
 
     private static class LmlRecordIterator implements RecordIterator {
 
-        static Comparator<RecordPair> cmp = (a, b) -> {
-            if(a.t<b.t) return -1;
-            else if (a.t==b.t) return 0;
+        static Comparator<RecordPair> comparator = (recordPairA, recordPairB) -> {
+            if(recordPairA.tick <recordPairB.tick) return -1;
+            else if (recordPairA.tick ==recordPairB.tick) return 0;
             return 1;
         };
 
-        PriorityQueue<RecordPair> q = new PriorityQueue<>(cmp);
+        PriorityQueue<RecordPair> queue = new PriorityQueue<>(comparator);
 
         @Override
         public RecordNode initialValue(long tick) {
             RecordNode n = RecordNode.ZERO;
-            if(q.peek() == null) return n;
-            while(q.peek().t < tick) q.poll();
-            if(q.peek() == null) return n;
-            while(q.peek().t == tick) {
-                Updated u = q.poll().u;
-                n = u.applyTo(n);
+            if(queue.peek() == null) return n;
+            while(queue.peek().tick < tick) queue.poll();
+            if(queue.peek() == null) return n;
+            while(queue.peek().tick == tick) {
+                Updated updated = queue.poll().updated;
+                n = updated.applyTo(n);
             }
             return n;
         }
@@ -98,10 +98,10 @@ class LmlPlayerRecord implements PlayerRecord {
         @Override
         public List<Updated> peek() {
             List<Updated> ans = new LinkedList<>();
-            if(q.isEmpty()) return ans;
-            long tick = q.peek().t;
-            while(q.peek().t == tick) {
-                Updated u = q.poll().u;
+            if(queue.isEmpty()) return ans;
+            long tick = queue.peek().tick;
+            while(queue.peek().tick == tick) {
+                Updated u = queue.poll().updated;
                 ans.add(u);
             }
             return ans;
@@ -109,15 +109,15 @@ class LmlPlayerRecord implements PlayerRecord {
 
         @Override
         public long peekTick() {
-            if(q.isEmpty()) return -1;
-            return q.peek().t;
+            if(queue.isEmpty()) return -1;
+            return queue.peek().tick;
         }
 
         @Override
         public long pollTick() {
-            if(q.isEmpty()) return -1;
-            long tick = q.peek().t;
-            while(q.peek().t == tick) q.poll();
+            if(queue.isEmpty()) return -1;
+            long tick = queue.peek().tick;
+            while(queue.peek().tick == tick) queue.poll();
             return tick;
         }
     }

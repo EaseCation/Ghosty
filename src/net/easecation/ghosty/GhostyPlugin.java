@@ -75,7 +75,7 @@ public class GhostyPlugin extends PluginBase implements Listener {
         return playBacker;
     }
 
-    @EventHandler
+    //@EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         this.startNewRecord(player);
