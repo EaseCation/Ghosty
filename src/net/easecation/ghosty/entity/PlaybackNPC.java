@@ -76,8 +76,13 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
             player.dataPacket(pk);
             this.inventory.sendArmorContents(player);
             this.getInventory().sendHeldItem(player);
-            this.server.removePlayerListData(this.getUniqueId());
         }
+    }
+
+    @Override
+    public void despawnFrom(Player player) {
+        super.despawnFrom(player);
+        this.server.removePlayerListData(this.getUniqueId());
     }
 
     @Override
