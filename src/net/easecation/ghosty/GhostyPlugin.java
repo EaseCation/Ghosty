@@ -23,9 +23,13 @@ public class GhostyPlugin extends PluginBase implements Listener {
 
     private static GhostyPlugin instance;
 
+    /* 正在录制中 */
     private Map<Player, RecordEngine> recorders = new HashMap<>();
+
+    /* 重放中 */
     private List<PlaybackEngine> playbackEngines = new ArrayList<>();
 
+    /* 录制完成的成品 */
     private List<PlayerRecord> playerRecords = new ArrayList<>();
 
     public static GhostyPlugin getInstance() {

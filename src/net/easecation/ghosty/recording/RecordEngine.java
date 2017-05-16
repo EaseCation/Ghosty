@@ -42,8 +42,8 @@ public class RecordEngine {
             if (!this.player.isOnline()) {
                 GhostyPlugin.getInstance().getPlayerRecords().add(this.stopRecord());
             }
-//            BoybookPlayerRecordTick tick = new BoybookPlayerRecordTick(this.getPlayer().getX(), this.getPlayer().getY(), this.getPlayer().getZ(), this.getPlayer().getYaw(), this.getPlayer().getPitch(), this.getPlayer().getLevel().getFolderName(), this.player.getNameTag(), this.player.getInventory() == null ? Item.get(0) : this.player.getInventory().getItemInHand());
-//            this.record.recordTick(this.tick, tick);
+//          BoybookPlayerRecordTick tick = new BoybookPlayerRecordTick(this.getPlayer().getX(), this.getPlayer().getY(), this.getPlayer().getZ(), this.getPlayer().getYaw(), this.getPlayer().getPitch(), this.getPlayer().getLevel().getFolderName(), this.player.getNameTag(), this.player.getInventory() == null ? Item.get(0) : this.player.getInventory().getItemInHand());
+//          this.record.recordTick(this.tick, tick);
             this.record.record(this.tick, RecordNode.of(this.player));
         }
         this.tick++;
@@ -53,8 +53,8 @@ public class RecordEngine {
         this.setRecording(false);
         this.stopped = true;
         Server.getInstance().getLogger().warning(this.player.getName() + " Record stopped!");
-//        this.record.setMaxTick(this.tick);
-//        this.record.setStopTime(System.currentTimeMillis());
+//      this.record.setMaxTick(this.tick);
+//      this.record.setStopTime(System.currentTimeMillis());
         return this.record;
     }
 

@@ -45,8 +45,8 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
     }
 
     @Override
-    public void attack(EntityDamageEvent source) {
-
+    public boolean attack(EntityDamageEvent source) {
+        return false;
     }
 
     @Override
