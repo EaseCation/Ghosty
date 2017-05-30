@@ -101,4 +101,10 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
     public Skin getSkin() {
         return super.getSkin() == null ? defaultSkin : super.getSkin();
     }
+
+    @Override
+    public void addMovement(double x, double y, double z, double yaw, double pitch, double headYaw) {
+        super.addMovement(x, y + this.getEyeHeight(), z, yaw, pitch, headYaw);
+    }
+
 }

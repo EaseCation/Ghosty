@@ -17,7 +17,7 @@ class UpdatedItem implements Updated {
 
     @Override
     public void processTo(PlaybackNPC ghost) {
-        if (ghost != null && ghost.getInventory() != null) ghost.getInventory().setItemInHand(item);
+        if (ghost != null && ghost.getInventory() != null) ghost.getInventory().setItemInHand(item == null ? Item.get(0) : item);
     }
 
     @Override
