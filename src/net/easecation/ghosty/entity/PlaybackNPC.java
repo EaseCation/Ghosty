@@ -42,6 +42,7 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
                         ), skin);
         this.setNameTag(name);
         this.saveNBT();
+        this.setSkin(skin);
     }
 
     @Override
@@ -93,18 +94,12 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
 
 
     public void resendPosition() {
-        double y = this.y + this.getEyeHeight();
         this.getLevel().addEntityMovement(this.chunk.getX(), this.chunk.getZ(), this.getId(), this.x, y, this.z, this.yaw, this.pitch, this.yaw);
     }
 
     @Override
     public Skin getSkin() {
         return super.getSkin() == null ? defaultSkin : super.getSkin();
-    }
-
-    @Override
-    public void addMovement(double x, double y, double z, double yaw, double pitch, double headYaw) {
-        super.addMovement(x, y + this.getEyeHeight(), z, yaw, pitch, headYaw);
     }
 
 }
