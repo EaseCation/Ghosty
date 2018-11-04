@@ -55,7 +55,7 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
         if(!this.hasSpawned.containsKey(player.getLoaderId())) {
             this.hasSpawned.put(player.getLoaderId(), player);
 
-            if (this.skin.getData().length < 64 * 32 * 4) {
+            if (!this.skin.isValid()) {
                 throw new IllegalStateException(this.getClass().getSimpleName() + " must have a valid skin set");
             }
             this.server.updatePlayerListData(this.getUniqueId(), this.getId(), this.getName(), this.skin, new Player[]{player});

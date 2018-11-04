@@ -40,7 +40,7 @@ public class GhostyPlugin extends PluginBase implements Listener {
     public void onLoad() {
         if (instance == null) instance = this;
         InputStream skinStream = this.getResource("skin.png");
-        PlaybackNPC.defaultSkin = new Skin(skinStream);
+        PlaybackNPC.defaultSkin = new Skin().setSkinData(skinStream);
     }
 
     @Override
