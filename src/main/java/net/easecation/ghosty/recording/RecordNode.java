@@ -4,11 +4,18 @@ import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.item.Item;
 
+import java.io.Serializable;
+
 /**
  * Created by Mulan Lin('Snake1999') on 2016/11/19 15:13 17:02.
  * All rights reserved
  */
-public final class RecordNode {
+public final class RecordNode implements Serializable {
+   /**
+    * 序列化ID
+    */
+    private static final long serialVersionUID = -5809782578272943999L;
+
     private double x;
     private double y;
     private double z;

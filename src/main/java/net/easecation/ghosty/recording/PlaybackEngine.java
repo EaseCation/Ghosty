@@ -1,8 +1,11 @@
 package net.easecation.ghosty.recording;
 
+import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
+import cn.nukkit.scheduler.TaskHandler;
+import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.entity.PlaybackNPC;
 
 import java.util.List;
@@ -13,7 +16,9 @@ import java.util.List;
  */
 public class PlaybackEngine {
 
-    private PlayerRecord record;
+    private final PlayerRecord record;
+    private TaskHandler taskHandler;
+    private Runnable onStopDo;
 
     private boolean playing = true;
     protected int tick = 0;
@@ -22,19 +27,32 @@ public class PlaybackEngine {
     private RecordIterator iterator;
 
     public PlaybackEngine(PlayerRecord record) {
+        this(record, null, null);
+    }
+
+    public PlaybackEngine(PlayerRecord record, Level level) {
+        this(record, level, null);
+    }
+
+    public PlaybackEngine(PlayerRecord record, Level level, List<Player> viewers) {
         this.record = record;
-//        BoybookPlayerRecordTick tick0 = record.getTicks().get(0);
         iterator = record.iterator();
         RecordNode tick0 = iterator.initialValue(this.tick);
-        Level level = Server.getInstance().getLevelByName(tick0.getLevel());
+        if (level == null) level = Server.getInstance().getLevelByName(tick0.getLevel());
         if (level != null) {
             Location loc = new Location(tick0.getX(), tick0.getY(), tick0.getZ(), tick0.getY(), tick0.getPitch(), level);
-            this.npc = new PlaybackNPC(loc, record.getSkin(), tick0.getTagName());
+            this.npc = new PlaybackNPC(loc, record.getSkin(), tick0.getTagName(), viewers);
             this.npc.spawnToAll();
-            Server.getInstance().getLogger().warning(record.getPlayer().getName() + " PlayBack started!");
+            this.taskHandler = Server.getInstance().getScheduler().scheduleRepeatingTask(GhostyPlugin.getInstance(), this::onTick, 1);
+            Server.getInstance().getLogger().debug(record.getPlayerName() + " PlayBack started!");
         } else {
             this.stopPlayback();
         }
+    }
+
+    public PlaybackEngine setOnStopDo(Runnable onStopDo) {
+        this.onStopDo = onStopDo;
+        return this;
     }
 
     public PlayerRecord getRecord() {
@@ -55,7 +73,9 @@ public class PlaybackEngine {
         if (this.npc != null) this.npc.kill();
         this.npc = null;
         this.iterator = null;
-        Server.getInstance().getLogger().warning(record.getPlayer().getName() + " PlayBack stopped!");
+        if (this.taskHandler != null) this.taskHandler.cancel();
+        if (this.onStopDo != null) this.onStopDo.run();
+        Server.getInstance().getLogger().debug(record.getPlayerName() + " PlayBack stopped!");
     }
 
     public void onTick() {
@@ -71,17 +91,6 @@ public class PlaybackEngine {
                 iterator.pollTick();
             }
             this.tick++;
-//            BoybookPlayerRecordTick tick = this.record.playBackTick(this.tick);
-//            if (tick != null) {
-//                Level level = Server.getInstance().getLevelByName(tick.level);
-//                if (level != null) {
-//                    this.npc.teleport(new Location(tick.x, tick.y, tick.z, tick.yaw, tick.pitch, level));
-//                }
-//                if (!tick.tagName.equals(this.npc.getNameTag())) this.npc.setNameTag(tick.tagName);
-//                if (!tick.item.equals(this.npc.getInventory().getItemInHand())) this.npc.getInventory().setItemInHand(tick.item);
-//            }
-
-//            if (this.tick >= this.record.getMaxTick()) this.stopPlayback();
         }
     }
 

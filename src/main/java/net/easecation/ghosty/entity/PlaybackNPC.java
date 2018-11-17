@@ -13,19 +13,24 @@ import cn.nukkit.nbt.tag.FloatTag;
 import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.network.protocol.AddPlayerPacket;
 
+import java.util.List;
+
 public class PlaybackNPC extends EntityHuman implements InventoryHolder {
 
     public static Skin defaultSkin;
+    private final List<Player> viewers;
 
-    public PlaybackNPC(FullChunk chunk, CompoundTag nbt, Skin skin) {
+    public PlaybackNPC(FullChunk chunk, CompoundTag nbt, Skin skin, String name, List<Player> viewers) {
         super(chunk, nbt);
         this.setSkin(skin);
         this.setNameTagVisible(true);
         this.setNameTagAlwaysVisible(true);
         this.getInventory().setHeldItemSlot(0);
+        this.setNameTag(name);
+        this.viewers = viewers;
     }
 
-    public PlaybackNPC(Location pos, Skin skin, String name){
+    public PlaybackNPC(Location pos, Skin skin, String name, List<Player> viewers){
         this(pos.getLevel().getChunk(pos.getFloorX() >> 4, pos.getFloorZ() >> 4),
                 new CompoundTag()
                         .putList(new ListTag<DoubleTag>("Pos")
@@ -39,10 +44,8 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
                         .putList(new ListTag<FloatTag>("Rotation")
                                         .add(new FloatTag("", (float)pos.yaw))
                                         .add(new FloatTag("", (float)pos.pitch))
-                        ), skin);
-        this.setNameTag(name);
+                        ), skin, name, viewers);
         this.saveNBT();
-        this.setSkin(skin);
     }
 
     @Override
@@ -52,7 +55,7 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
 
     @Override
     public void spawnTo(Player player) {
-        if(!this.hasSpawned.containsKey(player.getLoaderId())) {
+        if((this.viewers == null || this.viewers.contains(player)) && !this.hasSpawned.containsKey(player.getLoaderId())) {
             this.hasSpawned.put(player.getLoaderId(), player);
 
             if (!this.skin.isValid()) {

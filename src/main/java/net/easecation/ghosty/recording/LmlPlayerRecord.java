@@ -1,9 +1,12 @@
 package net.easecation.ghosty.recording;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.entity.data.Skin;
 import cn.nukkit.item.Item;
+import cn.nukkit.utils.BinaryStream;
 
+import java.io.*;
 import java.util.*;
 
 /**
@@ -15,10 +18,27 @@ class LmlPlayerRecord implements PlayerRecord {
 
     private List<RecordPair> rec = new LinkedList<>();
 
-    private Player player;
+    private String playerName;
+    private Skin skin;
 
-    LmlPlayerRecord(Player player) {
-        this.player = player;
+    public LmlPlayerRecord(BinaryStream stream) {
+        this.playerName = stream.getString();
+        this.skin = stream.getSkin();
+        int len = (int) stream.getUnsignedVarInt();
+        for (int i = 0; i < len; i++) {
+            RecordPair pair = new RecordPair(stream);
+            rec.add(pair);
+        }
+    }
+
+    public LmlPlayerRecord(Player player) {
+        this.skin = player.getSkin();
+        this.playerName = player.getName();
+    }
+
+    @Override
+    public String getPlayerName() {
+        return playerName;
     }
 
     @Override
@@ -44,18 +64,37 @@ class LmlPlayerRecord implements PlayerRecord {
         long lastFlags = last.getDataFlags(), flags = node.getDataFlags();
         if(lastFlags != flags)
             push(tick, UpdatedDataFlags.of(flags));
+        last = node;
     }
 
     private void push(long tick, Updated updated) {
         rec.add(new RecordPair(tick, updated));
     }
 
-    private class RecordPair{
+    private class RecordPair {
+
+        private RecordPair(BinaryStream stream) {
+            try {
+                this.tick = stream.getUnsignedVarInt();
+                this.updated = Updated.fromBinaryStream(stream);
+            } catch (Exception e) {
+                Server.getInstance().getLogger().logException(e);
+                throw e;
+            }
+        }
+
         private RecordPair(long tick, Updated updated) {
             this.tick = tick;
             this.updated = updated;
         }
+
         long tick; Updated updated;
+
+        private void write(BinaryStream stream) {
+            stream.putUnsignedVarInt((int) tick);
+            stream.putByte((byte) updated.getUpdateTypeId());
+            updated.write(stream);
+        }
     }
 
     @Override
@@ -66,13 +105,8 @@ class LmlPlayerRecord implements PlayerRecord {
     }
 
     @Override
-    public Player getPlayer() {
-        return player;
-    }
-
-    @Override
     public Skin getSkin() {
-        return player.getSkin();
+        return skin;
     }
 
     private static class LmlRecordIterator implements RecordIterator {
@@ -125,4 +159,16 @@ class LmlPlayerRecord implements PlayerRecord {
         }
     }
 
+    @Override
+    public byte[] toBinary() {
+        BinaryStream stream = new BinaryStream();
+        stream.putByte(PlayerRecord.OBJECT_LML);
+        stream.putString(this.playerName);
+        stream.putSkin(this.skin);
+        stream.putUnsignedVarInt(this.rec.size());
+        for (RecordPair pair : this.rec) {
+            pair.write(stream);
+        }
+        return stream.getBuffer();
+    }
 }

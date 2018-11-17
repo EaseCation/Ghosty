@@ -1,6 +1,7 @@
 package net.easecation.ghosty.recording;
 
 import cn.nukkit.level.Location;
+import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.entity.PlaybackNPC;
 
 /**
@@ -13,6 +14,11 @@ class UpdatedPositionXYZ implements Updated {
 
     static UpdatedPositionXYZ of(double x, double y, double z) {
         return new UpdatedPositionXYZ(x, y, z);
+    }
+
+    @Override
+    public int getUpdateTypeId() {
+        return Updated.TYPE_POSITION_XYZ;
     }
 
     @Override
@@ -32,6 +38,10 @@ class UpdatedPositionXYZ implements Updated {
         return node;
     }
 
+    public UpdatedPositionXYZ(BinaryStream stream) {
+        this.read(stream);
+    }
+
     private UpdatedPositionXYZ(double x, double y, double z) {
         this.x = x;
         this.y = y;
@@ -43,5 +53,19 @@ class UpdatedPositionXYZ implements Updated {
         if(!(obj instanceof UpdatedPositionXYZ)) return false;
         UpdatedPositionXYZ o = (UpdatedPositionXYZ) obj;
         return (x == o.x) && (y == o.y) && (z==o.z);
+    }
+
+    @Override
+    public void write(BinaryStream stream) {
+        stream.putFloat((float) this.x);
+        stream.putFloat((float) this.y);
+        stream.putFloat((float) this.z);
+    }
+
+    @Override
+    public void read(BinaryStream stream) {
+        this.x = stream.getFloat();
+        this.y = stream.getFloat();
+        this.z = stream.getFloat();
     }
 }

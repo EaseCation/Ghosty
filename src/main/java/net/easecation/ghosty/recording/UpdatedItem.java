@@ -1,7 +1,14 @@
 package net.easecation.ghosty.recording;
 
 import cn.nukkit.item.Item;
+import cn.nukkit.utils.Binary;
+import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.entity.PlaybackNPC;
+
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 /**
  * Created by Mulan Lin('Snake1999') on 2016/11/19 17:02.
@@ -16,6 +23,11 @@ class UpdatedItem implements Updated {
     }
 
     @Override
+    public int getUpdateTypeId() {
+        return Updated.TYPE_ITEM;
+    }
+
+    @Override
     public void processTo(PlaybackNPC ghost) {
         if (ghost != null && ghost.getInventory() != null) ghost.getInventory().setItemInHand(item == null ? Item.get(0) : item);
     }
@@ -24,6 +36,10 @@ class UpdatedItem implements Updated {
     public RecordNode applyTo(RecordNode node) {
         node.setItem(item);
         return node;
+    }
+
+    public UpdatedItem(BinaryStream stream) {
+        read(stream);
     }
 
     private UpdatedItem(Item item) {
@@ -35,5 +51,15 @@ class UpdatedItem implements Updated {
         if(!(obj instanceof UpdatedItem)) return false;
         UpdatedItem o = (UpdatedItem) obj;
         return (item.equals(o.item));
+    }
+
+    @Override
+    public void write(BinaryStream stream) {
+        stream.putSlot(this.item);
+    }
+
+    @Override
+    public void read(BinaryStream stream) {
+        this.item = stream.getSlot();
     }
 }

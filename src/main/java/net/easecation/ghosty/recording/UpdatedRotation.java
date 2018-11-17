@@ -1,6 +1,7 @@
 package net.easecation.ghosty.recording;
 
 import cn.nukkit.level.Location;
+import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.entity.PlaybackNPC;
 
 /**
@@ -30,6 +31,15 @@ class UpdatedRotation implements Updated {
         return new UpdatedRotation(yaw, pitch);
     }
 
+    @Override
+    public int getUpdateTypeId() {
+        return Updated.TYPE_ROTATION;
+    }
+
+    public UpdatedRotation(BinaryStream stream) {
+        this.read(stream);
+    }
+
     private UpdatedRotation(double yaw, double pitch) {
         this.yaw = yaw;
         this.pitch = pitch;
@@ -40,5 +50,17 @@ class UpdatedRotation implements Updated {
         if(!(obj instanceof UpdatedRotation)) return false;
         UpdatedRotation o = (UpdatedRotation) obj;
         return (yaw == o.yaw) && (pitch == o.pitch);
+    }
+
+    @Override
+    public void write(BinaryStream stream) {
+        stream.putFloat((float) this.yaw);
+        stream.putFloat((float) this.pitch);
+    }
+
+    @Override
+    public void read(BinaryStream stream) {
+        this.yaw = stream.getFloat();
+        this.pitch = stream.getFloat();
     }
 }

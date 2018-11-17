@@ -2,6 +2,7 @@ package net.easecation.ghosty.recording;
 
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.data.LongEntityData;
+import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.entity.PlaybackNPC;
 
 import java.util.Objects;
@@ -13,6 +14,11 @@ class UpdatedDataFlags implements Updated {
 
     static UpdatedDataFlags of(long flags) {
         return new UpdatedDataFlags(flags);
+    }
+
+    @Override
+    public int getUpdateTypeId() {
+        return Updated.TYPE_DATA_FLAGS;
     }
 
     private long flags;
@@ -28,6 +34,10 @@ class UpdatedDataFlags implements Updated {
         return node;
     }
 
+    public UpdatedDataFlags(BinaryStream stream) {
+        read(stream);
+    }
+
     private UpdatedDataFlags(long flags) {
         this.flags = flags;
     }
@@ -37,5 +47,15 @@ class UpdatedDataFlags implements Updated {
         if(!(obj instanceof UpdatedDataFlags)) return false;
         UpdatedDataFlags o = (UpdatedDataFlags) obj;
         return flags == o.flags;
+    }
+
+    @Override
+    public void write(BinaryStream stream) {
+        stream.putVarLong(this.flags);
+    }
+
+    @Override
+    public void read(BinaryStream stream) {
+        this.flags = stream.getVarLong();
     }
 }

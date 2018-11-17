@@ -3,12 +3,15 @@ package net.easecation.ghosty.recording;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.item.Item;
+import cn.nukkit.scheduler.TaskHandler;
 import net.easecation.ghosty.GhostyPlugin;
 
 public class RecordEngine {
 
-    private Player player;
+    private final Player player;
+    private final TaskHandler taskHandler;
 
+    private boolean unifySave = true;
     private int tick = 0;
     private boolean recording = true;
     private boolean stopped = false;
@@ -17,8 +20,19 @@ public class RecordEngine {
 
     public RecordEngine(Player player) {
         this.player = player;
-        this.record = new LmlPlayerRecord(player);//new BoybookPlayerRecord(Server.getInstance().getOfflinePlayer(player.getName()), player.getSkin());
+        this.record = new LmlPlayerRecord(player);
+        this.taskHandler = Server.getInstance().getScheduler().scheduleRepeatingTask(GhostyPlugin.getInstance(), this::onTick, 1);
         Server.getInstance().getLogger().warning(player.getName() + " Record started!");
+    }
+
+    /**
+     * 统一保存到本插件内存中
+     * @param unifySave 是否统一保存
+     * @return 本对象
+     */
+    public RecordEngine setUnifySave(boolean unifySave) {
+        this.unifySave = unifySave;
+        return this;
     }
 
     public boolean isRecording() {
@@ -40,10 +54,8 @@ public class RecordEngine {
     public void onTick() {
         if (this.isRecording()) {
             if (!this.player.isOnline()) {
-                GhostyPlugin.getInstance().getPlayerRecords().add(this.stopRecord());
+                stopRecord();
             }
-//          BoybookPlayerRecordTick tick = new BoybookPlayerRecordTick(this.getPlayer().getX(), this.getPlayer().getY(), this.getPlayer().getZ(), this.getPlayer().getYaw(), this.getPlayer().getPitch(), this.getPlayer().getLevel().getFolderName(), this.player.getNameTag(), this.player.getInventory() == null ? Item.get(0) : this.player.getInventory().getItemInHand());
-//          this.record.recordTick(this.tick, tick);
             this.record.record(this.tick, RecordNode.of(this.player));
         }
         this.tick++;
@@ -53,8 +65,8 @@ public class RecordEngine {
         this.setRecording(false);
         this.stopped = true;
         Server.getInstance().getLogger().warning(this.player.getName() + " Record stopped!");
-//      this.record.setMaxTick(this.tick);
-//      this.record.setStopTime(System.currentTimeMillis());
+        this.taskHandler.cancel();
+        if (unifySave) GhostyPlugin.getInstance().getPlayerRecords().add(this.record);
         return this.record;
     }
 
