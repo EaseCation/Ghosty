@@ -1,6 +1,7 @@
 package net.easecation.ghosty.recording;
 
 import cn.nukkit.level.Location;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.entity.PlaybackNPC;
 
@@ -46,6 +47,10 @@ class UpdatedPositionXYZ implements Updated {
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+
+    public Vector3 asVector3() {
+        return new Vector3(this.x, this.y, this.z);
     }
 
     @Override

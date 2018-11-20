@@ -4,15 +4,18 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.entity.data.Skin;
 import cn.nukkit.item.Item;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.BinaryStream;
+import net.easecation.ghosty.MathUtil;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Mulan Lin('Snake1999') on 2016/11/19 15:34.
  */
-class LmlPlayerRecord implements PlayerRecord {
+public class LmlPlayerRecord implements PlayerRecord {
 
     private RecordNode last = RecordNode.ZERO;
 
@@ -170,5 +173,38 @@ class LmlPlayerRecord implements PlayerRecord {
             pair.write(stream);
         }
         return stream.getBuffer();
+    }
+
+    public double getMaxMovement() {
+        Vector3 lastPos = null;
+        double maxMovement = 0;
+        for (RecordPair pair : this.rec.stream().filter(p -> p.updated instanceof UpdatedPositionXYZ).collect(Collectors.toList())) {
+            UpdatedPositionXYZ pos = (UpdatedPositionXYZ) pair.updated;
+            Vector3 newPos = pos.asVector3();
+            if (lastPos != null) {
+                double distance = newPos.distance(lastPos);
+                if (distance > maxMovement) maxMovement = distance;
+            }
+            lastPos = newPos;
+        }
+        return maxMovement;
+    }
+
+    public double calculateMovementVariance() {
+        Vector3 lastPos = null;
+
+        List<RecordPair> pairs = this.rec.stream().filter(p -> p.updated instanceof UpdatedPositionXYZ).collect(Collectors.toList());
+        if (pairs.size() <= 1) return 0;
+        double[] distances = new double[pairs.size() - 1];
+        for (int i = 0; i < pairs.size(); i++) {
+            RecordPair pair = pairs.get(i);
+            UpdatedPositionXYZ pos = (UpdatedPositionXYZ) pair.updated;
+            Vector3 newPos = pos.asVector3();
+            if (lastPos != null) {
+                distances[i - 1] = newPos.distance(lastPos);
+            }
+            lastPos = newPos;
+        }
+        return MathUtil.getVariance(distances);
     }
 }
