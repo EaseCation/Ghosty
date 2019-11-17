@@ -8,7 +8,6 @@ import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.MathUtil;
 
-import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,7 +25,7 @@ public class LmlPlayerRecord implements PlayerRecord {
 
     public LmlPlayerRecord(BinaryStream stream) {
         this.playerName = stream.getString();
-        this.skin = stream.getSkin();
+        this.skin = stream.getSkinLegacy();
         int len = (int) stream.getUnsignedVarInt();
         for (int i = 0; i < len; i++) {
             RecordPair pair = new RecordPair(stream);
@@ -167,7 +166,7 @@ public class LmlPlayerRecord implements PlayerRecord {
         BinaryStream stream = new BinaryStream();
         stream.putByte(PlayerRecord.OBJECT_LML);
         stream.putString(this.playerName);
-        stream.putSkin(this.skin);
+        stream.putSkinLegacy(this.skin);
         stream.putUnsignedVarInt(this.rec.size());
         for (RecordPair pair : this.rec) {
             pair.write(stream);
