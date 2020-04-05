@@ -25,7 +25,13 @@ public class LmlPlayerRecord implements PlayerRecord {
 
     public LmlPlayerRecord(BinaryStream stream) {
         this.playerName = stream.getString();
-        this.skin = stream.getSkinLegacy();
+        int offset = stream.getOffset();
+        try {
+            this.skin = stream.getSkinLegacy();
+        } catch (IllegalArgumentException e) {
+            stream.setOffset(offset);
+            this.skin = stream.getSkin();
+        }
         int len = (int) stream.getUnsignedVarInt();
         for (int i = 0; i < len; i++) {
             RecordPair pair = new RecordPair(stream);
@@ -166,7 +172,7 @@ public class LmlPlayerRecord implements PlayerRecord {
         BinaryStream stream = new BinaryStream();
         stream.putByte(PlayerRecord.OBJECT_LML);
         stream.putString(this.playerName);
-        stream.putSkinLegacy(this.skin);
+        stream.putSkin(this.skin);
         stream.putUnsignedVarInt(this.rec.size());
         for (RecordPair pair : this.rec) {
             pair.write(stream);
