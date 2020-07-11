@@ -1,14 +1,9 @@
 package net.easecation.ghosty.recording;
 
+import cn.nukkit.inventory.PlayerInventory;
 import cn.nukkit.item.Item;
-import cn.nukkit.utils.Binary;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.entity.PlaybackNPC;
-
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 
 /**
  * Created by Mulan Lin('Snake1999') on 2016/11/19 17:02.
@@ -29,7 +24,11 @@ class UpdatedItem implements Updated {
 
     @Override
     public void processTo(PlaybackNPC ghost) {
-        if (ghost != null && ghost.getInventory() != null) ghost.getInventory().setItemInHand(item == null ? Item.get(0) : item);
+        if (ghost != null && ghost.getInventory() != null) {
+            PlayerInventory inv = ghost.getInventory();
+            inv.setItemInHand(item == null ? Item.get(Item.AIR) : item);
+            inv.sendHeldItem(ghost.getViewers().values());
+        }
     }
 
     @Override
