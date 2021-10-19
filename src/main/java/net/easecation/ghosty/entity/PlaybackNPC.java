@@ -74,6 +74,7 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
             pk.speedY = (float) this.motionY;
             pk.speedZ = (float) this.motionZ;
             pk.yaw = (float) this.yaw;
+            pk.headYaw = (float) this.yaw;
             pk.pitch = (float) this.pitch;
             pk.item = this.getInventory().getItemInHand();
             pk.metadata = this.dataProperties;
