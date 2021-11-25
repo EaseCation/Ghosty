@@ -9,6 +9,7 @@ import cn.nukkit.utils.BinaryStream;
 public interface PlayerRecord {
 
     byte OBJECT_LML = 0;
+    byte OBJECT_SKINLESS = 1;
 
     void record(long tick, RecordNode node);
 
@@ -26,6 +27,8 @@ public interface PlayerRecord {
         switch (type) {
             case OBJECT_LML:
                 return new LmlPlayerRecord(stream);
+            case OBJECT_SKINLESS:
+                return new SkinlessPlayerRecord(stream);
         }
         return null;
     }

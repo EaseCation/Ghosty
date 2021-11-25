@@ -2,6 +2,7 @@ package net.easecation.ghosty.recording;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.entity.data.Skin;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.scheduler.TaskHandler;
@@ -48,6 +49,10 @@ public class PlaybackEngine {
         } else {
             this.stopPlayback();
         }
+    }
+
+    public void setSkin(Skin skin) {
+        if (npc != null) npc.setSkin(skin);
     }
 
     public PlaybackEngine setOnStopDo(Runnable onStopDo) {
