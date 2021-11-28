@@ -2,8 +2,8 @@ package net.easecation.ghosty.recording;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.item.Item;
 import cn.nukkit.scheduler.TaskHandler;
+import java.util.function.Function;
 import net.easecation.ghosty.GhostyPlugin;
 
 public class RecordEngine {
@@ -19,8 +19,12 @@ public class RecordEngine {
     private PlayerRecord record;
 
     public RecordEngine(Player player) {
+        this(player, LmlPlayerRecord::new);
+    }
+
+    public RecordEngine(Player player, Function<Player, PlayerRecord> recordFactory) {
         this.player = player;
-        this.record = new LmlPlayerRecord(player);
+        this.record = recordFactory.apply(player);
         this.taskHandler = Server.getInstance().getScheduler().scheduleRepeatingTask(GhostyPlugin.getInstance(), this::onTick, 1);
         Server.getInstance().getLogger().warning(player.getName() + " Record started!");
     }
