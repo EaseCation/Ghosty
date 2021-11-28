@@ -36,23 +36,23 @@ public class PlaybackEngine {
     }
 
     public PlaybackEngine(PlayerRecord record, Level level, List<Player> viewers) {
+        this(record, level, viewers, null);
+    }
+
+    public PlaybackEngine(PlayerRecord record, Level level, List<Player> viewers, Skin skin) {
         this.record = record;
         iterator = record.iterator();
         RecordNode tick0 = iterator.initialValue(this.tick);
         if (level == null) level = Server.getInstance().getLevelByName(tick0.getLevel());
         if (level != null) {
             Location loc = new Location(tick0.getX(), tick0.getY(), tick0.getZ(), tick0.getY(), tick0.getPitch(), level);
-            this.npc = new PlaybackNPC(loc, record.getSkin(), tick0.getTagName(), viewers);
+            this.npc = new PlaybackNPC(loc, skin != null ? skin : record.getSkin(), tick0.getTagName(), viewers);
             this.npc.spawnToAll();
             this.taskHandler = Server.getInstance().getScheduler().scheduleRepeatingTask(GhostyPlugin.getInstance(), this::onTick, 1);
             Server.getInstance().getLogger().debug(record.getPlayerName() + " PlayBack started!");
         } else {
             this.stopPlayback();
         }
-    }
-
-    public void setSkin(Skin skin) {
-        if (npc != null) npc.setSkin(skin);
     }
 
     public PlaybackEngine setOnStopDo(Runnable onStopDo) {

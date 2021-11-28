@@ -22,7 +22,7 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
 
     public PlaybackNPC(FullChunk chunk, CompoundTag nbt, Skin skin, String name, List<Player> viewers) {
         super(chunk, nbt);
-        this.setSkin(skin);
+        this.setSkin(skin == null ? defaultSkin : skin);
         this.setNameTagVisible(true);
         this.setNameTagAlwaysVisible(true);
         this.getInventory().setHeldItemSlot(0);
