@@ -21,9 +21,11 @@ public class SkinlessPlayerRecord implements PlayerRecord {
 
     private RecordNode last = RecordNode.ZERO;
 
-    private List<RecordPair> rec = new LinkedList<>();
+    private final List<RecordPair> rec = new LinkedList<>();
 
-    private String playerName;
+    private final String playerName;
+
+    private Skin tempSkin = null;
 
     public SkinlessPlayerRecord(BinaryStream stream) {
         this.playerName = stream.getString();
@@ -106,9 +108,17 @@ public class SkinlessPlayerRecord implements PlayerRecord {
         return recordIterator;
     }
 
+    /**
+     * 允许在外部临时设置皮肤（异步从别处设置皮肤）
+     * @param skin Skin
+     */
+    public void setSkin(Skin skin) {
+        this.tempSkin = skin;
+    }
+
     @Override
     public Skin getSkin() {
-        return null;
+        return this.tempSkin;
     }
 
     private static class LmlRecordIterator implements RecordIterator {
