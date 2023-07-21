@@ -83,7 +83,7 @@ public class LmlPlayerRecord implements PlayerRecord {
 
         private RecordPair(BinaryStream stream) {
             try {
-                this.tick = stream.getUnsignedVarInt();
+                this.tick = (int) stream.getUnsignedVarInt();
                 this.updated = Updated.fromBinaryStream(stream);
             } catch (Exception e) {
                 Server.getInstance().getLogger().logException(e);
