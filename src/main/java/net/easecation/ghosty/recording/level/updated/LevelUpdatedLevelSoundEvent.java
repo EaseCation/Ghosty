@@ -82,7 +82,7 @@ public class LevelUpdatedLevelSoundEvent implements LevelUpdated {
 
     @Override
     public void write(BinaryStream stream) {
-        stream.putByte((byte) sound);
+        stream.putUnsignedVarInt(sound);
         stream.putVector3f(x, y, z);
         stream.putVarInt(extraData);
         stream.putString(entityIdentifier);
@@ -92,7 +92,7 @@ public class LevelUpdatedLevelSoundEvent implements LevelUpdated {
 
     @Override
     public void read(BinaryStream stream) {
-        this.sound = stream.getByte();
+        this.sound = (int) stream.getUnsignedVarInt();
         Vector3f v = stream.getVector3f();
         this.x = v.x;
         this.y = v.y;
