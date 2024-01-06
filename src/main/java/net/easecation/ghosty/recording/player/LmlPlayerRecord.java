@@ -1,4 +1,4 @@
-package net.easecation.ghosty.recording;
+package net.easecation.ghosty.recording.player;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
@@ -7,6 +7,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.MathUtil;
+import net.easecation.ghosty.recording.player.updated.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
  */
 public class LmlPlayerRecord implements PlayerRecord {
 
-    private RecordNode last = RecordNode.ZERO;
+    private PlayerRecordNode last = PlayerRecordNode.ZERO;
 
     private List<RecordPair> rec = new LinkedList<>();
 
@@ -50,32 +51,32 @@ public class LmlPlayerRecord implements PlayerRecord {
     }
 
     @Override
-    public void record(long tick, RecordNode node) {
+    public void record(int tick, PlayerRecordNode node) {
         double lx = last.getX(), x = node.getX();
         double ly = last.getY(), y = node.getY();
         double lz = last.getZ(), z = node.getZ();
         if (lx != x || ly != y || lz != z)
-            push(tick, UpdatedPositionXYZ.of(x, y, z));
+            push(tick, PlayerUpdatedPositionXYZ.of(x, y, z));
         double la = last.getYaw(), a = node.getYaw();
         double lp = last.getPitch(), p = node.getPitch();
         if(la != a || lp != p)
-            push(tick, UpdatedRotation.of(a, p));
+            push(tick, PlayerUpdatedRotation.of(a, p));
         String ln = last.getTagName(), n = node.getTagName();
         if(!Objects.equals(ln, n))
-            push(tick, UpdatedTagName.of(n));
+            push(tick, PlayerUpdatedTagName.of(n));
         String lw = last.getLevel(), w = node.getLevel();
         if(!Objects.equals(lw, w))
-            push(tick, UpdatedWorld.of(w));
+            push(tick, PlayerUpdatedWorldChanged.of(w));
         Item li = last.getItem(), i = node.getItem();
         if(!Objects.equals(li, i))
-            push(tick, UpdatedItem.of(i));
+            push(tick, PlayerUpdatedItem.of(i));
         long lastFlags = last.getDataFlags(), flags = node.getDataFlags();
         if(lastFlags != flags)
-            push(tick, UpdatedDataFlags.of(flags));
+            push(tick, PlayerUpdatedDataFlags.of(flags));
         last = node;
     }
 
-    private void push(long tick, Updated updated) {
+    private void push(int tick, PlayerUpdated updated) {
         rec.add(new RecordPair(tick, updated));
     }
 
@@ -84,19 +85,19 @@ public class LmlPlayerRecord implements PlayerRecord {
         private RecordPair(BinaryStream stream) {
             try {
                 this.tick = (int) stream.getUnsignedVarInt();
-                this.updated = Updated.fromBinaryStream(stream);
+                this.updated = PlayerUpdated.fromBinaryStream(stream);
             } catch (Exception e) {
                 Server.getInstance().getLogger().logException(e);
                 throw e;
             }
         }
 
-        private RecordPair(long tick, Updated updated) {
+        private RecordPair(int tick, PlayerUpdated updated) {
             this.tick = tick;
             this.updated = updated;
         }
 
-        long tick; Updated updated;
+        int tick; PlayerUpdated updated;
 
         private void write(BinaryStream stream) {
             stream.putUnsignedVarInt((int) tick);
@@ -128,40 +129,40 @@ public class LmlPlayerRecord implements PlayerRecord {
         PriorityQueue<RecordPair> queue = new PriorityQueue<>(comparator);
 
         @Override
-        public RecordNode initialValue(long tick) {
-            RecordNode n = RecordNode.ZERO;
+        public PlayerRecordNode initialValue(int tick) {
+            PlayerRecordNode n = PlayerRecordNode.ZERO;
             if(queue.peek() == null) return n;
             while(!queue.isEmpty() && queue.peek().tick < tick) queue.poll();
             if(queue.peek() == null) return n;
             while(!queue.isEmpty() && queue.peek().tick == tick) {
-                Updated updated = queue.poll().updated;
+                PlayerUpdated updated = queue.poll().updated;
                 n = updated.applyTo(n);
             }
             return n;
         }
 
         @Override
-        public List<Updated> peek() {
-            List<Updated> ans = new LinkedList<>();
+        public List<PlayerUpdated> peek() {
+            List<PlayerUpdated> ans = new LinkedList<>();
             if(queue.isEmpty()) return ans;
             long tick = queue.peek().tick;
             while(!queue.isEmpty() && queue.peek().tick == tick) {
-                Updated u = queue.poll().updated;
+                PlayerUpdated u = queue.poll().updated;
                 ans.add(u);
             }
             return ans;
         }
 
         @Override
-        public long peekTick() {
+        public int peekTick() {
             if(queue.isEmpty()) return -1;
             return queue.peek().tick;
         }
 
         @Override
-        public long pollTick() {
+        public int pollTick() {
             if(queue.isEmpty()) return -1;
-            long tick = queue.peek().tick;
+            int tick = queue.peek().tick;
             while(!queue.isEmpty() && queue.peek().tick == tick) queue.poll();
             return tick;
         }
@@ -183,8 +184,8 @@ public class LmlPlayerRecord implements PlayerRecord {
     public double getMaxMovement() {
         Vector3 lastPos = null;
         double maxMovement = 0;
-        for (RecordPair pair : this.rec.stream().filter(p -> p.updated instanceof UpdatedPositionXYZ).collect(Collectors.toList())) {
-            UpdatedPositionXYZ pos = (UpdatedPositionXYZ) pair.updated;
+        for (RecordPair pair : this.rec.stream().filter(p -> p.updated instanceof PlayerUpdatedPositionXYZ).collect(Collectors.toList())) {
+            PlayerUpdatedPositionXYZ pos = (PlayerUpdatedPositionXYZ) pair.updated;
             Vector3 newPos = pos.asVector3();
             if (lastPos != null) {
                 double distance = newPos.distance(lastPos);
@@ -198,12 +199,12 @@ public class LmlPlayerRecord implements PlayerRecord {
     public double calculateMovementVariance() {
         Vector3 lastPos = null;
 
-        List<RecordPair> pairs = this.rec.stream().filter(p -> p.updated instanceof UpdatedPositionXYZ).collect(Collectors.toList());
+        List<RecordPair> pairs = this.rec.stream().filter(p -> p.updated instanceof PlayerUpdatedPositionXYZ).collect(Collectors.toList());
         if (pairs.size() <= 1) return 0;
         double[] distances = new double[pairs.size() - 1];
         for (int i = 0; i < pairs.size(); i++) {
             RecordPair pair = pairs.get(i);
-            UpdatedPositionXYZ pos = (UpdatedPositionXYZ) pair.updated;
+            PlayerUpdatedPositionXYZ pos = (PlayerUpdatedPositionXYZ) pair.updated;
             Vector3 newPos = pos.asVector3();
             if (lastPos != null) {
                 distances[i - 1] = newPos.distance(lastPos);

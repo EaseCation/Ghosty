@@ -1,24 +1,23 @@
-package net.easecation.ghosty.recording;
+package net.easecation.ghosty.recording.player.updated;
 
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.data.LongEntityData;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.entity.PlaybackNPC;
-
-import java.util.Objects;
+import net.easecation.ghosty.recording.player.PlayerRecordNode;
 
 /**
  * Created by Mulan Lin('Snake1999') on 2016/11/19 15:23.
  */
-class UpdatedDataFlags implements Updated {
+public class PlayerUpdatedDataFlags implements PlayerUpdated {
 
-    static UpdatedDataFlags of(long flags) {
-        return new UpdatedDataFlags(flags);
+    public static PlayerUpdatedDataFlags of(long flags) {
+        return new PlayerUpdatedDataFlags(flags);
     }
 
     @Override
     public int getUpdateTypeId() {
-        return Updated.TYPE_DATA_FLAGS;
+        return TYPE_DATA_FLAGS;
     }
 
     private long flags;
@@ -29,23 +28,22 @@ class UpdatedDataFlags implements Updated {
     }
 
     @Override
-    public RecordNode applyTo(RecordNode node) {
+    public PlayerRecordNode applyTo(PlayerRecordNode node) {
         node.setDataFlags(flags);
         return node;
     }
 
-    public UpdatedDataFlags(BinaryStream stream) {
+    public PlayerUpdatedDataFlags(BinaryStream stream) {
         read(stream);
     }
 
-    private UpdatedDataFlags(long flags) {
+    private PlayerUpdatedDataFlags(long flags) {
         this.flags = flags;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof UpdatedDataFlags)) return false;
-        UpdatedDataFlags o = (UpdatedDataFlags) obj;
+        if(!(obj instanceof PlayerUpdatedDataFlags o)) return false;
         return flags == o.flags;
     }
 
@@ -57,5 +55,12 @@ class UpdatedDataFlags implements Updated {
     @Override
     public void read(BinaryStream stream) {
         this.flags = stream.getVarLong();
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerUpdatedDataFlags{" +
+            "flags=" + flags +
+            '}';
     }
 }

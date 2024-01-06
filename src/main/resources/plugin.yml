@@ -9,3 +9,6 @@ load: STARTUP
 author: EaseCation Team
 description: Ghosty - Record player moves and playback when server is empty - like walking ghosts
 website: http://easecation.net
+
+depend:
+  - SynapseAPI

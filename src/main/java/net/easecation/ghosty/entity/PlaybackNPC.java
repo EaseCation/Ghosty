@@ -106,4 +106,8 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
         return super.getSkin() == null ? defaultSkin : super.getSkin();
     }
 
+    @Override
+    public void close() {
+        super.close();
+    }
 }

@@ -1,13 +1,14 @@
-package net.easecation.ghosty.recording;
+package net.easecation.ghosty.recording.player.updated;
 
 import cn.nukkit.level.Location;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.entity.PlaybackNPC;
+import net.easecation.ghosty.recording.player.PlayerRecordNode;
 
 /**
  * Created by Mulan Lin('Snake1999') on 2016/11/19 15:26.
  */
-class UpdatedRotation implements Updated {
+public class PlayerUpdatedRotation implements PlayerUpdated {
 
     private double yaw;
     private double pitch;
@@ -21,34 +22,33 @@ class UpdatedRotation implements Updated {
     }
 
     @Override
-    public RecordNode applyTo(RecordNode node) {
+    public PlayerRecordNode applyTo(PlayerRecordNode node) {
         node.setYaw(yaw);
         node.setPitch(pitch);
         return node;
     }
 
-    static UpdatedRotation of(double yaw, double pitch) {
-        return new UpdatedRotation(yaw, pitch);
+    public static PlayerUpdatedRotation of(double yaw, double pitch) {
+        return new PlayerUpdatedRotation(yaw, pitch);
     }
 
     @Override
     public int getUpdateTypeId() {
-        return Updated.TYPE_ROTATION;
+        return TYPE_ROTATION;
     }
 
-    public UpdatedRotation(BinaryStream stream) {
+    public PlayerUpdatedRotation(BinaryStream stream) {
         this.read(stream);
     }
 
-    private UpdatedRotation(double yaw, double pitch) {
+    private PlayerUpdatedRotation(double yaw, double pitch) {
         this.yaw = yaw;
         this.pitch = pitch;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof UpdatedRotation)) return false;
-        UpdatedRotation o = (UpdatedRotation) obj;
+        if(!(obj instanceof PlayerUpdatedRotation o)) return false;
         return (yaw == o.yaw) && (pitch == o.pitch);
     }
 
@@ -62,5 +62,13 @@ class UpdatedRotation implements Updated {
     public void read(BinaryStream stream) {
         this.yaw = stream.getFloat();
         this.pitch = stream.getFloat();
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerUpdatedRotation{" +
+            "yaw=" + yaw +
+            ", pitch=" + pitch +
+            '}';
     }
 }

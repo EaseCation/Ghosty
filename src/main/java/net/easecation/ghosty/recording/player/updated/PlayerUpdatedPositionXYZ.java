@@ -1,25 +1,26 @@
-package net.easecation.ghosty.recording;
+package net.easecation.ghosty.recording.player.updated;
 
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.entity.PlaybackNPC;
+import net.easecation.ghosty.recording.player.PlayerRecordNode;
 
 /**
  * Created by Mulan Lin('Snake1999') on 2016/11/19 15:22.
  */
-class UpdatedPositionXYZ implements Updated {
+public class PlayerUpdatedPositionXYZ implements PlayerUpdated {
     private double x;
     private double y;
     private double z;
 
-    static UpdatedPositionXYZ of(double x, double y, double z) {
-        return new UpdatedPositionXYZ(x, y, z);
+    public static PlayerUpdatedPositionXYZ of(double x, double y, double z) {
+        return new PlayerUpdatedPositionXYZ(x, y, z);
     }
 
     @Override
     public int getUpdateTypeId() {
-        return Updated.TYPE_POSITION_XYZ;
+        return PlayerUpdated.TYPE_POSITION_XYZ;
     }
 
     @Override
@@ -32,18 +33,18 @@ class UpdatedPositionXYZ implements Updated {
     }
 
     @Override
-    public RecordNode applyTo(RecordNode node) {
+    public PlayerRecordNode applyTo(PlayerRecordNode node) {
         node.setX(x);
         node.setY(y);
         node.setZ(z);
         return node;
     }
 
-    public UpdatedPositionXYZ(BinaryStream stream) {
+    public PlayerUpdatedPositionXYZ(BinaryStream stream) {
         this.read(stream);
     }
 
-    private UpdatedPositionXYZ(double x, double y, double z) {
+    private PlayerUpdatedPositionXYZ(double x, double y, double z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -55,8 +56,7 @@ class UpdatedPositionXYZ implements Updated {
 
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof UpdatedPositionXYZ)) return false;
-        UpdatedPositionXYZ o = (UpdatedPositionXYZ) obj;
+        if(!(obj instanceof PlayerUpdatedPositionXYZ o)) return false;
         return (x == o.x) && (y == o.y) && (z==o.z);
     }
 
@@ -72,5 +72,14 @@ class UpdatedPositionXYZ implements Updated {
         this.x = stream.getFloat();
         this.y = stream.getFloat();
         this.z = stream.getFloat();
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerUpdatedPositionXYZ{" +
+            "x=" + x +
+            ", y=" + y +
+            ", z=" + z +
+            '}';
     }
 }
