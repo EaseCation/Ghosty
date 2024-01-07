@@ -22,6 +22,7 @@ public interface PlayerUpdated {
     int TYPE_OFFHAND = 10;
     int TYPE_ANIMATE = 11;
     int TYPE_ENTITY_EVENT = 12;
+    int TYPE_TAKE_ITEM_ENTITY = 13;
 
     /**
      * @return the type id of this Updated. 更新类型的ID
@@ -73,6 +74,7 @@ public interface PlayerUpdated {
             case TYPE_ARMOR_2 -> new PlayerUpdatedArmor2(stream);
             case TYPE_ARMOR_3 -> new PlayerUpdatedArmor3(stream);
             case TYPE_OFFHAND -> new PlayerUpdatedOffhand(stream);
+            case TYPE_TAKE_ITEM_ENTITY -> new PlayerUpdatedTakeItemEntity(stream);
             default -> null;
         };
     }

@@ -74,12 +74,18 @@ public class GhostyPlugin extends PluginBase implements Listener {
 
     @EventHandler
     public void onEntitySpawn(EntitySpawnEvent event) {
-        event.getEntity().getLevel();
+        LevelRecordEngine levelRecordEngine = recordingLevelEngines.get(event.getEntity().getLevel());
+        if (levelRecordEngine != null) {
+            levelRecordEngine.onEntitySpawn(event.getEntity());
+        }
     }
 
     @EventHandler
     public void onEntityDespawn(EntityDespawnEvent event) {
-
+        LevelRecordEngine levelRecordEngine = recordingLevelEngines.get(event.getEntity().getLevel());
+        if (levelRecordEngine != null) {
+            levelRecordEngine.onEntityDespawn(event.getEntity());
+        }
     }
 
     @EventHandler

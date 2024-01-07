@@ -5,6 +5,7 @@ import cn.nukkit.Server;
 import cn.nukkit.network.protocol.AnimatePacket;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.EntityEventPacket;
+import cn.nukkit.network.protocol.TakeItemEntityPacket;
 import cn.nukkit.scheduler.TaskHandler;
 import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.recording.player.LmlPlayerRecord;
@@ -12,6 +13,9 @@ import net.easecation.ghosty.recording.player.PlayerRecord;
 import net.easecation.ghosty.recording.player.PlayerRecordNode;
 import net.easecation.ghosty.recording.player.updated.PlayerUpdated;
 import net.easecation.ghosty.recording.player.updated.PlayerUpdatedAnimate;
+import net.easecation.ghosty.recording.player.updated.PlayerUpdatedEntityEvent;
+import net.easecation.ghosty.recording.player.updated.PlayerUpdatedTakeItemEntity;
+import org.itxtech.synapseapi.SynapsePlayer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,12 +99,16 @@ public class PlayerRecordEngine {
 
     public void onPacketSendEvent(DataPacket packet) {
         if (packet instanceof AnimatePacket pk) {
-            if (pk.eid == this.player.getId()) {
+            if (pk.eid == this.player.getId() || pk.eid == SynapsePlayer.SYNAPSE_PLAYER_ENTITY_ID) {
                 this.extraUpdates.add(PlayerUpdatedAnimate.of(pk.action.getId(), pk.rowingTime));
             }
         } else if (packet instanceof EntityEventPacket pk) {
-            if (pk.eid == this.player.getId()) {
-                this.extraUpdates.add(PlayerUpdatedAnimate.of(pk.event, pk.data));
+            if (pk.eid == this.player.getId() || pk.eid == SynapsePlayer.SYNAPSE_PLAYER_ENTITY_ID) {
+                this.extraUpdates.add(PlayerUpdatedEntityEvent.of(pk.event, pk.data));
+            }
+        } else if (packet instanceof TakeItemEntityPacket pk) {
+            if (pk.entityId == this.player.getId() || pk.entityId == SynapsePlayer.SYNAPSE_PLAYER_ENTITY_ID) {
+                this.extraUpdates.add(PlayerUpdatedTakeItemEntity.of(pk.target));
             }
         }
     }

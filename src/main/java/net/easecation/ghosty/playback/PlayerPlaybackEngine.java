@@ -9,7 +9,7 @@ import cn.nukkit.scheduler.TaskHandler;
 import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.entity.PlaybackNPC;
 import net.easecation.ghosty.recording.player.PlayerRecord;
-import net.easecation.ghosty.recording.player.RecordIterator;
+import net.easecation.ghosty.RecordIterator;
 import net.easecation.ghosty.recording.player.PlayerRecordNode;
 import net.easecation.ghosty.recording.player.updated.PlayerUpdated;
 

@@ -1,7 +1,7 @@
 package net.easecation.ghosty.recording.level;
 
 import net.easecation.ghosty.recording.level.updated.LevelUpdated;
-import net.easecation.ghosty.recording.player.RecordIterator;
+import net.easecation.ghosty.RecordIterator;
 
 import java.util.*;
 

@@ -2,6 +2,7 @@ package net.easecation.ghosty.recording.player;
 
 import cn.nukkit.entity.data.Skin;
 import cn.nukkit.utils.BinaryStream;
+import net.easecation.ghosty.RecordIterator;
 import net.easecation.ghosty.recording.player.updated.PlayerUpdated;
 
 /**

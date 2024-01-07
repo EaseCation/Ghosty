@@ -9,6 +9,12 @@ public interface LevelUpdated {
     int TYPE_LEVEL_EVENT = 1;
     int TYPE_LEVEL_SOUND_EVENT = 2;
     int TYPE_PLAY_SOUND = 3;
+    int TYPE_TITLE = 4;
+    int TYPE_MESSAGE = 5;
+    int TYPE_ACTION_BAR = 6;
+    int TYPE_POPUP = 7;
+    int TYPE_BOSS_EVENT = 8;
+    int TYPE_SCOREBOARD_DISPLAY = 9;
 
     /**
      * @return the type id of this Updated.

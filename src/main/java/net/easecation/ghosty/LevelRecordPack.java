@@ -3,7 +3,10 @@ package net.easecation.ghosty;
 import cn.nukkit.level.Level;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.easecation.ghosty.playback.LevelPlaybackEngine;
+import net.easecation.ghosty.recording.entity.EntityRecord;
 import net.easecation.ghosty.recording.level.LevelRecord;
 import net.easecation.ghosty.recording.player.PlayerRecord;
 
@@ -18,15 +21,17 @@ public class LevelRecordPack {
 
     private final LevelRecord levelRecord;
     private final List<PlayerRecord> playerRecords;
+    private final Long2ObjectMap<EntityRecord> entityRecords;
     private final JsonObject metadata;  // 元数据，不参与任何的回放和录制逻辑，但是可以用于存储一些额外的信息，比如录制的地图名称，录制时间等
 
-    public LevelRecordPack(LevelRecord levelRecord, List<PlayerRecord> playerRecords) {
-        this(levelRecord, playerRecords, new JsonObject());
+    public LevelRecordPack(LevelRecord levelRecord, List<PlayerRecord> playerRecords, Long2ObjectMap<EntityRecord> entityRecords) {
+        this(levelRecord, playerRecords, entityRecords, new JsonObject());
     }
 
-    public LevelRecordPack(LevelRecord levelRecord, List<PlayerRecord> playerRecords, JsonObject metadata) {
+    public LevelRecordPack(LevelRecord levelRecord, List<PlayerRecord> playerRecords, Long2ObjectMap<EntityRecord> entityRecords, JsonObject metadata) {
         this.levelRecord = levelRecord;
         this.playerRecords = playerRecords;
+        this.entityRecords = entityRecords;
         this.metadata = metadata;
     }
 
@@ -40,6 +45,10 @@ public class LevelRecordPack {
 
     public List<PlayerRecord> getPlayerRecords() {
         return playerRecords;
+    }
+
+    public Long2ObjectMap<EntityRecord> getEntityRecords() {
+        return entityRecords;
     }
 
     /**
@@ -67,6 +76,15 @@ public class LevelRecordPack {
                 zos.write(playerRecord.toBinary());
                 zos.closeEntry();
             }
+
+            // Pack entity records
+            for (Long2ObjectMap.Entry<EntityRecord> entry : entityRecords.long2ObjectEntrySet()) {
+                EntityRecord entityRecord = entry.getValue();
+                ZipEntry entityEntry = new ZipEntry("entity/entity_record_" + entry.getLongKey() + ".bin");
+                zos.putNextEntry(entityEntry);
+                zos.write(entityRecord.toBinary());
+                zos.closeEntry();
+            }
             
             // Metadata
             ZipEntry metadataEntry = new ZipEntry("metadata.json");
@@ -86,6 +104,7 @@ public class LevelRecordPack {
     public static LevelRecordPack fromZip(File zipFile) throws IOException {
         LevelRecord levelRecord = null;
         List<PlayerRecord> playerRecords = new ArrayList<>();
+        Long2ObjectMap<EntityRecord> entityRecords = new Long2ObjectOpenHashMap<>();
         JsonObject metadata = null;
 
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) {
@@ -96,6 +115,9 @@ public class LevelRecordPack {
                     levelRecord = LevelRecord.fromBinary(zis.readAllBytes());
                 } else if (entry.getName().startsWith("player/")) {
                     playerRecords.add(PlayerRecord.fromBinary(zis.readAllBytes()));
+                } else if (entry.getName().startsWith("entity/")) {
+                    EntityRecord entityRecord = EntityRecord.fromBinary(zis.readAllBytes());
+                    entityRecords.put(entityRecord.getEntityId(), entityRecord);
                 } else if (entry.getName().equals("metadata.json")) {
                     metadata = new Gson().fromJson(new InputStreamReader(zis), JsonObject.class);
                 }
@@ -110,11 +132,11 @@ public class LevelRecordPack {
             metadata = new JsonObject();
         }
 
-        return new LevelRecordPack(levelRecord, playerRecords, metadata);
+        return new LevelRecordPack(levelRecord, playerRecords, entityRecords, metadata);
     }
 
     public LevelPlaybackEngine createPlayback(Level level) {
-        return new LevelPlaybackEngine(levelRecord, level, playerRecords);
+        return new LevelPlaybackEngine(levelRecord, level, playerRecords, entityRecords);
     }
 
 }

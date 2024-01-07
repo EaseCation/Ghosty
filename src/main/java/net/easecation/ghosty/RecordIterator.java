@@ -1,4 +1,4 @@
-package net.easecation.ghosty.recording.player;
+package net.easecation.ghosty;
 
 import java.util.List;
 

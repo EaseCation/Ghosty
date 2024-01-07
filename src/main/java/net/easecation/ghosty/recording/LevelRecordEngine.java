@@ -4,12 +4,20 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityID;
 import cn.nukkit.level.Level;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.scheduler.TaskHandler;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongArraySet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.LevelRecordPack;
+import net.easecation.ghosty.recording.entity.EntityRecord;
+import net.easecation.ghosty.recording.entity.EntityRecordImpl;
+import net.easecation.ghosty.recording.entity.EntityRecordNode;
 import net.easecation.ghosty.recording.level.LevelRecord;
 import net.easecation.ghosty.recording.level.LevelRecordImpl;
 import net.easecation.ghosty.recording.level.LevelRecordNode;
@@ -31,6 +39,9 @@ public class LevelRecordEngine {
     private final List<PlayerRecord> playerRecords = new ArrayList<>();
     private final LevelRecord levelRecord;
     private final LevelRecordNode levelRecordNode;
+    private final Long2ObjectMap<EntityRecord> entityRecords = new Long2ObjectOpenHashMap<>();
+    private final LongSet closedEntityIds = new LongArraySet();
+
     private final TaskHandler taskHandler;
     private final int callbackIdBlockSet;
     private final int callbackIdChunkPacketSend;
@@ -41,8 +52,25 @@ public class LevelRecordEngine {
         this.levelRecordNode = new LevelRecordNode();
         this.callbackIdBlockSet = level.addCallbackBlockSet(this::onLevelBlockSet);
         this.callbackIdChunkPacketSend = level.addCallbackChunkPacketSend(this::onLevelChunkPacketSend);
+        // 初始化实体录制
+        for (Entity entity : level.getEntities()) {
+            this.onEntitySpawn(entity);
+        }
         this.taskHandler = Server.getInstance().getScheduler().scheduleRepeatingTask(GhostyPlugin.getInstance(), this::onTick, 1);
         GhostyPlugin.getInstance().recordingLevelEngines.put(level, this);
+    }
+
+    public boolean isEntityNeedRecord(Entity entity) {
+        return entity.getNetworkId() == EntityID.ITEM
+            || entity.getNetworkId() == EntityID.ARMOR_STAND
+            || entity.getNetworkId() == EntityID.SNOWBALL
+            || entity.getNetworkId() == EntityID.ARROW
+            || entity.getNetworkId() == EntityID.EGG
+            || entity.getNetworkId() == EntityID.FIREBALL
+            || entity.getNetworkId() == EntityID.DRAGON_FIREBALL
+            || entity.getNetworkId() == EntityID.SMALL_FIREBALL
+            || entity.getNetworkId() == EntityID.TNT
+            || entity.getNetworkId() == EntityID.MINECART;
     }
 
     public void addPlayer(Player player) {
@@ -83,6 +111,17 @@ public class LevelRecordEngine {
         playerRecordEngines.entrySet().removeIf(e -> e.getValue().isStopped());
         // Level录制器
         this.levelRecord.record(this.tick, this.levelRecordNode);
+        // Entity录制器
+        this.entityRecords.forEach((eid, record) -> {
+            Entity entity = this.level.getEntity(eid);
+            if (entity != null) {
+                EntityRecordNode node = EntityRecordNode.of(entity);
+                record.record(this.tick, node);
+            } else if (!this.closedEntityIds.contains((long) eid)) {
+                record.recordClose(this.tick);
+                this.closedEntityIds.add((long) eid);
+            }
+        });
         this.tick++;
     }
 
@@ -99,7 +138,7 @@ public class LevelRecordEngine {
     }
 
     public LevelRecordPack toRecordPack() {
-        return new LevelRecordPack(this.levelRecord, this.playerRecords);
+        return new LevelRecordPack(this.levelRecord, this.playerRecords, this.entityRecords);
     }
 
     public Level getLevel() {
@@ -160,14 +199,24 @@ public class LevelRecordEngine {
         if (!this.recording) {
             return;
         }
-        this.levelRecordNode.handleEntitySpawn(entity);
+        if (isEntityNeedRecord(entity)) {
+            EntityRecordNode entityRecordNode = EntityRecordNode.of(entity);
+            EntityRecordImpl entityRecord = new EntityRecordImpl(entity);
+            entityRecord.record(this.tick, entityRecordNode);
+            entityRecords.put(entity.getId(), entityRecord);
+        }
     }
 
     public void onEntityDespawn(Entity entity) {
         if (!this.recording) {
             return;
         }
-        this.levelRecordNode.handleEntityDespawn(entity);
+
+        EntityRecord record = this.entityRecords.get(entity.getId());
+        if (record != null) {
+            record.recordClose(this.tick);
+        }
+        this.closedEntityIds.add(entity.getId());
     }
 
 }

@@ -7,6 +7,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.MathUtil;
+import net.easecation.ghosty.RecordIterator;
 import net.easecation.ghosty.recording.player.updated.*;
 
 import java.util.*;

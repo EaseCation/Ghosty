@@ -3,7 +3,7 @@ package net.easecation.ghosty.recording.level;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.recording.level.updated.LevelUpdated;
-import net.easecation.ghosty.recording.player.RecordIterator;
+import net.easecation.ghosty.RecordIterator;
 
 import java.util.LinkedList;
 import java.util.List;

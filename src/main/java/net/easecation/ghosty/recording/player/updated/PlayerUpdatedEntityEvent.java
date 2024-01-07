@@ -17,7 +17,7 @@ public class PlayerUpdatedEntityEvent implements PlayerUpdated {
 
     @Override
     public int getUpdateTypeId() {
-        return PlayerUpdated.TYPE_ANIMATE;
+        return PlayerUpdated.TYPE_ENTITY_EVENT;
     }
 
     @Override
