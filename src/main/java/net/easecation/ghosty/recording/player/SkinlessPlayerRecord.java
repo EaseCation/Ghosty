@@ -8,6 +8,7 @@ import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.MathUtil;
+import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.RecordIterator;
 import net.easecation.ghosty.recording.player.updated.*;
 
@@ -138,9 +139,9 @@ public class SkinlessPlayerRecord implements PlayerRecord {
     }
 
     @Override
-    public RecordIterator<PlayerRecordNode, PlayerUpdated> iterator() {
-        LmlRecordIterator recordIterator = new LmlRecordIterator();
-        rec.forEach((e) -> recordIterator.queue.offer(e));
+    public PlaybackIterator<PlayerUpdated> iterator() {
+        PlaybackIterator<PlayerUpdated> recordIterator = new PlaybackIterator<>();
+        rec.forEach(e -> recordIterator.insert(e.tick, e.updated));
         return recordIterator;
     }
 

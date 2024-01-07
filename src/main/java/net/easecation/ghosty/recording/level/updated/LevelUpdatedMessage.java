@@ -34,6 +34,10 @@ public class LevelUpdatedMessage implements LevelUpdated {
         });
     }
 
+    public void backwardTo(LevelRecordNode node) {
+        // 不需要做任何事
+    }
+
     @Override
     public void write(BinaryStream stream) {
         stream.putString(message);

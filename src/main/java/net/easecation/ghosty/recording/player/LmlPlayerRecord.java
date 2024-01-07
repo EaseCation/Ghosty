@@ -7,6 +7,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.MathUtil;
+import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.RecordIterator;
 import net.easecation.ghosty.recording.player.updated.*;
 
@@ -108,10 +109,10 @@ public class LmlPlayerRecord implements PlayerRecord {
     }
 
     @Override
-    public RecordIterator iterator() {
-        LmlRecordIterator recordIterator = new LmlRecordIterator();
-        rec.forEach((e) -> recordIterator.queue.offer(e));
-        return recordIterator;
+    public PlaybackIterator<PlayerUpdated> iterator() {
+        PlaybackIterator<PlayerUpdated> iterator = new PlaybackIterator<>();
+        rec.forEach((e) -> iterator.insert(e.tick, e.updated));
+        return iterator;
     }
 
     @Override

@@ -28,6 +28,8 @@ public interface LevelUpdated {
      */
     void processTo(LevelRecordNode node);
 
+    void backwardTo(LevelRecordNode node);
+
     /**
      * Write to the stream.
      * @param stream BinaryStream

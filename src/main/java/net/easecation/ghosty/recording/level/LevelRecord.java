@@ -1,8 +1,8 @@
 package net.easecation.ghosty.recording.level;
 
 import cn.nukkit.utils.BinaryStream;
+import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.recording.level.updated.LevelUpdated;
-import net.easecation.ghosty.RecordIterator;
 
 public interface LevelRecord {
 
@@ -10,7 +10,7 @@ public interface LevelRecord {
 
     void record(int tick, LevelRecordNode node);
 
-    RecordIterator<LevelRecordNode, LevelUpdated> iterator();
+    PlaybackIterator<LevelUpdated> iterator();
 
     byte[] toBinary();
 

@@ -46,6 +46,10 @@ public class LevelUpdatedBlockEvent implements LevelUpdated {
         node.handleLevelChunkPacket(Level.chunkHash(x >> 4, z >> 4), packet);
     }
 
+    public void backwardTo(LevelRecordNode node) {
+        // 不需要做任何事
+    }
+
     @Override
     public void write(BinaryStream stream) {
         stream.putBlockVector3(this.x, this.y, this.z);

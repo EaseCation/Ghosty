@@ -60,7 +60,11 @@ public final class PlayerRecordNode implements Serializable {
         );
     }
 
-    static PlayerRecordNode ZERO = new PlayerRecordNode(0,0,0,0,0,"","",null,0, null, null, null, null, null);
+    static PlayerRecordNode ZERO = createZero();
+
+    public static PlayerRecordNode createZero() {
+        return new PlayerRecordNode(0,0,0,0,0,"","",null,0, null, null, null, null, null);
+    }
 
     @Override
     public boolean equals(Object obj) {

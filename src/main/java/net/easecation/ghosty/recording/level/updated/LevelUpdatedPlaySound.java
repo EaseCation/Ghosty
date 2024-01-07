@@ -49,6 +49,10 @@ public class LevelUpdatedPlaySound implements LevelUpdated {
         node.handleLevelChunkPacket(Level.chunkHash(this.x >> 4, this.z >> 4), packet);
     }
 
+    public void backwardTo(LevelRecordNode node) {
+        // 不需要做任何事
+    }
+
     @Override
     public void write(BinaryStream stream) {
         stream.putString(name);

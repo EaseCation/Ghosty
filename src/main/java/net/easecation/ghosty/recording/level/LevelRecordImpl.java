@@ -2,8 +2,8 @@ package net.easecation.ghosty.recording.level;
 
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.GhostyPlugin;
+import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.recording.level.updated.LevelUpdated;
-import net.easecation.ghosty.RecordIterator;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -42,11 +42,11 @@ public class LevelRecordImpl implements LevelRecord {
     }
 
     @Override
-    public RecordIterator<LevelRecordNode, LevelUpdated> iterator() {
-        LevelRecordIterator iterator = new LevelRecordIterator();
+    public PlaybackIterator<LevelUpdated> iterator() {
+        PlaybackIterator<LevelUpdated> iterator = new PlaybackIterator<>();
         rec.forEach((e) -> {
             // GhostyPlugin.getInstance().getLogger().debug("queue: " + e.tick + " -> " + e.updated);
-            iterator.queue.offer(e);
+            iterator.insert(e.tick, e.updated);
         });
         return iterator;
     }

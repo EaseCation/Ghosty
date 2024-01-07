@@ -33,6 +33,10 @@ public class LevelUpdatedBlockChange implements LevelUpdated {
         node.handleBlockChange(pos, block);
     }
 
+    public void backwardTo(LevelRecordNode node) {
+        // TODO 回退方块变更
+    }
+
     @Override
     public void write(BinaryStream stream) {
         stream.putBlockVector3(pos);

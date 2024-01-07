@@ -56,7 +56,7 @@ public final class EntityRecordNode implements Serializable {
 
     static EntityRecordNode ZERO = createZero();
 
-    static EntityRecordNode createZero() {
+    public static EntityRecordNode createZero() {
         return new EntityRecordNode(0,0,0,0, 0,"","",null,0,1,false,0, 0, 0,0);
     }
 

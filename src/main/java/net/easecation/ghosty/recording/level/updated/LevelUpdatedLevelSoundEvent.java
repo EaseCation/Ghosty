@@ -80,6 +80,10 @@ public class LevelUpdatedLevelSoundEvent implements LevelUpdated {
         node.handleLevelChunkPacket(Level.chunkHash((int) x >> 4, (int) z >> 4), packet);
     }
 
+    public void backwardTo(LevelRecordNode node) {
+        // 不需要做任何事
+    }
+
     @Override
     public void write(BinaryStream stream) {
         stream.putUnsignedVarInt(sound);

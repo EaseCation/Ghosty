@@ -1,7 +1,7 @@
 package net.easecation.ghosty.recording.entity;
 
 import cn.nukkit.utils.BinaryStream;
-import net.easecation.ghosty.RecordIterator;
+import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.recording.entity.updated.EntityUpdated;
 
 /**
@@ -20,7 +20,7 @@ public interface EntityRecord {
 
     void recordClose(int tick);
 
-    RecordIterator<EntityRecordNode, EntityUpdated> iterator();
+    PlaybackIterator<EntityUpdated> iterator();
 
     long getEntityId();
 

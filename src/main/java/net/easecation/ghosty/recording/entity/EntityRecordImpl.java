@@ -5,6 +5,7 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.item.Item;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.GhostyPlugin;
+import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.RecordIterator;
 import net.easecation.ghosty.recording.entity.updated.*;
 
@@ -158,9 +159,9 @@ public class EntityRecordImpl implements EntityRecord {
     }
 
     @Override
-    public RecordIterator<EntityRecordNode, EntityUpdated> iterator() {
-        EntityRecordIterator recordIterator = new EntityRecordIterator();
-        rec.forEach((e) -> recordIterator.queue.offer(e));
+    public PlaybackIterator<EntityUpdated> iterator() {
+        PlaybackIterator<EntityUpdated> recordIterator = new PlaybackIterator<>();
+        rec.forEach(e -> recordIterator.insert(e.tick, e.updated));
         return recordIterator;
     }
 

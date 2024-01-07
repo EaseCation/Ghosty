@@ -2,7 +2,7 @@ package net.easecation.ghosty.recording.player;
 
 import cn.nukkit.entity.data.Skin;
 import cn.nukkit.utils.BinaryStream;
-import net.easecation.ghosty.RecordIterator;
+import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.recording.player.updated.PlayerUpdated;
 
 /**
@@ -20,7 +20,7 @@ public interface PlayerRecord {
 
     void record(int tick, PlayerRecordNode node);
 
-    RecordIterator<PlayerRecordNode, PlayerUpdated> iterator();
+    PlaybackIterator<PlayerUpdated> iterator();
 
     String getPlayerName();
 
