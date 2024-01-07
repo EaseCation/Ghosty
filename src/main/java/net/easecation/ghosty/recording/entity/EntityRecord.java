@@ -26,6 +26,12 @@ public interface EntityRecord {
 
     int getNetworkId();
 
+    /**
+     * 如果是自定义实体（networkId为0），则需要返回自定义实体的类型标识符。否则返回空字符串
+     * @return 自定义实体的类型标识符
+     */
+    String getEntityIdentifier();
+
     byte[] toBinary();
 
     static EntityRecord fromBinary(byte[] data) {

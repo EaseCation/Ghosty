@@ -29,7 +29,7 @@ public class EntityUpdatedScoreTag implements EntityUpdated {
 
     @Override
     public EntityRecordNode applyTo(EntityRecordNode node) {
-        node.setTagName(tn);
+        node.setScoreTag(tn);
         return node;
     }
 

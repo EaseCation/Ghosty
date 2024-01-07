@@ -1,6 +1,7 @@
 package net.easecation.ghosty.recording.entity;
 
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.entity.item.EntityItem;
 import cn.nukkit.item.Item;
 
@@ -22,11 +23,17 @@ public final class EntityRecordNode implements Serializable {
     private long dataFlags;
     private float scale;
     private boolean nameTagAlwaysVisible;
+    private int skinId;
+    private int npcSkinId;
+    private int varint;
+    private int markVariant;
 
     public static EntityRecordNode of(Entity entity) {
         Item item = null;
         if (entity instanceof EntityItem entityItem) {
             item = entityItem.getItem();
+        } else if (entity instanceof EntityHuman) {
+            item = ((EntityHuman) entity).getInventory().getItemInHand();
         }
         return new EntityRecordNode(
             entity.getX(),
@@ -39,11 +46,19 @@ public final class EntityRecordNode implements Serializable {
             item,
             entity.getDataPropertyLong(Entity.DATA_FLAGS),
             entity.getScale(),
-            entity.isNameTagAlwaysVisible()
+            entity.isNameTagAlwaysVisible(),
+            entity.getDataPropertyInt(Entity.DATA_SKIN_ID),
+            entity.getDataPropertyInt(Entity.DATA_NPC_SKIN_ID),
+            entity.getDataPropertyInt(Entity.DATA_VARIANT),
+            entity.getDataPropertyInt(Entity.DATA_MARK_VARIANT)
         );
     }
 
-    static EntityRecordNode ZERO = new EntityRecordNode(0,0,0,0, 0,"","",null,0,0, false);
+    static EntityRecordNode ZERO = createZero();
+
+    static EntityRecordNode createZero() {
+        return new EntityRecordNode(0,0,0,0, 0,"","",null,0,1,false,0, 0, 0,0);
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -62,7 +77,10 @@ public final class EntityRecordNode implements Serializable {
         return false;
     }
 
-    private EntityRecordNode(double x, double y, double z, double yaw, double pitch, String tagName, String scoreTag, Item item, long dataFlags, float scale, boolean nameTagAlwaysVisible) {
+    private EntityRecordNode(double x, double y, double z, double yaw, double pitch,
+                             String tagName, String scoreTag, Item item,
+                             long dataFlags, float scale, boolean nameTagAlwaysVisible,
+                             int skinId, int npcSkinId, int varint, int markVariant) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -74,6 +92,10 @@ public final class EntityRecordNode implements Serializable {
         this.dataFlags = dataFlags;
         this.scale = scale;
         this.nameTagAlwaysVisible = nameTagAlwaysVisible;
+        this.skinId = skinId;
+        this.npcSkinId = npcSkinId;
+        this.varint = varint;
+        this.markVariant = markVariant;
     }
 
     public double getX() {
@@ -164,4 +186,35 @@ public final class EntityRecordNode implements Serializable {
         this.nameTagAlwaysVisible = nameTagAlwaysVisible;
     }
 
+    public int getSkinId() {
+        return skinId;
+    }
+
+    public void setSkinId(int skinId) {
+        this.skinId = skinId;
+    }
+
+    public int getNpcSkinId() {
+        return npcSkinId;
+    }
+
+    public void setNpcSkinId(int npcSkinId) {
+        this.npcSkinId = npcSkinId;
+    }
+
+    public int getVarint() {
+        return varint;
+    }
+
+    public void setVarint(int varint) {
+        this.varint = varint;
+    }
+
+    public int getMarkVariant() {
+        return markVariant;
+    }
+
+    public void setMarkVariant(int markVariant) {
+        this.markVariant = markVariant;
+    }
 }

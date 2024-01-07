@@ -18,6 +18,10 @@ public interface EntityUpdated {
     int TYPE_SCALE = 6;
     int TYPE_CLOSE = 7;
     int TYPE_NAMETAG_ALWAYS_VISIBLE = 8;
+    int TYPE_SKIN_ID = 9;
+    int TYPE_NPC_SKIN_ID = 10;
+    int TYPE_VARIANT = 11;
+    int TYPE_MARK_VARIANT = 12;
 
     /**
      * @return the type id of this Updated. 更新类型的ID
@@ -65,6 +69,10 @@ public interface EntityUpdated {
             case TYPE_SCALE -> new EntityUpdatedScale(stream);
             case TYPE_CLOSE -> new EntityUpdatedClose(stream);
             case TYPE_NAMETAG_ALWAYS_VISIBLE -> new EntityUpdatedNameTagAlwaysVisible(stream);
+            case TYPE_SKIN_ID -> new EntityUpdatedSkinId(stream);
+            case TYPE_NPC_SKIN_ID -> new EntityUpdatedNPCSkinId(stream);
+            case TYPE_VARIANT -> new EntityUpdatedVariant(stream);
+            case TYPE_MARK_VARIANT -> new EntityUpdatedMarkVariant(stream);
             default -> null;
         };
     }

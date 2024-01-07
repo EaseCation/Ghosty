@@ -3,10 +3,7 @@ package net.easecation.ghosty.recording.level;
 import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.BlockVector3;
-import cn.nukkit.network.protocol.DataPacket;
-import cn.nukkit.network.protocol.LevelEventPacket;
-import cn.nukkit.network.protocol.LevelSoundEventPacket;
-import cn.nukkit.network.protocol.PlaySoundPacket;
+import cn.nukkit.network.protocol.*;
 import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -26,15 +23,26 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public final class LevelRecordNode {
 
     private final Map<BlockVector3, Block> blockChanges = new HashMap<>();
     private final Long2ObjectMap<List<DataPacket>> levelChunkPackets = new Long2ObjectOpenHashMap<>();
+    /**
+     * 在回放时的level回调，用于一些特殊的updates（例如title等），只用于回放
+     */
+    private final List<Consumer<Level>> levelGlobalCallback = new ArrayList<>();
+    /**
+     * 来自外部的直接添加的Updates，只用于录制
+     */
+    private final List<LevelUpdated> extraRecordUpdates = new ArrayList<>();
 
     public void clear() {
         blockChanges.clear();
         levelChunkPackets.clear();
+        levelGlobalCallback.clear();
+        extraRecordUpdates.clear();
     }
 
     public List<LevelUpdated> toUpdated() {
@@ -44,8 +52,12 @@ public final class LevelRecordNode {
         }
         for (Map.Entry<Long, List<DataPacket>> entry : levelChunkPackets.long2ObjectEntrySet()) {
             for (DataPacket packet : entry.getValue()) {
+                // BlockEventPacket
+                if (packet instanceof BlockEventPacket pk) {
+                    list.add(LevelUpdatedBlockEvent.of(pk));
+                }
                 // LevelEventPacket
-                if (packet instanceof LevelEventPacket pk) {
+                else if (packet instanceof LevelEventPacket pk) {
                     list.add(LevelUpdatedLevelEvent.of(pk));
                 } else if (packet instanceof LevelEventPacket14 pk) {
                     list.add(LevelUpdatedLevelEvent.of(pk));
@@ -76,6 +88,7 @@ public final class LevelRecordNode {
                 }
             }
         }
+        list.addAll(extraRecordUpdates);
         return list;
     }
 
@@ -90,6 +103,9 @@ public final class LevelRecordNode {
                 level.addChunkPacket(chunkX, chunkZ, pk);
             }
         }
+        for (Consumer<Level> consumer : levelGlobalCallback) {
+            consumer.accept(level);
+        }
     }
 
     public void handleBlockChange(BlockVector3 pos, Block block) {
@@ -101,6 +117,14 @@ public final class LevelRecordNode {
 
     public void handleLevelChunkPacket(long chunkIndex, DataPacket pk) {
         levelChunkPackets.computeIfAbsent(chunkIndex, CHUNK_PACKET_MAPPING_FUNCTION).add(pk);
+    }
+
+    public void offerLevelGlobalCallback(Consumer<Level> callback) {
+        levelGlobalCallback.add(callback);
+    }
+
+    public void offerExtraRecordUpdate(LevelUpdated update) {
+        extraRecordUpdates.add(update);
     }
 
 }

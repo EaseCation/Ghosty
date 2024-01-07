@@ -2,6 +2,7 @@ package net.easecation.ghosty.playback;
 
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.data.IntEntityData;
 import cn.nukkit.entity.data.LongEntityData;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
@@ -108,7 +109,6 @@ public class LevelPlaybackEngine {
     public void onTick() {
         if (this.isPlaying()) {
             int now = iterator.peekTick();
-            GhostyPlugin.getInstance().getLogger().debug("pickTick: " + now + " current: " + this.tick);
             if (now == -1) {
                 this.stopPlayback();
                 return;
@@ -148,12 +148,17 @@ public class LevelPlaybackEngine {
                         if (rec != null) {
                             EntityRecordNode init = iterator.initialValue(this.tick);
                             Location loc = new Location(init.getX(), init.getY(), init.getZ(), init.getYaw(), init.getPitch(), this.level);
-                            entity = new SimulatedEntity(loc.getChunk(), Entity.getDefaultNBT(loc), rec.getNetworkId(), eid);
+                            entity = new SimulatedEntity(loc.getChunk(), Entity.getDefaultNBT(loc), rec.getNetworkId(), rec.getEntityIdentifier(), eid);
                             entity.setScale(init.getScale());
                             entity.setNameTag(init.getTagName());
                             entity.setScoreTag(init.getScoreTag());
                             entity.setDataProperty(new LongEntityData(Entity.DATA_FLAGS, init.getDataFlags()));
                             entity.item = init.getItem();
+                            entity.setNameTagAlwaysVisible(init.isNameTagAlwaysVisible());
+                            entity.setDataProperty(new IntEntityData(Entity.DATA_SKIN_ID, init.getSkinId()));
+                            entity.setDataProperty(new IntEntityData(Entity.DATA_NPC_SKIN_ID, init.getNpcSkinId()));
+                            entity.setDataProperty(new IntEntityData(Entity.DATA_VARIANT, init.getVarint()));
+                            entity.setDataProperty(new IntEntityData(Entity.DATA_MARK_VARIANT, init.getMarkVariant()));
                             entity.spawnToAll();
                             this.simulatedEntities.put((long) eid, entity);
                             GhostyPlugin.getInstance().getLogger().debug("entity[" + eid + "] " + this.tick + " -> spawn " + rec.getNetworkId() + " item=" + entity.item);

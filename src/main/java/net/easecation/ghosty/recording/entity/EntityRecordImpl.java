@@ -21,10 +21,12 @@ public class EntityRecordImpl implements EntityRecord {
 
     private final long entityId;
     private final int networkId;
+    private final String entityIdentifier;
 
     public EntityRecordImpl(BinaryStream stream) {
         this.entityId = stream.getEntityUniqueId();
         this.networkId = stream.getVarInt();
+        this.entityIdentifier = stream.getString();
         int len = (int) stream.getUnsignedVarInt();
         for (int i = 0; i < len; i++) {
             RecordPair pair = new RecordPair(stream);
@@ -35,6 +37,7 @@ public class EntityRecordImpl implements EntityRecord {
     public EntityRecordImpl(Entity entity) {
         this.entityId = entity.getId();
         this.networkId = entity.getNetworkId();
+        this.entityIdentifier = entity.getNetworkId() > 0 ? "" : entity.getIdentifier();
     }
 
     @Override
@@ -48,11 +51,17 @@ public class EntityRecordImpl implements EntityRecord {
     }
 
     @Override
+    public String getEntityIdentifier() {
+        return entityIdentifier;
+    }
+
+    @Override
     public byte[] toBinary() {
         BinaryStream stream = new BinaryStream();
         stream.putByte(EntityRecord.OBJECT_V0);
         stream.putEntityUniqueId(this.entityId);
         stream.putVarInt(this.networkId);
+        stream.putString(this.entityIdentifier);
         stream.putUnsignedVarInt(this.rec.size());
         for (RecordPair pair : this.rec) {
             pair.write(stream);
@@ -99,6 +108,10 @@ public class EntityRecordImpl implements EntityRecord {
         boolean lastNameTagAlwaysVisible = last.isNameTagAlwaysVisible(), nameTagAlwaysVisible = node.isNameTagAlwaysVisible();
         if (lastNameTagAlwaysVisible != nameTagAlwaysVisible) {
             push(tick, EntityUpdatedNameTagAlwaysVisible.of(nameTagAlwaysVisible));
+        }
+        int lastSkinId = last.getSkinId(), skinId = node.getSkinId();
+        if (lastSkinId != skinId) {
+            push(tick, EntityUpdatedSkinId.of(skinId));
         }
         last = node;
     }
@@ -181,7 +194,7 @@ public class EntityRecordImpl implements EntityRecord {
          */
         @Override
         public EntityRecordNode initialValue(int tick) {
-            EntityRecordNode n = EntityRecordNode.ZERO;
+            EntityRecordNode n = EntityRecordNode.createZero();
             if (queue.peek() == null) return n;
             while (!queue.isEmpty() && queue.peek().tick < tick) queue.poll();
             if (queue.peek() == null) return n;

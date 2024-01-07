@@ -74,7 +74,6 @@ public class LevelRecordImpl implements LevelRecord {
         public RecordPair(BinaryStream stream) {
             try {
                 tick = (int) stream.getUnsignedVarInt();
-                GhostyPlugin.getInstance().getLogger().debug("decode: " + tick);
                 updated = LevelUpdated.fromBinaryStream(stream);
             } catch (Exception e) {
                 throw new RuntimeException(e);

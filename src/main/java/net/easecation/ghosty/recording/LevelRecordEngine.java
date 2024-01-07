@@ -4,7 +4,6 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
-import cn.nukkit.entity.EntityID;
 import cn.nukkit.level.Level;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.ProtocolInfo;
@@ -21,6 +20,9 @@ import net.easecation.ghosty.recording.entity.EntityRecordNode;
 import net.easecation.ghosty.recording.level.LevelRecord;
 import net.easecation.ghosty.recording.level.LevelRecordImpl;
 import net.easecation.ghosty.recording.level.LevelRecordNode;
+import net.easecation.ghosty.recording.level.updated.LevelUpdatedActionBar;
+import net.easecation.ghosty.recording.level.updated.LevelUpdatedMessage;
+import net.easecation.ghosty.recording.level.updated.LevelUpdatedTitle;
 import net.easecation.ghosty.recording.player.PlayerRecord;
 import net.easecation.ghosty.recording.player.SkinlessPlayerRecord;
 
@@ -61,7 +63,7 @@ public class LevelRecordEngine {
     }
 
     public boolean isEntityNeedRecord(Entity entity) {
-        return entity.getNetworkId() == EntityID.ITEM
+        /*return entity.getNetworkId() == EntityID.ITEM
             || entity.getNetworkId() == EntityID.ARMOR_STAND
             || entity.getNetworkId() == EntityID.SNOWBALL
             || entity.getNetworkId() == EntityID.ARROW
@@ -70,7 +72,8 @@ public class LevelRecordEngine {
             || entity.getNetworkId() == EntityID.DRAGON_FIREBALL
             || entity.getNetworkId() == EntityID.SMALL_FIREBALL
             || entity.getNetworkId() == EntityID.TNT
-            || entity.getNetworkId() == EntityID.MINECART;
+            || entity.getNetworkId() == EntityID.MINECART;*/
+        return !(entity instanceof Player);
     }
 
     public void addPlayer(Player player) {
@@ -182,14 +185,15 @@ public class LevelRecordEngine {
             return;
         }
         switch (packet.pid()) {
+            case ProtocolInfo.BLOCK_EVENT_PACKET:
             case ProtocolInfo.LEVEL_EVENT_PACKET:
             case ProtocolInfo.LEVEL_SOUND_EVENT_PACKET:
             case ProtocolInfo.LEVEL_SOUND_EVENT_PACKET_V2:
             case ProtocolInfo.LEVEL_SOUND_EVENT_PACKET_V3:
-            case ProtocolInfo.LEVEL_EVENT_GENERIC_PACKET:
+            // case ProtocolInfo.LEVEL_EVENT_GENERIC_PACKET:
             case ProtocolInfo.PLAY_SOUND_PACKET:
-            case ProtocolInfo.STOP_SOUND_PACKET:
-            case ProtocolInfo.SPAWN_PARTICLE_EFFECT_PACKET:
+            // case ProtocolInfo.STOP_SOUND_PACKET:
+            // case ProtocolInfo.SPAWN_PARTICLE_EFFECT_PACKET:
                 this.levelRecordNode.handleLevelChunkPacket(chunkIndex, packet);
                 break;
         }
@@ -219,4 +223,19 @@ public class LevelRecordEngine {
         this.closedEntityIds.add(entity.getId());
     }
 
+    public void recordTitle(String title, String subTitle) {
+        this.recordTitle(title, subTitle, 20, 20, 5);
+    }
+
+    public void recordTitle(String title, String subTitle, int fadeIn, int stay, int fadeOut) {
+        this.levelRecordNode.offerExtraRecordUpdate(LevelUpdatedTitle.of(title, subTitle, fadeIn, stay, fadeOut));
+    }
+
+    public void recordMessage(String message) {
+        this.levelRecordNode.offerExtraRecordUpdate(LevelUpdatedMessage.of(message));
+    }
+
+    public void recordActionBar(String message, int fadeIn, int stay, int fadeOut) {
+        this.levelRecordNode.offerExtraRecordUpdate(LevelUpdatedActionBar.of(message, fadeIn, fadeOut, stay));
+    }
 }
