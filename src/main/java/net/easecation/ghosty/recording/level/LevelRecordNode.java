@@ -4,6 +4,7 @@ import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.BlockVector3;
 import cn.nukkit.network.protocol.*;
+import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -27,6 +28,7 @@ import java.util.function.Consumer;
 
 public final class LevelRecordNode {
 
+    private final Int2ObjectLinkedOpenHashMap<Map<BlockVector3, Block>> blockChangeLog = new Int2ObjectLinkedOpenHashMap<>();
     private final Map<BlockVector3, Block> blockChanges = new HashMap<>();
     private final Long2ObjectMap<List<DataPacket>> levelChunkPackets = new Long2ObjectOpenHashMap<>();
     /**
@@ -92,8 +94,11 @@ public final class LevelRecordNode {
         return list;
     }
 
-    public void applyToLevel(Level level) {
+    public void applyToLevel(int tick, Level level) {
         for (Map.Entry<BlockVector3, Block> entry : blockChanges.entrySet()) {
+            Block originBlock = level.getBlock(entry.getKey());
+            this.blockChangeLog.putIfAbsent(tick, new HashMap<>());
+            this.blockChangeLog.get(tick).put(entry.getKey(), originBlock);
             level.setBlock(entry.getKey(), entry.getValue(), true, false);
         }
         for (Map.Entry<Long, List<DataPacket>> entry : levelChunkPackets.long2ObjectEntrySet()) {
@@ -111,6 +116,21 @@ public final class LevelRecordNode {
     public void handleBlockChange(BlockVector3 pos, Block block) {
         blockChanges.put(pos, block);
         // GhostyPlugin.getInstance().getLogger().debug("Block change: " + pos + " -> " + block);
+    }
+
+    public void fallbackBlockChangeTo(int tick, Level level) {
+        // 从后往前寻找blockChangeLog
+        if (blockChangeLog.isEmpty()) {
+            return;
+        }
+        int last = blockChangeLog.lastIntKey();
+        while (last > tick) {
+            Map<BlockVector3, Block> map = blockChangeLog.remove(last);
+            for (Map.Entry<BlockVector3, Block> entry : map.entrySet()) {
+                level.setBlock(entry.getKey(), entry.getValue(), true, false);
+            }
+            last = blockChangeLog.isEmpty() ? -1 : blockChangeLog.lastIntKey();
+        }
     }
 
     private static final Long2ObjectFunction<List<DataPacket>> CHUNK_PACKET_MAPPING_FUNCTION = k -> new ArrayList<>();

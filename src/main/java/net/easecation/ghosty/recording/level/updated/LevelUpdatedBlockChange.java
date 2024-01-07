@@ -33,6 +33,7 @@ public class LevelUpdatedBlockChange implements LevelUpdated {
         node.handleBlockChange(pos, block);
     }
 
+    @Override
     public void backwardTo(LevelRecordNode node) {
         // TODO 回退方块变更
     }

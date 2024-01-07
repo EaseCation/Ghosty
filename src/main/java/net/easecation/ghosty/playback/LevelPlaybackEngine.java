@@ -39,7 +39,7 @@ public class LevelPlaybackEngine {
         List<LevelUpdated> updates = iterator.pollToTick(this.tick);
         this.currentNode = new LevelRecordNode();
         updates.forEach(e -> e.processTo(this.currentNode));
-        this.currentNode.applyToLevel(level);
+        this.currentNode.applyToLevel(this.tick, level);
         this.currentNode.clear();
         this.taskHandler = Server.getInstance().getScheduler().scheduleRepeatingTask(GhostyPlugin.getInstance(), this::onTick, 1);
         // 玩家回放
@@ -154,7 +154,10 @@ public class LevelPlaybackEngine {
                 node.processTo(this.currentNode);
             }
         }
-        this.currentNode.applyToLevel(this.level);
+        if (backward) {
+            this.currentNode.fallbackBlockChangeTo(tick, this.level);
+        }
+        this.currentNode.applyToLevel(this.tick, this.level);
         this.currentNode.clear();
         // debug
         for (LevelUpdated node : updates) {
