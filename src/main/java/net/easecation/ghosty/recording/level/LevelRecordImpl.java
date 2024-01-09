@@ -8,6 +8,8 @@ import net.easecation.ghosty.recording.level.updated.LevelUpdated;
 import java.util.LinkedList;
 import java.util.List;
 
+import static net.easecation.ghosty.GhostyPlugin.DEBUG_DUMP;
+
 public class LevelRecordImpl implements LevelRecord {
 
     private final List<RecordPair> rec = new LinkedList<>();
@@ -36,8 +38,10 @@ public class LevelRecordImpl implements LevelRecord {
 
     private void push(int tick, LevelUpdated updated) {
         rec.add(new RecordPair(tick, updated));
-        if (updated.getUpdateTypeId() != LevelUpdated.TYPE_LEVEL_EVENT) {
-            GhostyPlugin.getInstance().getLogger().debug(tick + " -> " + updated);
+        if (DEBUG_DUMP) {
+            if (updated.getUpdateTypeId() != LevelUpdated.TYPE_LEVEL_EVENT) {
+                GhostyPlugin.getInstance().getLogger().debug(tick + " -> " + updated);
+            }
         }
     }
 

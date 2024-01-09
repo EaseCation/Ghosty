@@ -24,6 +24,11 @@ public class EntityUpdatedPositionXYZ implements EntityUpdated {
     }
 
     @Override
+    public boolean hasStates() {
+        return true;
+    }
+
+    @Override
     public void processTo(SimulatedEntity entity) {
         Location location = entity.getLocation();
         location.x = x;

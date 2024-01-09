@@ -14,6 +14,11 @@ public class EntityUpdatedClose implements EntityUpdated {
         return EntityUpdated.TYPE_CLOSE;
     }
 
+    @Override
+    public boolean hasStates() {
+        return false;
+    }
+
     public static EntityUpdatedClose of() {
         return new EntityUpdatedClose();
     }

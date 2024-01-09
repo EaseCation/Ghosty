@@ -16,6 +16,11 @@ public class PlayerUpdatedTagName implements PlayerUpdated {
         return PlayerUpdated.TYPE_TAG_NAME;
     }
 
+    @Override
+    public boolean hasStates() {
+        return true;
+    }
+
     public static PlayerUpdatedTagName of(String tn) {
         return new PlayerUpdatedTagName(tn);
     }

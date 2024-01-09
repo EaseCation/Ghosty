@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.recording.level.updated.*;
 import org.itxtech.synapseapi.multiprotocol.protocol112.protocol.LevelEventPacket112;
 import org.itxtech.synapseapi.multiprotocol.protocol116100.protocol.LevelEventPacket116100;
@@ -26,17 +27,38 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static net.easecation.ghosty.GhostyPlugin.DEBUG_DUMP;
+
+/**
+ * 这里是暂存着每一帧的所有更新的地方，用于回放和录制
+ * 所有变更都会在这里暂存，因为事件来源包含各处，例如事件监听器、每tick比较、在应用层插件手动插入
+ * 然后在RecordEngine每tick进行一次写入Updates并清空这里的暂存
+ */
 public final class LevelRecordNode {
 
+    /**
+     * 仅用于回放
+     * 在播放时，记录所有的方块变更的变更前方块。用于回放时的回退。
+     */
     private final Int2ObjectLinkedOpenHashMap<Map<BlockVector3, Block>> blockChangeLog = new Int2ObjectLinkedOpenHashMap<>();
+    /**
+     * 用于录制和回放
+     * 暂存所有应用于世界的方块变更，然后在每tick应用于世界
+     */
     private final Map<BlockVector3, Block> blockChanges = new HashMap<>();
+    /**
+     * 用于录制和回放
+     * 暂存所有应用于世界的数据包，然后在每tick应用于世界
+     */
     private final Long2ObjectMap<List<DataPacket>> levelChunkPackets = new Long2ObjectOpenHashMap<>();
     /**
-     * 在回放时的level回调，用于一些特殊的updates（例如title等），只用于回放
+     * 只用于回放
+     * 在回放时的level回调，用于一些特殊的updates（例如title等）
      */
     private final List<Consumer<Level>> levelGlobalCallback = new ArrayList<>();
     /**
-     * 来自外部的直接添加的Updates，只用于录制
+     * 只用于录制
+     * 来自外部的直接添加的Updates
      */
     private final List<LevelUpdated> extraRecordUpdates = new ArrayList<>();
 
@@ -115,7 +137,9 @@ public final class LevelRecordNode {
 
     public void handleBlockChange(BlockVector3 pos, Block block) {
         blockChanges.put(pos, block);
-        // GhostyPlugin.getInstance().getLogger().debug("Block change: " + pos + " -> " + block);
+        if (DEBUG_DUMP) {
+            GhostyPlugin.getInstance().getLogger().debug("Block change: " + pos + " -> " + block);
+        }
     }
 
     public void fallbackBlockChangeTo(int tick, Level level) {

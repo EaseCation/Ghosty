@@ -23,11 +23,18 @@ public interface PlayerUpdated {
     int TYPE_ANIMATE = 11;
     int TYPE_ENTITY_EVENT = 12;
     int TYPE_TAKE_ITEM_ENTITY = 13;
+    int MAX_TYPE_ID = 13;
 
     /**
      * @return the type id of this Updated. 更新类型的ID
      */
     int getUpdateTypeId();
+
+    /**
+     * 如果有状态，则表示需要在回退时寻找更早之前的该状态，进行应用
+     * @return whether this Updated has states. 是否有状态
+     */
+    boolean hasStates();
 
     /**
      * Process to the playback entity. 回放时应用于实体

@@ -9,10 +9,13 @@ import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.MathUtil;
 import net.easecation.ghosty.PlaybackIterator;
-import net.easecation.ghosty.RecordIterator;
 import net.easecation.ghosty.recording.player.updated.*;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+
+import static net.easecation.ghosty.GhostyPlugin.DEBUG_DUMP;
 
 /**
  * Created by Mulan Lin('Snake1999') on 2016/11/19 15:34.
@@ -104,8 +107,10 @@ public class SkinlessPlayerRecord implements PlayerRecord {
 
     private void push(int tick, PlayerUpdated updated) {
         rec.add(new RecordPair(tick, updated));
-        if (updated.getUpdateTypeId() != PlayerUpdated.TYPE_POSITION_XYZ && updated.getUpdateTypeId() != PlayerUpdated.TYPE_ROTATION) {
-            GhostyPlugin.getInstance().getLogger().debug(tick + " -> " + updated);
+        if (DEBUG_DUMP) {
+            if (updated.getUpdateTypeId() != PlayerUpdated.TYPE_POSITION_XYZ && updated.getUpdateTypeId() != PlayerUpdated.TYPE_ROTATION) {
+                GhostyPlugin.getInstance().getLogger().debug(tick + " -> " + updated);
+            }
         }
     }
 
@@ -156,87 +161,6 @@ public class SkinlessPlayerRecord implements PlayerRecord {
     @Override
     public Skin getSkin() {
         return this.tempSkin;
-    }
-
-    /**
-     * LmlRecordIterator是一个实现了RecordIterator接口的私有静态类。
-     * 它使用一个优先队列来存储和管理RecordPair对象。
-     * 优先队列根据RecordPair对象的tick值进行排序。
-     */
-    private static class LmlRecordIterator implements RecordIterator<PlayerRecordNode, PlayerUpdated> {
-
-        /**
-         * 一个静态比较器，用于根据RecordPair对象的tick值进行排序。
-         */
-        static Comparator<RecordPair> comparator = (recordPairA, recordPairB) -> {
-            if(recordPairA.tick <recordPairB.tick) return -1;
-            else if (recordPairA.tick ==recordPairB.tick) return 0;
-            return 1;
-        };
-
-        /**
-         * 一个优先队列，用于存储和管理RecordPair对象。
-         * 优先队列根据RecordPair对象的tick值进行排序。
-         */
-        PriorityQueue<RecordPair> queue = new PriorityQueue<>(comparator);
-
-        /**
-         * 根据给定的tick值返回RecordNode的初始值。
-         * 它将所有具有相同tick值的更新应用于RecordNode。
-         * @param tick 要基于的tick值。
-         * @return RecordNode的初始值。
-         */
-        @Override
-        public PlayerRecordNode initialValue(int tick) {
-            PlayerRecordNode n = PlayerRecordNode.ZERO;
-            if (queue.peek() == null) return n;
-            while (!queue.isEmpty() && queue.peek().tick < tick) queue.poll();
-            if (queue.peek() == null) return n;
-            while (!queue.isEmpty() && queue.peek().tick == tick) {
-                PlayerUpdated updated = queue.poll().updated;
-                n = updated.applyTo(n);
-            }
-            return n;
-        }
-
-        /**
-         * 返回具有与队列中第一个对象相同tick值的Updated对象列表。
-         * @return Updated对象列表。
-         */
-        @Override
-        public List<PlayerUpdated> peek() {
-            List<PlayerUpdated> ans = new LinkedList<>();
-            if(queue.isEmpty()) return ans;
-            int tick = queue.peek().tick;
-            PriorityQueue<RecordPair> tempQueue = new PriorityQueue<>(queue);
-            while (!tempQueue.isEmpty() && tempQueue.peek().tick == tick) {
-                ans.add(tempQueue.poll().updated);
-            }
-            return ans;
-        }
-
-        /**
-         * 返回队列中第一个对象的tick值。
-         * @return 队列中第一个对象的tick值。
-         */
-        @Override
-        public int peekTick() {
-            if (queue.isEmpty()) return -1;
-            return queue.peek().tick;
-        }
-
-        /**
-         * 从队列中移除所有具有与队列中第一个对象相同tick值的对象。
-         * 返回被移除对象的tick值。
-         * @return 被移除对象的tick值。
-         */
-        @Override
-        public int pollTick() {
-            if (queue.isEmpty()) return -1;
-            int tick = queue.peek().tick;
-            while (!queue.isEmpty() && queue.peek().tick == tick) queue.poll();
-            return tick;
-        }
     }
 
     @Override

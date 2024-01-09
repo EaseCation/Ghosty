@@ -1,6 +1,7 @@
 package net.easecation.ghosty;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class PlaybackIterator<T> {
 
@@ -79,6 +80,34 @@ public class PlaybackIterator<T> {
         }
 
         return ans;
+    }
+
+    public Optional<RecordEntry<T>> peekFirstMatch(Predicate<T> predicate) {
+        if (currentIndex >= list.size()) return Optional.empty();
+
+        int nextIndex = currentIndex;
+        while (nextIndex < list.size()) {
+            if (predicate.test(list.get(nextIndex).entry())) {
+                return Optional.of(list.get(nextIndex));
+            }
+            nextIndex++;
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<RecordEntry<T>> peekBackwardFirstMatch(Predicate<T> predicate) {
+        if (currentIndex <= 0) return Optional.empty();
+
+        int prevIndex = currentIndex - 1;
+        while (prevIndex >= 0) {
+            if (predicate.test(list.get(prevIndex).entry())) {
+                return Optional.of(list.get(prevIndex));
+            }
+            prevIndex--;
+        }
+
+        return Optional.empty();
     }
 
     public int peekTick() {

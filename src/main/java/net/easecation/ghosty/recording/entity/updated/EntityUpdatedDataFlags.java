@@ -20,6 +20,11 @@ public class EntityUpdatedDataFlags implements EntityUpdated {
         return TYPE_DATA_FLAGS;
     }
 
+    @Override
+    public boolean hasStates() {
+        return true;
+    }
+
     private long flags;
 
     @Override

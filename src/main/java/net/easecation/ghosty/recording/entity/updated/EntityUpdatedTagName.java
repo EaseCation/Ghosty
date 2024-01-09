@@ -16,6 +16,11 @@ public class EntityUpdatedTagName implements EntityUpdated {
         return EntityUpdated.TYPE_TAG_NAME;
     }
 
+    @Override
+    public boolean hasStates() {
+        return true;
+    }
+
     public static EntityUpdatedTagName of(String tn) {
         return new EntityUpdatedTagName(tn);
     }

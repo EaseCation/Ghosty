@@ -28,6 +28,11 @@ public class PlayerUpdatedDataFlags implements PlayerUpdated {
     }
 
     @Override
+    public boolean hasStates() {
+        return true;
+    }
+
+    @Override
     public PlayerRecordNode applyTo(PlayerRecordNode node) {
         node.setDataFlags(flags);
         return node;

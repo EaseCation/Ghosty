@@ -31,6 +31,11 @@ public class EntityUpdatedNameTagAlwaysVisible implements EntityUpdated {
         return TYPE_NAMETAG_ALWAYS_VISIBLE;
     }
 
+    @Override
+    public boolean hasStates() {
+        return true;
+    }
+
     public EntityUpdatedNameTagAlwaysVisible(BinaryStream stream) {
         this.read(stream);
     }

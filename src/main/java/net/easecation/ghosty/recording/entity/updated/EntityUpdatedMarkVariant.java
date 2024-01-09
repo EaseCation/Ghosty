@@ -33,6 +33,11 @@ public class EntityUpdatedMarkVariant implements EntityUpdated {
         return TYPE_MARK_VARIANT;
     }
 
+    @Override
+    public boolean hasStates() {
+        return true;
+    }
+
     public EntityUpdatedMarkVariant(BinaryStream stream) {
         this.read(stream);
     }

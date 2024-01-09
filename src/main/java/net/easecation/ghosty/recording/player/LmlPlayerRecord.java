@@ -8,10 +8,11 @@ import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.MathUtil;
 import net.easecation.ghosty.PlaybackIterator;
-import net.easecation.ghosty.RecordIterator;
 import net.easecation.ghosty.recording.player.updated.*;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -118,56 +119,6 @@ public class LmlPlayerRecord implements PlayerRecord {
     @Override
     public Skin getSkin() {
         return skin;
-    }
-
-    private static class LmlRecordIterator implements RecordIterator {
-
-        static Comparator<RecordPair> comparator = (recordPairA, recordPairB) -> {
-            if(recordPairA.tick <recordPairB.tick) return -1;
-            else if (recordPairA.tick ==recordPairB.tick) return 0;
-            return 1;
-        };
-
-        PriorityQueue<RecordPair> queue = new PriorityQueue<>(comparator);
-
-        @Override
-        public PlayerRecordNode initialValue(int tick) {
-            PlayerRecordNode n = PlayerRecordNode.ZERO;
-            if(queue.peek() == null) return n;
-            while(!queue.isEmpty() && queue.peek().tick < tick) queue.poll();
-            if(queue.peek() == null) return n;
-            while(!queue.isEmpty() && queue.peek().tick == tick) {
-                PlayerUpdated updated = queue.poll().updated;
-                n = updated.applyTo(n);
-            }
-            return n;
-        }
-
-        @Override
-        public List<PlayerUpdated> peek() {
-            List<PlayerUpdated> ans = new LinkedList<>();
-            if(queue.isEmpty()) return ans;
-            long tick = queue.peek().tick;
-            while(!queue.isEmpty() && queue.peek().tick == tick) {
-                PlayerUpdated u = queue.poll().updated;
-                ans.add(u);
-            }
-            return ans;
-        }
-
-        @Override
-        public int peekTick() {
-            if(queue.isEmpty()) return -1;
-            return queue.peek().tick;
-        }
-
-        @Override
-        public int pollTick() {
-            if(queue.isEmpty()) return -1;
-            int tick = queue.peek().tick;
-            while(!queue.isEmpty() && queue.peek().tick == tick) queue.poll();
-            return tick;
-        }
     }
 
     @Override

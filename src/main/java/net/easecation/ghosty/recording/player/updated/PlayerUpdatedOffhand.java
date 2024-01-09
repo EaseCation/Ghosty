@@ -20,7 +20,12 @@ public class PlayerUpdatedOffhand implements PlayerUpdated {
 
     @Override
     public int getUpdateTypeId() {
-        return PlayerUpdated.TYPE_ARMOR_3;
+        return PlayerUpdated.TYPE_OFFHAND;
+    }
+
+    @Override
+    public boolean hasStates() {
+        return true;
     }
 
     @Override

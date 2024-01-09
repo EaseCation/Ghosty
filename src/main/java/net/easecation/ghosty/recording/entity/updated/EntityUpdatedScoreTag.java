@@ -16,6 +16,11 @@ public class EntityUpdatedScoreTag implements EntityUpdated {
         return EntityUpdated.TYPE_SCORE_TAG;
     }
 
+    @Override
+    public boolean hasStates() {
+        return true;
+    }
+
     public static EntityUpdatedScoreTag of(String tn) {
         return new EntityUpdatedScoreTag(tn);
     }

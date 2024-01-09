@@ -16,6 +16,8 @@ import net.easecation.ghosty.recording.player.PlayerRecord;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.easecation.ghosty.GhostyPlugin.DEBUG_DUMP;
+
 public class LevelPlaybackEngine {
 
     private final LevelRecord record;
@@ -25,8 +27,9 @@ public class LevelPlaybackEngine {
     private Runnable onStopDo;
 
     private boolean playing = true;
-    protected int tick = 0;
-    private int lastTick = -1;
+    private float speed = 1;
+    protected float tick = 0;
+    private float lastTick = -1;
     private boolean stopped = false;
     private final Level level;
     private final PlaybackIterator<LevelUpdated> iterator;
@@ -36,10 +39,10 @@ public class LevelPlaybackEngine {
         this.record = record;
         this.level = level;
         this.iterator = record.iterator();
-        List<LevelUpdated> updates = iterator.pollToTick(this.tick);
+        List<LevelUpdated> updates = iterator.pollToTick(this.getTick());
         this.currentNode = new LevelRecordNode();
         updates.forEach(e -> e.processTo(this.currentNode));
-        this.currentNode.applyToLevel(this.tick, level);
+        this.currentNode.applyToLevel(this.getTick(), level);
         this.currentNode.clear();
         this.taskHandler = Server.getInstance().getScheduler().scheduleRepeatingTask(GhostyPlugin.getInstance(), this::onTick, 1);
         // 玩家回放
@@ -66,12 +69,35 @@ public class LevelPlaybackEngine {
         return record;
     }
 
+    public List<PlayerPlaybackEngine> getPlayerPlaybackEngines() {
+        return playerPlaybackEngines;
+    }
+
     public boolean isPlaying() {
         return playing;
     }
 
     public int getTick() {
-        return tick;
+        return (int) tick;
+    }
+
+    public float getRealTick() {
+        return this.tick;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
+        // 如果是整数speed，则对tick取整
+        if (this.speed == (int) this.speed) {
+            tick = (int) tick;
+        }
+        for (PlayerPlaybackEngine playerPlaybackEngine : this.playerPlaybackEngines) {
+            playerPlaybackEngine.setSpeed(speed);
+        }
     }
 
     public void pause() {
@@ -122,26 +148,29 @@ public class LevelPlaybackEngine {
         // Level事件回放
         this.tickLevelPlayback();
         // 实体回放
-        this.entityPlaybackEngines.forEach((eid, engine) -> engine.onTick(this.tick));
-        this.lastTick = this.tick++;
+        this.entityPlaybackEngines.forEach((eid, engine) -> engine.onTick(this.getTick()));
+        this.lastTick = this.tick;
+        this.tick += this.speed;
     }
 
     public void tickLevelPlayback() {
         // 往后播放
         if (tick > lastTick) {
-            List<LevelUpdated> updates = iterator.pollToTick(tick);
+            List<LevelUpdated> updates = iterator.pollToTick(this.getTick());
             if (updates.isEmpty()) {
                 return;
             }
-            this.processLevelTick(tick, false, updates);
+            this.processLevelTick(this.getTick(), false, updates);
         } else if (tick < lastTick) {
             // 回退到了中间某一帧，需要重置
-            List<LevelUpdated> updates = iterator.pollBackwardToTick(tick);
+            List<LevelUpdated> updates = iterator.pollBackwardToTick(this.getTick());
             if (updates.isEmpty()) {
                 return;
             }
-            this.processLevelTick(tick, true, updates);
-            GhostyPlugin.getInstance().getLogger().debug("level " + tick + " -> reset(回退)");
+            this.processLevelTick(this.getTick(), true, updates);
+            if (DEBUG_DUMP) {
+                GhostyPlugin.getInstance().getLogger().debug("level " + tick + " -> reset(回退)");
+            }
         }
     }
 
@@ -157,43 +186,51 @@ public class LevelPlaybackEngine {
         if (backward) {
             this.currentNode.fallbackBlockChangeTo(tick, this.level);
         }
-        this.currentNode.applyToLevel(this.tick, this.level);
+        this.currentNode.applyToLevel(this.getTick(), this.level);
         this.currentNode.clear();
         // debug
         for (LevelUpdated node : updates) {
             if (node.getUpdateTypeId() == LevelUpdated.TYPE_LEVEL_EVENT) {
                 continue;
             }
-            GhostyPlugin.getInstance().getLogger().debug("level " + tick + " -> " + node);
+            if (DEBUG_DUMP) {
+                GhostyPlugin.getInstance().getLogger().debug("level " + tick + " -> " + node);
+            }
         }
     }
 
     public void backward(int ticks) {
         if (ticks <= 0) return;
-        this.tick -= ticks;
-        if (this.tick < 0) this.tick = 0;
-        // 如果暂停状态，手动update一次，从而更新世界和实体
-        if (!this.playing) {
-            this.tickLevelPlayback();
-            this.entityPlaybackEngines.forEach((eid, engine) -> engine.onTick(this.tick));
-            this.lastTick = this.tick;
-        }
-        for (PlayerPlaybackEngine engine : this.playerPlaybackEngines) {
-            engine.backward(ticks);
-        }
+        float tick = Math.max(0, this.tick - ticks);
+        this.setTick(tick);
     }
 
     public void forward(int ticks) {
         if (ticks <= 0) return;
-        this.tick += ticks;
+        float tick = Math.min(this.iterator.getLastTick(), this.tick + ticks);
+        this.setTick(tick);
+    }
+
+    public void setTick(float tick) {
+        if (tick < 0 || tick > this.iterator.getLastTick()) {
+            return;
+        }
+        // 如果是整数speed，则对tick取整
+        if (this.speed == (int) this.speed) {
+            tick = (int) tick;
+        }
+        this.tick = tick;
+        this.stopped = false;
         // 如果暂停状态，手动update一次，从而更新世界和实体
         if (!this.playing) {
             this.tickLevelPlayback();
-            this.entityPlaybackEngines.forEach((eid, engine) -> engine.onTick(this.tick));
+            this.entityPlaybackEngines.forEach((eid, engine) -> {
+                engine.tickEntityPlayback(this.getTick());
+            });
             this.lastTick = this.tick;
         }
         for (PlayerPlaybackEngine engine : this.playerPlaybackEngines) {
-            engine.forward(ticks);
+            engine.setTick(this.tick);
         }
     }
 

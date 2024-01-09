@@ -24,6 +24,11 @@ public class PlayerUpdatedArmor0 implements PlayerUpdated {
     }
 
     @Override
+    public boolean hasStates() {
+        return true;
+    }
+
+    @Override
     public void processTo(PlaybackNPC ghost) {
         if (ghost != null && ghost.getInventory() != null) {
             PlayerInventory inv = ghost.getInventory();

@@ -31,6 +31,11 @@ public class EntityUpdatedScale implements EntityUpdated {
         return TYPE_SCALE;
     }
 
+    @Override
+    public boolean hasStates() {
+        return true;
+    }
+
     public EntityUpdatedScale(BinaryStream stream) {
         this.read(stream);
     }

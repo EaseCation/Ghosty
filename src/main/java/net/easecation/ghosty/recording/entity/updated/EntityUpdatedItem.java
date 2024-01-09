@@ -23,6 +23,11 @@ public class EntityUpdatedItem implements EntityUpdated {
     }
 
     @Override
+    public boolean hasStates() {
+        return true;
+    }
+
+    @Override
     public void processTo(SimulatedEntity entity) {
         entity.item = item;
     }

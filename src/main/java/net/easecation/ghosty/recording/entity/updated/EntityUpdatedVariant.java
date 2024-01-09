@@ -33,6 +33,11 @@ public class EntityUpdatedVariant implements EntityUpdated {
         return TYPE_VARIANT;
     }
 
+    @Override
+    public boolean hasStates() {
+        return true;
+    }
+
     public EntityUpdatedVariant(BinaryStream stream) {
         this.read(stream);
     }

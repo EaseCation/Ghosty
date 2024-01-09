@@ -22,6 +22,11 @@ public class PlayerUpdatedTakeItemEntity implements PlayerUpdated {
     }
 
     @Override
+    public boolean hasStates() {
+        return false;
+    }
+
+    @Override
     public void processTo(PlaybackNPC ghost) {
         if (ghost != null) {
             long target = -1;

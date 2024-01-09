@@ -16,6 +16,9 @@ public interface LevelUpdated {
     int TYPE_POPUP = 8;
     int TYPE_BOSS_EVENT = 9;
     int TYPE_SCOREBOARD_DISPLAY = 10;
+    int TYPE_CUSTOM_EVENT = 11;
+    int TYPE_TIME = 12;
+    int TYPE_WEATHER = 13;
 
     /**
      * @return the type id of this Updated.
@@ -57,6 +60,13 @@ public interface LevelUpdated {
             case TYPE_PLAY_SOUND -> new LevelUpdatedPlaySound(stream);
             case TYPE_TITLE -> new LevelUpdatedTitle(stream);
             case TYPE_MESSAGE -> new LevelUpdatedMessage(stream);
+            case TYPE_ACTION_BAR -> new LevelUpdatedActionBar(stream);
+            case TYPE_POPUP -> new LevelUpdatedPopup(stream);
+            // case TYPE_BOSS_EVENT -> new LevelUpdatedBossEvent(stream);
+            // case TYPE_SCOREBOARD_DISPLAY -> new LevelUpdatedScoreboardDisplay(stream);
+            case TYPE_CUSTOM_EVENT -> new LevelUpdatedCustom(stream);
+            case TYPE_TIME -> new LevelUpdatedTime(stream);
+            case TYPE_WEATHER -> new LevelUpdatedWeather(stream);
             default -> throw new IllegalArgumentException("Unknown LevelUpdated type id: " + type);
         };
     }

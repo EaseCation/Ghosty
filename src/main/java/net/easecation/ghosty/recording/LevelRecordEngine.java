@@ -8,6 +8,7 @@ import cn.nukkit.level.Level;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.scheduler.TaskHandler;
+import com.google.gson.JsonObject;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArraySet;
@@ -20,9 +21,7 @@ import net.easecation.ghosty.recording.entity.EntityRecordNode;
 import net.easecation.ghosty.recording.level.LevelRecord;
 import net.easecation.ghosty.recording.level.LevelRecordImpl;
 import net.easecation.ghosty.recording.level.LevelRecordNode;
-import net.easecation.ghosty.recording.level.updated.LevelUpdatedActionBar;
-import net.easecation.ghosty.recording.level.updated.LevelUpdatedMessage;
-import net.easecation.ghosty.recording.level.updated.LevelUpdatedTitle;
+import net.easecation.ghosty.recording.level.updated.*;
 import net.easecation.ghosty.recording.player.PlayerRecord;
 import net.easecation.ghosty.recording.player.SkinlessPlayerRecord;
 
@@ -36,6 +35,7 @@ public class LevelRecordEngine {
 
     private int tick = 0;
     private final Level level;
+    private int lastTime = -1;
     private boolean recording = true;
     private final Map<Player, PlayerRecordEngine> playerRecordEngines = new HashMap<>();
     private final List<PlayerRecord> playerRecords = new ArrayList<>();
@@ -52,6 +52,8 @@ public class LevelRecordEngine {
         this.level = level;
         this.levelRecord = new LevelRecordImpl();
         this.levelRecordNode = new LevelRecordNode();
+        // 初次录制时间
+        this.checkTimeRecord();
         this.callbackIdBlockSet = level.addCallbackBlockSet(this::onLevelBlockSet);
         this.callbackIdChunkPacketSend = level.addCallbackChunkPacketSend(this::onLevelChunkPacketSend);
         // 初始化实体录制
@@ -60,6 +62,13 @@ public class LevelRecordEngine {
         }
         this.taskHandler = Server.getInstance().getScheduler().scheduleRepeatingTask(GhostyPlugin.getInstance(), this::onTick, 1);
         GhostyPlugin.getInstance().recordingLevelEngines.put(level, this);
+    }
+
+    public void checkTimeRecord() {
+        if (this.lastTime != this.level.getTime()) {
+            this.lastTime = this.level.getTime();
+            this.levelRecordNode.offerExtraRecordUpdate(LevelUpdatedTime.of(this.lastTime));
+        }
     }
 
     public boolean isEntityNeedRecord(Entity entity) {
@@ -113,6 +122,7 @@ public class LevelRecordEngine {
         }
         playerRecordEngines.entrySet().removeIf(e -> e.getValue().isStopped());
         // Level录制器
+        this.checkTimeRecord();
         this.levelRecord.record(this.tick, this.levelRecordNode);
         // Entity录制器
         this.entityRecords.forEach((eid, record) -> {
@@ -223,6 +233,13 @@ public class LevelRecordEngine {
         this.closedEntityIds.add(entity.getId());
     }
 
+    public void onWeatherChange(boolean rain, int intensity) {
+        if (!this.recording) {
+            return;
+        }
+        this.levelRecordNode.offerExtraRecordUpdate(LevelUpdatedWeather.of(rain, intensity));
+    }
+
     public void recordTitle(String title, String subTitle) {
         this.recordTitle(title, subTitle, 20, 20, 5);
     }
@@ -235,7 +252,19 @@ public class LevelRecordEngine {
         this.levelRecordNode.offerExtraRecordUpdate(LevelUpdatedMessage.of(message));
     }
 
+    public void recordActionBar(String message) {
+        this.levelRecordNode.offerExtraRecordUpdate(LevelUpdatedActionBar.of(message, 1, 0, 1));
+    }
+
     public void recordActionBar(String message, int fadeIn, int stay, int fadeOut) {
         this.levelRecordNode.offerExtraRecordUpdate(LevelUpdatedActionBar.of(message, fadeIn, fadeOut, stay));
+    }
+
+    public void recordPopup(String message) {
+        this.levelRecordNode.offerExtraRecordUpdate(LevelUpdatedPopup.of(message));
+    }
+
+    public void recordCustomEvent(JsonObject obj) {
+        this.levelRecordNode.offerExtraRecordUpdate(LevelUpdatedCustom.of(obj));
     }
 }

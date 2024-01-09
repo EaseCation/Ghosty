@@ -13,6 +13,24 @@ public class PlayerUpdatedRotation implements PlayerUpdated {
     private double yaw;
     private double pitch;
 
+    public double getYaw() {
+        return yaw;
+    }
+
+    public double getPitch() {
+        return pitch;
+    }
+
+    @Override
+    public int getUpdateTypeId() {
+        return TYPE_ROTATION;
+    }
+
+    @Override
+    public boolean hasStates() {
+        return true;
+    }
+
     @Override
     public void processTo(PlaybackNPC ghost) {
         Location location = ghost.getLocation();
@@ -30,11 +48,6 @@ public class PlayerUpdatedRotation implements PlayerUpdated {
 
     public static PlayerUpdatedRotation of(double yaw, double pitch) {
         return new PlayerUpdatedRotation(yaw, pitch);
-    }
-
-    @Override
-    public int getUpdateTypeId() {
-        return TYPE_ROTATION;
     }
 
     public PlayerUpdatedRotation(BinaryStream stream) {

@@ -22,6 +22,11 @@ public class PlayerUpdatedWorldChanged implements PlayerUpdated {
         return new PlayerUpdatedWorldChanged(tn);
     }
 
+    @Override
+    public boolean hasStates() {
+        return true;
+    }
+
     private String wn;
 
     @Override

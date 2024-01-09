@@ -33,6 +33,11 @@ public class EntityUpdatedNPCSkinId implements EntityUpdated {
         return TYPE_NPC_SKIN_ID;
     }
 
+    @Override
+    public boolean hasStates() {
+        return true;
+    }
+
     public EntityUpdatedNPCSkinId(BinaryStream stream) {
         this.read(stream);
     }

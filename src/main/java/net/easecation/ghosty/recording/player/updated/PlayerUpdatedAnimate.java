@@ -21,6 +21,11 @@ public class PlayerUpdatedAnimate implements PlayerUpdated {
     }
 
     @Override
+    public boolean hasStates() {
+        return false;
+    }
+
+    @Override
     public void processTo(PlaybackNPC ghost) {
         if (ghost != null && ghost.getInventory() != null) {
             AnimatePacket pk = new AnimatePacket();

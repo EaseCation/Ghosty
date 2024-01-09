@@ -37,6 +37,11 @@ public class EntityUpdatedRotation implements EntityUpdated {
         return TYPE_ROTATION;
     }
 
+    @Override
+    public boolean hasStates() {
+        return true;
+    }
+
     public EntityUpdatedRotation(BinaryStream stream) {
         this.read(stream);
     }

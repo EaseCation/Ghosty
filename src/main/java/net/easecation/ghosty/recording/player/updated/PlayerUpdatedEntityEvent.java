@@ -21,6 +21,11 @@ public class PlayerUpdatedEntityEvent implements PlayerUpdated {
     }
 
     @Override
+    public boolean hasStates() {
+        return false;
+    }
+
+    @Override
     public void processTo(PlaybackNPC ghost) {
         if (ghost != null && ghost.getInventory() != null) {
             EntityEventPacket pk = new EntityEventPacket();

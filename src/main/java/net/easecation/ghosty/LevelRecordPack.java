@@ -51,27 +51,19 @@ public class LevelRecordPack {
         return entityRecords;
     }
 
-    /**
-     * Pack the level record and player records to a zip file. (Blocking)
-     * 保存录制的记录到一个zip文件中（阻塞）
-     * @param zipFile The zip file to save to. 保存到的zip文件
-     * @throws IOException If an I/O error has occurred. 如果发生了IO错误
-     */
-    public void packToZip(File zipFile) throws IOException {
-        if (!zipFile.getParentFile().isDirectory()) {
-            zipFile.getParentFile().mkdirs();
-        }
-        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))) {
+    public void pack(OutputStream outputStream) throws IOException {
+        try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
+            zos.setLevel(9);
             // Pack level record
-            ZipEntry levelEntry = new ZipEntry("level_record.bin");
+            ZipEntry levelEntry = new ZipEntry("level_record.ecrecl");
             zos.putNextEntry(levelEntry);
             zos.write(levelRecord.toBinary());
             zos.closeEntry();
-            
+
             // Pack player records
             for (int i = 0; i < playerRecords.size(); i++) {
                 PlayerRecord playerRecord = playerRecords.get(i);
-                ZipEntry playerEntry = new ZipEntry("player/player_record_" + i + "_" + playerRecord.getPlayerName() + ".bin");
+                ZipEntry playerEntry = new ZipEntry("player/player_record_" + i + "_" + playerRecord.getPlayerName() + ".ecrecp");
                 zos.putNextEntry(playerEntry);
                 zos.write(playerRecord.toBinary());
                 zos.closeEntry();
@@ -80,12 +72,12 @@ public class LevelRecordPack {
             // Pack entity records
             for (Long2ObjectMap.Entry<EntityRecord> entry : entityRecords.long2ObjectEntrySet()) {
                 EntityRecord entityRecord = entry.getValue();
-                ZipEntry entityEntry = new ZipEntry("entity/entity_record_" + entry.getLongKey() + ".bin");
+                ZipEntry entityEntry = new ZipEntry("entity/entity_record_" + entry.getLongKey() + ".ecrece");
                 zos.putNextEntry(entityEntry);
                 zos.write(entityRecord.toBinary());
                 zos.closeEntry();
             }
-            
+
             // Metadata
             ZipEntry metadataEntry = new ZipEntry("metadata.json");
             zos.putNextEntry(metadataEntry);
@@ -95,22 +87,27 @@ public class LevelRecordPack {
     }
 
     /**
-     * Load a level record pack from a zip file. (Blocking)
-     * 从一个zip文件中加载一个LevelRecordPack（阻塞）
-     * @param zipFile The zip file to load from. 从中加载的zip文件
-     * @return The loaded level record pack. 加载的LevelRecordPack
+     * Pack the level record and player records to a zip file. (Blocking)
+     * 保存录制的记录到一个zip文件中（阻塞）
+     * @param zipFile The zip file to save to. 保存到的zip文件
      * @throws IOException If an I/O error has occurred. 如果发生了IO错误
      */
-    public static LevelRecordPack fromZip(File zipFile) throws IOException {
+    public void packFile(File zipFile) throws IOException {
+        if (!zipFile.getParentFile().isDirectory()) {
+            zipFile.getParentFile().mkdirs();
+        }
+        this.pack(new FileOutputStream(zipFile));
+    }
+
+    public static LevelRecordPack unpack(InputStream inputStream) throws IOException {
         LevelRecord levelRecord = null;
         List<PlayerRecord> playerRecords = new ArrayList<>();
         Long2ObjectMap<EntityRecord> entityRecords = new Long2ObjectOpenHashMap<>();
         JsonObject metadata = null;
 
-        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) {
+        try (ZipInputStream zis = new ZipInputStream(inputStream)) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
-
                 if (entry.getName().startsWith("level_record")) {
                     levelRecord = LevelRecord.fromBinary(zis.readAllBytes());
                 } else if (entry.getName().startsWith("player/")) {
@@ -133,6 +130,17 @@ public class LevelRecordPack {
         }
 
         return new LevelRecordPack(levelRecord, playerRecords, entityRecords, metadata);
+    }
+
+    /**
+     * Load a level record pack from a zip file. (Blocking)
+     * 从一个zip文件中加载一个LevelRecordPack（阻塞）
+     * @param zipFile The zip file to load from. 从中加载的zip文件
+     * @return The loaded level record pack. 加载的LevelRecordPack
+     * @throws IOException If an I/O error has occurred. 如果发生了IO错误
+     */
+    public static LevelRecordPack unpackFile(File zipFile) throws IOException {
+        return unpack(new FileInputStream(zipFile));
     }
 
     public LevelPlaybackEngine createPlayback(Level level) {
