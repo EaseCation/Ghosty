@@ -151,7 +151,7 @@ public class EntityPlaybackEngine {
             EntityRecordNode init = EntityRecordNode.createZero();
             updates.forEach(e -> e.applyTo(init));
             Location loc = new Location(init.getX(), init.getY(), init.getZ(), init.getYaw(), init.getPitch(), this.level);
-            entity = new SimulatedEntity(loc.getChunk(), Entity.getDefaultNBT(loc), record.getNetworkId(), record.getEntityIdentifier(), record.getEntityId());
+            entity = new SimulatedEntity(loc.getChunk(true), Entity.getDefaultNBT(loc), record.getNetworkId(), record.getEntityIdentifier(), record.getEntityId());
             // 生成前就需要应用了
             for (EntityUpdated node : updates) {
                 node.processTo(entity);

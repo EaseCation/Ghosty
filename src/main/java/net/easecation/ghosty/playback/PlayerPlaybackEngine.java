@@ -224,7 +224,9 @@ public class PlayerPlaybackEngine {
                     }
                 }
                 this.processPlayerTick(realUpdates, null);
-                GhostyPlugin.getInstance().getLogger().debug(record.getPlayerName() + " " + tick + " -> reset(回退)");
+                if (DEBUG_DUMP) {
+                    GhostyPlugin.getInstance().getLogger().debug(record.getPlayerName() + " " + tick + " -> reset(回退)");
+                }
             }
         }
     }
