@@ -45,6 +45,7 @@ public class PlaybackIterator<T> {
     }
 
     public List<T> pollToTick(int tick) {
+        if (this.currentIndex >= list.size()) return Collections.emptyList();  // 如果当前迭代器已经到达末尾，直接返回空列表
         List<T> ans = new LinkedList<>();
         while (currentIndex < list.size() && list.get(currentIndex).tick() <= tick) {
             ans.add(list.get(currentIndex).entry());
@@ -54,6 +55,7 @@ public class PlaybackIterator<T> {
     }
 
     public List<T> pollBackwardToTick(int tick) {
+        if (this.currentIndex <= 0) return Collections.emptyList();  // 如果当前迭代器已经到达开头，直接返回空列表
         List<T> ans = new LinkedList<>();
         while (currentIndex > 0 && list.get(currentIndex - 1).tick() >= tick) {
             currentIndex--;

@@ -9,10 +9,7 @@ import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.scheduler.TaskHandler;
 import com.google.gson.JsonObject;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongArraySet;
-import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.longs.*;
 import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.LevelRecordPack;
 import net.easecation.ghosty.recording.entity.EntityRecord;
@@ -42,7 +39,7 @@ public class LevelRecordEngine {
     private final LevelRecord levelRecord;
     private final LevelRecordNode levelRecordNode;
     private final Long2ObjectMap<EntityRecord> entityRecords = new Long2ObjectOpenHashMap<>();
-    private final LongSet closedEntityIds = new LongArraySet();
+    private final LongSet closedEntityIds = new LongOpenHashSet();
 
     private final TaskHandler taskHandler;
     private final int callbackIdBlockSet;
