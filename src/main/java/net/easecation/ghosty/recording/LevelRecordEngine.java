@@ -5,7 +5,10 @@ import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.sound.SoundEnum;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.network.protocol.DataPacket;
+import cn.nukkit.network.protocol.PlaySoundPacket;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.scheduler.TaskHandler;
 import com.google.gson.JsonObject;
@@ -263,5 +266,20 @@ public class LevelRecordEngine {
 
     public void recordCustomEvent(JsonObject obj) {
         this.levelRecordNode.offerExtraRecordUpdate(LevelUpdatedCustom.of(obj));
+    }
+
+    public void recordSoundPacket(Vector3 pos, SoundEnum soundEnum, float volume, float pitch) {
+        this.recordSoundPacket(pos, soundEnum.getSound(), volume, pitch);
+    }
+
+    public void recordSoundPacket(Vector3 pos, String soundIdentifier, float volume, float pitch) {
+        PlaySoundPacket pk = new PlaySoundPacket();
+        pk.x = pos.getFloorX();
+        pk.y = pos.getFloorY();
+        pk.z = pos.getFloorZ();
+        pk.name = soundIdentifier;
+        pk.volume = volume;
+        pk.pitch = pitch;
+        this.levelRecordNode.handleLevelChunkPacket(Level.chunkHash(pk.x >> 4, pk.z >> 4), pk);
     }
 }
