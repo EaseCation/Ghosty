@@ -9,7 +9,6 @@ import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.scheduler.TaskHandler;
 import com.google.gson.JsonObject;
-import it.unimi.dsi.fastutil.longs.*;
 import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.LevelRecordPack;
 import net.easecation.ghosty.recording.entity.EntityRecord;
@@ -26,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 public class LevelRecordEngine {
@@ -38,8 +38,8 @@ public class LevelRecordEngine {
     private final List<PlayerRecord> playerRecords = new ArrayList<>();
     private final LevelRecord levelRecord;
     private final LevelRecordNode levelRecordNode;
-    private final Long2ObjectMap<EntityRecord> entityRecords = new Long2ObjectOpenHashMap<>();
-    private final LongSet closedEntityIds = new LongOpenHashSet();
+    private final Map<Entity, EntityRecord> entityRecords = new ConcurrentHashMap<>();
+    private final List<EntityRecord> closedEntityRecords = new ArrayList<>();
 
     private final TaskHandler taskHandler;
     private final int callbackIdBlockSet;
@@ -122,15 +122,17 @@ public class LevelRecordEngine {
         this.checkTimeRecord();
         this.levelRecord.record(this.tick, this.levelRecordNode);
         // Entity录制器
-        this.entityRecords.forEach((eid, record) -> {
-            Entity entity = this.level.getEntity(eid);
-            if (entity != null) {
-                EntityRecordNode node = EntityRecordNode.of(entity);
-                record.record(this.tick, node);
-            } else if (!this.closedEntityIds.contains((long) eid)) {
-                record.recordClose(this.tick);
-                this.closedEntityIds.add((long) eid);
+        for (Map.Entry<Entity, EntityRecord> entry : this.entityRecords.entrySet()) {
+            if (!entry.getKey().isClosed()) {
+                EntityRecordNode node = EntityRecordNode.of(entry.getKey());
+                entry.getValue().record(this.tick, node);
+            } else {
+                entry.getValue().recordClose(this.tick);
+                this.closedEntityRecords.add(entry.getValue());
+                this.entityRecords.remove(entry.getKey());
             }
+        }
+        this.entityRecords.forEach((entity, record) -> {
         });
         this.tick++;
     }
@@ -148,7 +150,9 @@ public class LevelRecordEngine {
     }
 
     public LevelRecordPack toRecordPack() {
-        return new LevelRecordPack(this.levelRecord, this.playerRecords, this.entityRecords);
+        List<EntityRecord> entityRecords = new ArrayList<>(this.closedEntityRecords);
+        entityRecords.addAll(this.entityRecords.values());
+        return new LevelRecordPack(this.levelRecord, this.playerRecords, entityRecords);
     }
 
     public Level getLevel() {
@@ -214,7 +218,7 @@ public class LevelRecordEngine {
             EntityRecordNode entityRecordNode = EntityRecordNode.of(entity);
             EntityRecordImpl entityRecord = new EntityRecordImpl(entity);
             entityRecord.record(this.tick, entityRecordNode);
-            entityRecords.put(entity.getId(), entityRecord);
+            entityRecords.put(entity, entityRecord);
         }
     }
 
@@ -223,11 +227,11 @@ public class LevelRecordEngine {
             return;
         }
 
-        EntityRecord record = this.entityRecords.get(entity.getId());
+        EntityRecord record = this.entityRecords.remove(entity);
         if (record != null) {
             record.recordClose(this.tick);
+            this.closedEntityRecords.add(record);
         }
-        this.closedEntityIds.add(entity.getId());
     }
 
     public void onWeatherChange(boolean rain, int intensity) {

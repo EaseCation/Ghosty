@@ -3,8 +3,6 @@ package net.easecation.ghosty;
 import cn.nukkit.level.Level;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.easecation.ghosty.playback.LevelPlaybackEngine;
 import net.easecation.ghosty.recording.entity.EntityRecord;
 import net.easecation.ghosty.recording.level.LevelRecord;
@@ -12,6 +10,7 @@ import net.easecation.ghosty.recording.player.PlayerRecord;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -21,14 +20,14 @@ public class LevelRecordPack {
 
     private final LevelRecord levelRecord;
     private final List<PlayerRecord> playerRecords;
-    private final Long2ObjectMap<EntityRecord> entityRecords;
+    private final Collection<EntityRecord> entityRecords;
     private final JsonObject metadata;  // 元数据，不参与任何的回放和录制逻辑，但是可以用于存储一些额外的信息，比如录制的地图名称，录制时间等
 
-    public LevelRecordPack(LevelRecord levelRecord, List<PlayerRecord> playerRecords, Long2ObjectMap<EntityRecord> entityRecords) {
+    public LevelRecordPack(LevelRecord levelRecord, List<PlayerRecord> playerRecords, Collection<EntityRecord> entityRecords) {
         this(levelRecord, playerRecords, entityRecords, new JsonObject());
     }
 
-    public LevelRecordPack(LevelRecord levelRecord, List<PlayerRecord> playerRecords, Long2ObjectMap<EntityRecord> entityRecords, JsonObject metadata) {
+    public LevelRecordPack(LevelRecord levelRecord, List<PlayerRecord> playerRecords, Collection<EntityRecord> entityRecords, JsonObject metadata) {
         this.levelRecord = levelRecord;
         this.playerRecords = playerRecords;
         this.entityRecords = entityRecords;
@@ -47,7 +46,7 @@ public class LevelRecordPack {
         return playerRecords;
     }
 
-    public Long2ObjectMap<EntityRecord> getEntityRecords() {
+    public Collection<EntityRecord> getEntityRecords() {
         return entityRecords;
     }
 
@@ -70,9 +69,8 @@ public class LevelRecordPack {
             }
 
             // Pack entity records
-            for (Long2ObjectMap.Entry<EntityRecord> entry : entityRecords.long2ObjectEntrySet()) {
-                EntityRecord entityRecord = entry.getValue();
-                ZipEntry entityEntry = new ZipEntry("entity/entity_record_" + entry.getLongKey() + ".ecrece");
+            for (EntityRecord entityRecord : entityRecords) {
+                ZipEntry entityEntry = new ZipEntry("entity/entity_record_" + entityRecord.getEntityId() + ".ecrece");
                 zos.putNextEntry(entityEntry);
                 zos.write(entityRecord.toBinary());
                 zos.closeEntry();
@@ -102,7 +100,7 @@ public class LevelRecordPack {
     public static LevelRecordPack unpack(InputStream inputStream) throws IOException {
         LevelRecord levelRecord = null;
         List<PlayerRecord> playerRecords = new ArrayList<>();
-        Long2ObjectMap<EntityRecord> entityRecords = new Long2ObjectOpenHashMap<>();
+        Collection<EntityRecord> entityRecords = new ArrayList<>();
         JsonObject metadata = null;
 
         try (ZipInputStream zis = new ZipInputStream(inputStream)) {
@@ -114,7 +112,7 @@ public class LevelRecordPack {
                     playerRecords.add(PlayerRecord.fromBinary(zis.readAllBytes()));
                 } else if (entry.getName().startsWith("entity/")) {
                     EntityRecord entityRecord = EntityRecord.fromBinary(zis.readAllBytes());
-                    entityRecords.put(entityRecord.getEntityId(), entityRecord);
+                    entityRecords.add(entityRecord);
                 } else if (entry.getName().equals("metadata.json")) {
                     metadata = new Gson().fromJson(new InputStreamReader(zis), JsonObject.class);
                 }

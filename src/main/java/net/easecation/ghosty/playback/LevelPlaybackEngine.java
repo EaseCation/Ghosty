@@ -14,6 +14,7 @@ import net.easecation.ghosty.recording.level.updated.LevelUpdated;
 import net.easecation.ghosty.recording.player.PlayerRecord;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static net.easecation.ghosty.GhostyPlugin.DEBUG_DUMP;
@@ -35,7 +36,7 @@ public class LevelPlaybackEngine {
     private final PlaybackIterator<LevelUpdated> iterator;
     private final Long2ObjectMap<EntityPlaybackEngine> entityPlaybackEngines = new Long2ObjectOpenHashMap<>();
 
-    public LevelPlaybackEngine(LevelRecord record, Level level, List<PlayerRecord> playerRecords, Long2ObjectMap<EntityRecord> entityRecords) {
+    public LevelPlaybackEngine(LevelRecord record, Level level, List<PlayerRecord> playerRecords, Collection<EntityRecord> entityRecords) {
         this.record = record;
         this.level = level;
         this.iterator = record.iterator();
@@ -50,9 +51,9 @@ public class LevelPlaybackEngine {
             this.playerPlaybackEngines.add(new PlayerPlaybackEngine(playerRecord, level));
         }
         // 实体播放
-        entityRecords.forEach((eid, rec) -> {
+        entityRecords.forEach(rec -> {
             EntityPlaybackEngine engine = new EntityPlaybackEngine(rec, level);
-            this.entityPlaybackEngines.put((long) eid, engine);
+            this.entityPlaybackEngines.put(rec.getEntityId(), engine);
         });
         GhostyPlugin.getInstance().getLogger().debug(level.getName() + " level playback started!");
     }
