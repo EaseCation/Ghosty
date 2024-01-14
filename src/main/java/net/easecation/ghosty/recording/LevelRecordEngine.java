@@ -21,11 +21,7 @@ import net.easecation.ghosty.recording.level.updated.*;
 import net.easecation.ghosty.recording.player.PlayerRecord;
 import net.easecation.ghosty.recording.player.SkinlessPlayerRecord;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 import java.util.function.Function;
 
 public class LevelRecordEngine {
@@ -38,7 +34,7 @@ public class LevelRecordEngine {
     private final List<PlayerRecord> playerRecords = new ArrayList<>();
     private final LevelRecord levelRecord;
     private final LevelRecordNode levelRecordNode;
-    private final Map<Entity, EntityRecord> entityRecords = new ConcurrentHashMap<>();
+    private final Map<Entity, EntityRecord> entityRecords = new HashMap<>();
     private final List<EntityRecord> closedEntityRecords = new ArrayList<>();
 
     private final TaskHandler taskHandler;
@@ -122,18 +118,18 @@ public class LevelRecordEngine {
         this.checkTimeRecord();
         this.levelRecord.record(this.tick, this.levelRecordNode);
         // Entity录制器
-        for (Map.Entry<Entity, EntityRecord> entry : this.entityRecords.entrySet()) {
+        Iterator<Map.Entry<Entity, EntityRecord>> iterator = this.entityRecords.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Entity, EntityRecord> entry = iterator.next();
             if (!entry.getKey().isClosed()) {
                 EntityRecordNode node = EntityRecordNode.of(entry.getKey());
                 entry.getValue().record(this.tick, node);
             } else {
                 entry.getValue().recordClose(this.tick);
                 this.closedEntityRecords.add(entry.getValue());
-                this.entityRecords.remove(entry.getKey());
+                iterator.remove();
             }
         }
-        this.entityRecords.forEach((entity, record) -> {
-        });
         this.tick++;
     }
 
