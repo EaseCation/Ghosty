@@ -6,6 +6,7 @@ import cn.nukkit.entity.data.Skin;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.network.protocol.MovePlayerPacket;
 import cn.nukkit.scheduler.TaskHandler;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -19,7 +20,10 @@ import net.easecation.ghosty.recording.player.updated.PlayerUpdatedPositionXYZ;
 import net.easecation.ghosty.recording.player.updated.PlayerUpdatedRotation;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.BiConsumer;
 
 import static net.easecation.ghosty.GhostyPlugin.DEBUG_DUMP;
 
@@ -28,10 +32,15 @@ import static net.easecation.ghosty.GhostyPlugin.DEBUG_DUMP;
  */
 public class PlayerPlaybackEngine {
 
+    public static BiConsumer<PlayerPlaybackEngine, Player> onPlayerAttach = null;
+    public static BiConsumer<PlayerPlaybackEngine, Player> onPlayerUnattach = null;
+    public static BiConsumer<PlayerPlaybackEngine, Player> onPlayerAttachTick = null;
+
     private final PlayerRecord record;
     private final Level level;
     private TaskHandler taskHandler;
     private Runnable onStopDo;
+    private BiConsumer<PlayerPlaybackEngine, Player> interactNPCCallback = null;
 
     private boolean playing = true;
     private float speed = 1;
@@ -40,6 +49,7 @@ public class PlayerPlaybackEngine {
     private boolean stopped = false;
     private PlaybackNPC npc;
     private PlaybackIterator<PlayerUpdated> iterator;
+    private final Set<Player> attachedPlayers = new HashSet<>();
 
     public PlayerPlaybackEngine(PlayerRecord record) {
         this(record, null, null);
@@ -134,8 +144,18 @@ public class PlayerPlaybackEngine {
             return;
         }
         this.tickPlayerPlayback();
+        this.processAttach();
         this.lastTick = this.tick;
         this.tick += this.speed;
+    }
+
+    public BiConsumer<PlayerPlaybackEngine, Player> getInteractNPCCallback() {
+        return interactNPCCallback;
+    }
+
+    public PlayerPlaybackEngine setInteractNPCCallback(BiConsumer<PlayerPlaybackEngine, Player> interactNPCCallback) {
+        this.interactNPCCallback = interactNPCCallback;
+        return this;
     }
 
     public static class InterpolationNext {
@@ -237,7 +257,7 @@ public class PlayerPlaybackEngine {
             PlayerRecordNode init = PlayerRecordNode.createZero();
             updates.forEach(e -> e.applyTo(init));
             Location loc = new Location(init.getX(), init.getY(), init.getZ(), init.getYaw(), init.getPitch(), level);
-            this.npc = new PlaybackNPC(loc, record.getSkin(), init.getTagName(), null);
+            this.npc = new PlaybackNPC(this, loc, record.getSkin(), init.getTagName(), null);
             this.npc.spawnToAll();
             if (DEBUG_DUMP) {
                 GhostyPlugin.getInstance().getLogger().debug(record.getPlayerName() + " " + tick + " -> spawn " + record.getPlayerName());
@@ -280,6 +300,38 @@ public class PlayerPlaybackEngine {
                 GhostyPlugin.getInstance().getLogger().debug("player " + tick + " -> " + node);
             }
         }
+    }
+
+    public void processAttach() {
+        if (this.attachedPlayers.isEmpty()) {
+            return;
+        }
+        if (this.npc == null || this.npc.isClosed()) {
+            if (onPlayerUnattach != null) {
+                for (Player player : this.attachedPlayers) {
+                    onPlayerUnattach.accept(this, player);
+                }
+            }
+            this.attachedPlayers.clear();
+            return;
+        }
+        for (Player player : this.attachedPlayers) {
+            player.setPosition(this.npc);
+            player.sendPosition(player.getPlayer(), player.getYaw(), player.getPitch(), player.isNetEaseClient() ? MovePlayerPacket.MODE_NORMAL : MovePlayerPacket.MODE_TELEPORT);
+            if (onPlayerAttachTick != null) {
+                onPlayerAttachTick.accept(this, player);
+            }
+        }
+    }
+
+    public void attach(Player player) {
+        this.attachedPlayers.add(player);
+        if (onPlayerAttach != null) onPlayerAttach.accept(this, player);
+    }
+
+    public void unattach(Player player) {
+        this.attachedPlayers.remove(player);
+        if (onPlayerUnattach != null) onPlayerUnattach.accept(this, player);
     }
 
     public void backward(int ticks) {

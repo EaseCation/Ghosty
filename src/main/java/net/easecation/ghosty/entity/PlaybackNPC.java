@@ -3,25 +3,35 @@ package net.easecation.ghosty.entity;
 import cn.nukkit.Player;
 import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.entity.data.Skin;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.inventory.InventoryHolder;
+import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.format.FullChunk;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.DoubleTag;
 import cn.nukkit.nbt.tag.FloatTag;
 import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.network.protocol.AddPlayerPacket;
+import net.easecation.ghosty.playback.PlayerPlaybackEngine;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PlaybackNPC extends EntityHuman implements InventoryHolder {
 
     public static Skin defaultSkin;
-    private final List<Player> viewers;
 
-    public PlaybackNPC(FullChunk chunk, CompoundTag nbt, Skin skin, String name, List<Player> viewers) {
+    private final PlayerPlaybackEngine engine;
+    private final List<Player> viewers;
+    private final Set<Player> hideFrom = new HashSet<>();
+
+    public PlaybackNPC(FullChunk chunk, CompoundTag nbt, PlayerPlaybackEngine engine, Skin skin, String name, List<Player> viewers) {
         super(chunk, nbt);
+        this.engine = engine;
         this.setSkin(skin == null ? defaultSkin : skin);
         this.setNameTagVisible(true);
         this.setNameTagAlwaysVisible(true);
@@ -30,7 +40,7 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
         this.viewers = viewers;
     }
 
-    public PlaybackNPC(Location pos, Skin skin, String name, List<Player> viewers){
+    public PlaybackNPC(PlayerPlaybackEngine engine, Location pos, Skin skin, String name, List<Player> viewers){
         this(pos.getLevel().getChunk(pos.getFloorX() >> 4, pos.getFloorZ() >> 4),
                 new CompoundTag()
                         .putList(new ListTag<DoubleTag>("Pos")
@@ -44,18 +54,51 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
                         .putList(new ListTag<FloatTag>("Rotation")
                                         .add(new FloatTag("", (float)pos.yaw))
                                         .add(new FloatTag("", (float)pos.pitch))
-                        ), skin, name, viewers);
+                        ), engine, skin, name, viewers);
         this.saveNBT();
     }
 
     @Override
     public boolean attack(EntityDamageEvent source) {
+        if (source instanceof EntityDamageByEntityEvent event && event.getDamager() instanceof Player player) {
+            if (this.engine.getInteractNPCCallback() != null) {
+                this.engine.getInteractNPCCallback().accept(engine, player);
+            }
+        }
         return false;
     }
 
     @Override
+    public boolean onInteract(Player player, Item item) {
+        if (this.engine.getInteractNPCCallback() != null) {
+            this.engine.getInteractNPCCallback().accept(engine, player);
+        }
+        return super.onInteract(player, item);
+    }
+
+    @Override
+    public boolean onInteract(Player player, Item item, Vector3 clickedPos) {
+        if (this.engine.getInteractNPCCallback() != null) {
+            this.engine.getInteractNPCCallback().accept(engine, player);
+        }
+        return super.onInteract(player, item, clickedPos);
+    }
+
+    public void hideFrom(Player player) {
+        this.hideFrom.add(player);
+        this.despawnFrom(player);
+    }
+
+    public void removeHideFrom(Player player) {
+        this.hideFrom.remove(player);
+        this.spawnTo(player);
+    }
+
+    @Override
     public void spawnTo(Player player) {
-        if((this.viewers == null || this.viewers.contains(player)) && !this.hasSpawned.containsKey(player.getLoaderId())) {
+        if (this.viewers != null && !this.viewers.contains(player)) return;
+        if (this.hideFrom.contains(player)) return;
+        if (!this.hasSpawned.containsKey(player.getLoaderId())) {
             this.hasSpawned.put(player.getLoaderId(), player);
 
             if (!this.skin.isValid()) {
@@ -95,7 +138,6 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
         if (this.getInventory() != null) this.getInventory().clearAll();
         super.kill();
     }
-
 
     public void resendPosition() {
         this.getLevel().addEntityMovement(this.getChunkX(), this.getChunkZ(), this.getId(), this.x, y, this.z, this.yaw, this.pitch, this.yaw);
