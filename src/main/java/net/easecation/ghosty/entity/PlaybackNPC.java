@@ -7,13 +7,9 @@ import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.item.Item;
-import cn.nukkit.level.Location;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.nbt.tag.DoubleTag;
-import cn.nukkit.nbt.tag.FloatTag;
-import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.network.protocol.AddPlayerPacket;
 import net.easecation.ghosty.playback.PlayerPlaybackEngine;
 
@@ -38,23 +34,6 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
         this.getInventory().setHeldItemSlot(0);
         this.setNameTag(name);
         this.viewers = viewers;
-    }
-
-    public PlaybackNPC(PlayerPlaybackEngine engine, Location pos, Skin skin, String name, List<Player> viewers){
-        this(pos.getLevel().getChunk(pos.getFloorX() >> 4, pos.getFloorZ() >> 4),
-                new CompoundTag()
-                        .putList(new ListTag<DoubleTag>("Pos")
-                                .add(new DoubleTag("", pos.x))
-                                .add(new DoubleTag("", pos.y))
-                                .add(new DoubleTag("", pos.z)))
-                        .putList(new ListTag<DoubleTag>("Motion")
-                                .add(new DoubleTag("", 0))
-                                .add(new DoubleTag("", 0))
-                                .add(new DoubleTag("", 0)))
-                        .putList(new ListTag<FloatTag>("Rotation")
-                                        .add(new FloatTag("", (float)pos.yaw))
-                                        .add(new FloatTag("", (float)pos.pitch))
-                        ), engine, skin, name, viewers);
         this.saveNBT();
     }
 

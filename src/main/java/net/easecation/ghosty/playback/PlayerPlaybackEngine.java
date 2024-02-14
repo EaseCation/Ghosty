@@ -2,10 +2,13 @@ package net.easecation.ghosty.playback;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.data.Skin;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
+import cn.nukkit.level.format.generic.BaseFullChunk;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.MovePlayerPacket;
 import cn.nukkit.scheduler.TaskHandler;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -257,7 +260,15 @@ public class PlayerPlaybackEngine {
             PlayerRecordNode init = PlayerRecordNode.createZero();
             updates.forEach(e -> e.applyTo(init));
             Location loc = new Location(init.getX(), init.getY(), init.getZ(), init.getYaw(), init.getPitch(), level);
-            this.npc = new PlaybackNPC(this, loc, record.getSkin(), init.getTagName(), null);
+            BaseFullChunk chunk = level.getChunk(loc.getChunkX(), loc.getChunkZ(), true);
+            if (chunk == null) {
+                if (DEBUG_DUMP) {
+                    GhostyPlugin.getInstance().getLogger().debug(record.getPlayerName() + " " + tick + " -> chunk unloaded: " + loc);
+                }
+                return;
+            }
+            CompoundTag nbt = Entity.getDefaultNBT(loc);
+            this.npc = new PlaybackNPC(chunk, nbt, this, record.getSkin(), init.getTagName(), null);
             this.npc.spawnToAll();
             if (DEBUG_DUMP) {
                 GhostyPlugin.getInstance().getLogger().debug(record.getPlayerName() + " " + tick + " -> spawn " + record.getPlayerName());
