@@ -5,6 +5,7 @@ import cn.nukkit.level.Level;
 import cn.nukkit.math.BlockVector3;
 import cn.nukkit.network.protocol.*;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -40,7 +41,7 @@ public final class LevelRecordNode {
      * 仅用于回放
      * 在播放时，记录所有的方块变更的变更前方块。用于回放时的回退。
      */
-    private final Int2ObjectLinkedOpenHashMap<Map<BlockVector3, Block>> blockChangeLog = new Int2ObjectLinkedOpenHashMap<>();
+    private final Int2ObjectSortedMap<Map<BlockVector3, Block>> blockChangeLog = new Int2ObjectLinkedOpenHashMap<>();
     /**
      * 用于录制和回放
      * 暂存所有应用于世界的方块变更，然后在每tick应用于世界
@@ -74,8 +75,8 @@ public final class LevelRecordNode {
         for (Map.Entry<BlockVector3, Block> entry : blockChanges.entrySet()) {
             list.add(LevelUpdatedBlockChange.of(entry.getKey(), entry.getValue()));
         }
-        for (Map.Entry<Long, List<DataPacket>> entry : levelChunkPackets.long2ObjectEntrySet()) {
-            for (DataPacket packet : entry.getValue()) {
+        for (List<DataPacket> packets : levelChunkPackets.values()) {
+            for (DataPacket packet : packets) {
                 // BlockEventPacket
                 if (packet instanceof BlockEventPacket pk) {
                     list.add(LevelUpdatedBlockEvent.of(pk));
@@ -123,9 +124,10 @@ public final class LevelRecordNode {
             this.blockChangeLog.get(tick).put(entry.getKey(), originBlock);
             level.setBlock(entry.getKey(), entry.getValue(), true, false);
         }
-        for (Map.Entry<Long, List<DataPacket>> entry : levelChunkPackets.long2ObjectEntrySet()) {
-            int chunkX = Level.getHashX(entry.getKey());
-            int chunkZ = Level.getHashZ(entry.getKey());
+        for (Long2ObjectMap.Entry<List<DataPacket>> entry : levelChunkPackets.long2ObjectEntrySet()) {
+            long index = entry.getLongKey();
+            int chunkX = Level.getHashX(index);
+            int chunkZ = Level.getHashZ(index);
             for (DataPacket pk : entry.getValue()) {
                 level.addChunkPacket(chunkX, chunkZ, pk);
             }

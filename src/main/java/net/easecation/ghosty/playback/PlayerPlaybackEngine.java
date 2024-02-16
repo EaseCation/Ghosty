@@ -51,7 +51,7 @@ public class PlayerPlaybackEngine {
     private float lastTick = -1;
     private boolean stopped = false;
     private PlaybackNPC npc;
-    private PlaybackIterator<PlayerUpdated> iterator;
+    private final PlaybackIterator<PlayerUpdated> iterator;
     private final Set<Player> attachedPlayers = new HashSet<>();
 
     public PlayerPlaybackEngine(PlayerRecord record) {

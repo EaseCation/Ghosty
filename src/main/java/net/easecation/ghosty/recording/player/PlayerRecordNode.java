@@ -5,7 +5,6 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.item.Item;
 import net.easecation.ghosty.recording.player.updated.PlayerUpdated;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,12 +13,7 @@ import java.util.List;
  * Created by Mulan Lin('Snake1999') on 2016/11/19 15:13 17:02.
  * All rights reserved
  */
-public final class PlayerRecordNode implements Serializable {
-   /**
-    * 序列化ID
-    */
-    private static final long serialVersionUID = -5809782578272943999L;
-
+public final class PlayerRecordNode {
     private double x;
     private double y;
     private double z;

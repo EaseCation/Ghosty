@@ -47,7 +47,7 @@ public class MathUtil {
         String timestamp = String.valueOf(time);
         int length = timestamp.length();
         if (length > 3) {
-            return Integer.valueOf(timestamp.substring(0,length-3));
+            return Integer.parseInt(timestamp.substring(0,length-3));
         } else {
             return 0;
         }
