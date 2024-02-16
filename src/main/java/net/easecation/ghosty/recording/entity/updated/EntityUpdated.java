@@ -66,14 +66,14 @@ public interface EntityUpdated {
      * @param stream BinaryStream
      * @return PlayerUpdated
      */
-    static EntityUpdated fromBinaryStream(BinaryStream stream) {
+    static EntityUpdated fromBinaryStream(BinaryStream stream, int formatVersion) {
         return switch (stream.getByte()) {
             case TYPE_POSITION_XYZ -> new EntityUpdatedPositionXYZ(stream);
             case TYPE_ROTATION -> new EntityUpdatedRotation(stream);
             case TYPE_TAG_NAME -> new EntityUpdatedTagName(stream);
             case TYPE_SCORE_TAG -> new EntityUpdatedScoreTag(stream);
-            case TYPE_DATA_FLAGS -> new EntityUpdatedDataFlags(stream);
-            case TYPE_ITEM -> new EntityUpdatedItem(stream);
+            case TYPE_DATA_FLAGS -> new EntityUpdatedDataFlags(stream); //TODO: use persistence ID instead of runtime ID
+            case TYPE_ITEM -> new EntityUpdatedItem(stream, formatVersion);
             case TYPE_SCALE -> new EntityUpdatedScale(stream);
             case TYPE_CLOSE -> new EntityUpdatedClose(stream);
             case TYPE_NAMETAG_ALWAYS_VISIBLE -> new EntityUpdatedNameTagAlwaysVisible(stream);

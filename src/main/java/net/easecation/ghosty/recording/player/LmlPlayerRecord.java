@@ -9,11 +9,12 @@ import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.MathUtil;
 import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.recording.player.updated.*;
+import net.easecation.ghosty.util.LittleEndianBinaryStream;
+import net.easecation.ghosty.util.PersistenceBinaryStreamHelper;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Created by Mulan Lin('Snake1999') on 2016/11/19 15:34.
@@ -22,24 +23,42 @@ public class LmlPlayerRecord implements PlayerRecord {
 
     private PlayerRecordNode last = PlayerRecordNode.ZERO;
 
-    private List<RecordPair> rec = new LinkedList<>();
+    private final List<RecordPair> rec = new LinkedList<>();
 
-    private String playerName;
+    private final String playerName;
     private Skin skin;
 
-    public LmlPlayerRecord(BinaryStream stream) {
-        this.playerName = stream.getString();
-        int offset = stream.getOffset();
-        try {
-            this.skin = stream.getSkinLegacy();
-        } catch (IllegalArgumentException e) {
-            stream.setOffset(offset);
-            this.skin = stream.getSkin();
-        }
-        int len = (int) stream.getUnsignedVarInt();
-        for (int i = 0; i < len; i++) {
-            RecordPair pair = new RecordPair(stream);
-            rec.add(pair);
+    public LmlPlayerRecord(BinaryStream stream, int formatVersion) {
+        switch (formatVersion) {
+            case 1: {
+                stream = new LittleEndianBinaryStream(stream);
+                this.playerName = stream.getString();
+                this.skin = PersistenceBinaryStreamHelper.getSkin(stream);
+                int len = (int) stream.getUnsignedVarInt();
+                for (int i = 0; i < len; i++) {
+                    RecordPair pair = new RecordPair(stream, formatVersion);
+                    rec.add(pair);
+                }
+                break;
+            }
+            case 0: {
+                this.playerName = stream.getString();
+                int offset = stream.getOffset();
+                try {
+                    this.skin = stream.getSkinLegacy();
+                } catch (IllegalArgumentException e) {
+                    stream.setOffset(offset);
+                    this.skin = stream.getSkin();
+                }
+                int len = (int) stream.getUnsignedVarInt();
+                for (int i = 0; i < len; i++) {
+                    RecordPair pair = new RecordPair(stream, formatVersion);
+                    rec.add(pair);
+                }
+                break;
+            }
+            default:
+                throw new IllegalArgumentException("Unsupported format version: " + formatVersion);
         }
     }
 
@@ -83,12 +102,12 @@ public class LmlPlayerRecord implements PlayerRecord {
         rec.add(new RecordPair(tick, updated));
     }
 
-    private class RecordPair {
+    private static class RecordPair {
 
-        private RecordPair(BinaryStream stream) {
+        private RecordPair(BinaryStream stream, int formatVersion) {
             try {
                 this.tick = (int) stream.getUnsignedVarInt();
-                this.updated = PlayerUpdated.fromBinaryStream(stream);
+                this.updated = PlayerUpdated.fromBinaryStream(stream, formatVersion);
             } catch (Exception e) {
                 Server.getInstance().getLogger().logException(e);
                 throw e;
@@ -103,7 +122,7 @@ public class LmlPlayerRecord implements PlayerRecord {
         int tick; PlayerUpdated updated;
 
         private void write(BinaryStream stream) {
-            stream.putUnsignedVarInt((int) tick);
+            stream.putUnsignedVarInt(tick);
             stream.putByte((byte) updated.getUpdateTypeId());
             updated.write(stream);
         }
@@ -123,10 +142,10 @@ public class LmlPlayerRecord implements PlayerRecord {
 
     @Override
     public byte[] toBinary() {
-        BinaryStream stream = new BinaryStream();
-        stream.putByte(PlayerRecord.OBJECT_LML);
+        BinaryStream stream = new LittleEndianBinaryStream();
+        stream.putByte(PlayerRecord.OBJECT_LML_V1);
         stream.putString(this.playerName);
-        stream.putSkin(this.skin);
+        PersistenceBinaryStreamHelper.putSkin(stream, this.skin);
         stream.putUnsignedVarInt(this.rec.size());
         for (RecordPair pair : this.rec) {
             pair.write(stream);
@@ -137,7 +156,7 @@ public class LmlPlayerRecord implements PlayerRecord {
     public double getMaxMovement() {
         Vector3 lastPos = null;
         double maxMovement = 0;
-        for (RecordPair pair : this.rec.stream().filter(p -> p.updated instanceof PlayerUpdatedPositionXYZ).collect(Collectors.toList())) {
+        for (RecordPair pair : this.rec.stream().filter(p -> p.updated instanceof PlayerUpdatedPositionXYZ).toList()) {
             PlayerUpdatedPositionXYZ pos = (PlayerUpdatedPositionXYZ) pair.updated;
             Vector3 newPos = pos.asVector3();
             if (lastPos != null) {
@@ -152,7 +171,7 @@ public class LmlPlayerRecord implements PlayerRecord {
     public double calculateMovementVariance() {
         Vector3 lastPos = null;
 
-        List<RecordPair> pairs = this.rec.stream().filter(p -> p.updated instanceof PlayerUpdatedPositionXYZ).collect(Collectors.toList());
+        List<RecordPair> pairs = this.rec.stream().filter(p -> p.updated instanceof PlayerUpdatedPositionXYZ).toList();
         if (pairs.size() <= 1) return 0;
         double[] distances = new double[pairs.size() - 1];
         for (int i = 0; i < pairs.size(); i++) {

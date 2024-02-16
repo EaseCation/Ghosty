@@ -5,6 +5,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.entity.PlaybackNPC;
 import net.easecation.ghosty.recording.player.PlayerRecordNode;
+import net.easecation.ghosty.util.PersistenceBinaryStreamHelper;
 
 /**
  * Created by Mulan Lin('Snake1999') on 2016/11/19 17:02.
@@ -43,8 +44,19 @@ public class PlayerUpdatedArmor0 implements PlayerUpdated {
         return node;
     }
 
-    public PlayerUpdatedArmor0(BinaryStream stream) {
-        read(stream);
+    public PlayerUpdatedArmor0(BinaryStream stream, int formatVersion) {
+        switch (formatVersion) {
+            case 1: {
+                this.item = PersistenceBinaryStreamHelper.getItem(stream);
+                break;
+            }
+            case 0: {
+                read(stream);
+                break;
+            }
+            default:
+                throw new IllegalArgumentException("Unsupported format version: " + formatVersion);
+        }
     }
 
     private PlayerUpdatedArmor0(Item item) {
@@ -59,7 +71,7 @@ public class PlayerUpdatedArmor0 implements PlayerUpdated {
 
     @Override
     public void write(BinaryStream stream) {
-        stream.putSlot(this.item);
+        PersistenceBinaryStreamHelper.putItem(stream, this.item);
     }
 
     @Override

@@ -10,6 +10,7 @@ import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.MathUtil;
 import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.recording.player.updated.*;
+import net.easecation.ghosty.util.LittleEndianBinaryStream;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -30,12 +31,29 @@ public class SkinlessPlayerRecord implements PlayerRecord {
 
     private Skin tempSkin = null;
 
-    public SkinlessPlayerRecord(BinaryStream stream) {
-        this.playerName = stream.getString();
-        int len = (int) stream.getUnsignedVarInt();
-        for (int i = 0; i < len; i++) {
-            RecordPair pair = new RecordPair(stream);
-            rec.add(pair);
+    public SkinlessPlayerRecord(BinaryStream stream, int formatVersion) {
+        switch (formatVersion) {
+            case 1: {
+                stream = new LittleEndianBinaryStream(stream);
+                this.playerName = stream.getString();
+                int len = (int) stream.getUnsignedVarInt();
+                for (int i = 0; i < len; i++) {
+                    RecordPair pair = new RecordPair(stream, formatVersion);
+                    rec.add(pair);
+                }
+                break;
+            }
+            case 0: {
+                this.playerName = stream.getString();
+                int len = (int) stream.getUnsignedVarInt();
+                for (int i = 0; i < len; i++) {
+                    RecordPair pair = new RecordPair(stream, formatVersion);
+                    rec.add(pair);
+                }
+                break;
+            }
+            default:
+                throw new IllegalArgumentException("Unsupported format version: " + formatVersion);
         }
     }
 
@@ -119,10 +137,10 @@ public class SkinlessPlayerRecord implements PlayerRecord {
      */
     private static class RecordPair {
 
-        private RecordPair(BinaryStream stream) {
+        private RecordPair(BinaryStream stream, int formatVersion) {
             try {
                 this.tick = (int) stream.getUnsignedVarInt();
-                this.updated = PlayerUpdated.fromBinaryStream(stream);
+                this.updated = PlayerUpdated.fromBinaryStream(stream, formatVersion);
             } catch (Exception e) {
                 Server.getInstance().getLogger().logException(e);
                 throw e;
@@ -165,8 +183,8 @@ public class SkinlessPlayerRecord implements PlayerRecord {
 
     @Override
     public byte[] toBinary() {
-        BinaryStream stream = new BinaryStream();
-        stream.putByte(PlayerRecord.OBJECT_SKINLESS);
+        BinaryStream stream = new LittleEndianBinaryStream();
+        stream.putByte(PlayerRecord.OBJECT_SKINLESS_V1);
         stream.putString(this.playerName);
         stream.putUnsignedVarInt(this.rec.size());
         for (RecordPair pair : this.rec) {

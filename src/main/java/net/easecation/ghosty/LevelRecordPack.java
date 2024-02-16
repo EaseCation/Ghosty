@@ -52,7 +52,7 @@ public class LevelRecordPack {
 
     public void pack(OutputStream outputStream) throws IOException {
         try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
-            zos.setLevel(9);
+            zos.setLevel(1);
             // Pack level record
             ZipEntry levelEntry = new ZipEntry("level_record.ecrecl");
             zos.putNextEntry(levelEntry);

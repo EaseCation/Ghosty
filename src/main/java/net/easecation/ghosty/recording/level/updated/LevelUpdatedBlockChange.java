@@ -4,6 +4,7 @@ import cn.nukkit.block.Block;
 import cn.nukkit.math.BlockVector3;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.recording.level.LevelRecordNode;
+import net.easecation.ghosty.util.PersistenceBinaryStreamHelper;
 
 public class LevelUpdatedBlockChange implements LevelUpdated {
 
@@ -15,8 +16,20 @@ public class LevelUpdatedBlockChange implements LevelUpdated {
         this.block = block;
     }
 
-    public LevelUpdatedBlockChange(BinaryStream stream) {
-        this.read(stream);
+    public LevelUpdatedBlockChange(BinaryStream stream, int formatVersion) {
+        switch (formatVersion) {
+            case 1: {
+                this.pos = stream.getBlockVector3();
+                this.block = PersistenceBinaryStreamHelper.getBlock(stream);
+                break;
+            }
+            case 0: {
+                this.read(stream);
+                break;
+            }
+            default:
+                throw new IllegalArgumentException("Unsupported format version: " + formatVersion);
+        }
     }
 
     public static LevelUpdatedBlockChange of(BlockVector3 pos, Block block) {
@@ -41,8 +54,7 @@ public class LevelUpdatedBlockChange implements LevelUpdated {
     @Override
     public void write(BinaryStream stream) {
         stream.putBlockVector3(pos);
-        stream.putVarInt(block.getId());
-        stream.putByte((byte) block.getDamage());
+        PersistenceBinaryStreamHelper.putBlock(stream, block);
     }
 
     @Override

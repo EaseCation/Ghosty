@@ -66,21 +66,21 @@ public interface PlayerUpdated {
      * @param stream BinaryStream
      * @return PlayerUpdated
      */
-    static PlayerUpdated fromBinaryStream(BinaryStream stream) {
+    static PlayerUpdated fromBinaryStream(BinaryStream stream, int formatVersion) {
         return switch (stream.getByte()) {
             case TYPE_POSITION_XYZ -> new PlayerUpdatedPositionXYZ(stream);
             case TYPE_ROTATION -> new PlayerUpdatedRotation(stream);
             case TYPE_TAG_NAME -> new PlayerUpdatedTagName(stream);
             case TYPE_WORLD -> new PlayerUpdatedWorldChanged(stream);
-            case TYPE_DATA_FLAGS -> new PlayerUpdatedDataFlags(stream);
-            case TYPE_ITEM -> new PlayerUpdatedItem(stream);
+            case TYPE_DATA_FLAGS -> new PlayerUpdatedDataFlags(stream); //TODO: use persistence ID instead of runtime ID
+            case TYPE_ITEM -> new PlayerUpdatedItem(stream, formatVersion);
             case TYPE_ANIMATE -> new PlayerUpdatedAnimate(stream);
             case TYPE_ENTITY_EVENT -> new PlayerUpdatedEntityEvent(stream);
-            case TYPE_ARMOR_0 -> new PlayerUpdatedArmor0(stream);
-            case TYPE_ARMOR_1 -> new PlayerUpdatedArmor1(stream);
-            case TYPE_ARMOR_2 -> new PlayerUpdatedArmor2(stream);
-            case TYPE_ARMOR_3 -> new PlayerUpdatedArmor3(stream);
-            case TYPE_OFFHAND -> new PlayerUpdatedOffhand(stream);
+            case TYPE_ARMOR_0 -> new PlayerUpdatedArmor0(stream, formatVersion);
+            case TYPE_ARMOR_1 -> new PlayerUpdatedArmor1(stream, formatVersion);
+            case TYPE_ARMOR_2 -> new PlayerUpdatedArmor2(stream, formatVersion);
+            case TYPE_ARMOR_3 -> new PlayerUpdatedArmor3(stream, formatVersion);
+            case TYPE_OFFHAND -> new PlayerUpdatedOffhand(stream, formatVersion);
             case TYPE_TAKE_ITEM_ENTITY -> new PlayerUpdatedTakeItemEntity(stream);
             default -> null;
         };

@@ -7,6 +7,7 @@ import net.easecation.ghosty.recording.level.updated.LevelUpdated;
 public interface LevelRecord {
 
     byte VERSION_0 = 0;
+    byte VERSION_1 = 1;
 
     void record(int tick, LevelRecordNode node);
 
@@ -17,7 +18,11 @@ public interface LevelRecord {
     static LevelRecord fromBinary(byte[] data) {
         BinaryStream stream = new BinaryStream(data);
         byte type = (byte) stream.getByte();
-        return new LevelRecordImpl(stream);
+        return switch (type) {
+            case VERSION_1 -> new LevelRecordImpl(stream, 1);
+            case VERSION_0 -> new LevelRecordImpl(stream, 0);
+            default -> null;
+        };
     }
 
 }

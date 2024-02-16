@@ -50,13 +50,13 @@ public interface LevelUpdated {
      * @param stream BinaryStream
      * @return LevelUpdated
      */
-    static LevelUpdated fromBinaryStream(BinaryStream stream) {
+    static LevelUpdated fromBinaryStream(BinaryStream stream, int formatVersion) {
         int type = stream.getByte();
         return switch (type) {
-            case TYPE_BLOCK_CHANGE -> new LevelUpdatedBlockChange(stream);
+            case TYPE_BLOCK_CHANGE -> new LevelUpdatedBlockChange(stream, formatVersion);
             case TYPE_BLOCK_EVENT -> new LevelUpdatedBlockEvent(stream);
-            case TYPE_LEVEL_EVENT -> new LevelUpdatedLevelEvent(stream);
-            case TYPE_LEVEL_SOUND_EVENT -> new LevelUpdatedLevelSoundEvent(stream);
+            case TYPE_LEVEL_EVENT -> new LevelUpdatedLevelEvent(stream); //TODO: use persistence data instead of runtime data
+            case TYPE_LEVEL_SOUND_EVENT -> new LevelUpdatedLevelSoundEvent(stream); //TODO: use persistence data instead of runtime data
             case TYPE_PLAY_SOUND -> new LevelUpdatedPlaySound(stream);
             case TYPE_TITLE -> new LevelUpdatedTitle(stream);
             case TYPE_MESSAGE -> new LevelUpdatedMessage(stream);

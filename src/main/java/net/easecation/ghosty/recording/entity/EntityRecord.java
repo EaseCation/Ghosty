@@ -15,6 +15,7 @@ public interface EntityRecord {
      * 用于标识PlayerRecord的类型
      */
     byte OBJECT_V0 = 0;
+    byte OBJECT_V1 = 1;
 
     void record(int tick, EntityRecordNode node);
 
@@ -38,7 +39,8 @@ public interface EntityRecord {
         BinaryStream stream = new BinaryStream(data);
         byte type = (byte) stream.getByte();
         return switch (type) {
-            case OBJECT_V0 -> new EntityRecordImpl(stream);
+            case OBJECT_V1 -> new EntityRecordImpl(stream, 1);
+            case OBJECT_V0 -> new EntityRecordImpl(stream, 0);
             default -> null;
         };
     }

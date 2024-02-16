@@ -8,6 +8,7 @@ import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.entity.SimulatedEntity;
 import net.easecation.ghosty.recording.entity.updated.*;
+import net.easecation.ghosty.util.LittleEndianBinaryStream;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -28,14 +29,33 @@ public class EntityRecordImpl implements EntityRecord {
     private final int networkId;
     private final String entityIdentifier;
 
-    public EntityRecordImpl(BinaryStream stream) {
-        this.entityId = stream.getEntityUniqueId();
-        this.networkId = stream.getVarInt();
-        this.entityIdentifier = stream.getString();
-        int len = (int) stream.getUnsignedVarInt();
-        for (int i = 0; i < len; i++) {
-            RecordPair pair = new RecordPair(stream);
-            rec.add(pair);
+    public EntityRecordImpl(BinaryStream stream, int formatVersion) {
+        switch (formatVersion) {
+            case 1: {
+                stream = new LittleEndianBinaryStream(stream);
+                this.entityId = stream.getEntityUniqueId();
+                this.networkId = stream.getVarInt();
+                this.entityIdentifier = stream.getString();
+                int len = (int) stream.getUnsignedVarInt();
+                for (int i = 0; i < len; i++) {
+                    RecordPair pair = new RecordPair(stream, formatVersion);
+                    rec.add(pair);
+                }
+                break;
+            }
+            case 0: {
+                this.entityId = stream.getEntityUniqueId();
+                this.networkId = stream.getVarInt();
+                this.entityIdentifier = stream.getString();
+                int len = (int) stream.getUnsignedVarInt();
+                for (int i = 0; i < len; i++) {
+                    RecordPair pair = new RecordPair(stream, formatVersion);
+                    rec.add(pair);
+                }
+                break;
+            }
+            default:
+                throw new IllegalArgumentException("Unsupported format version: " + formatVersion);
         }
     }
 
@@ -62,8 +82,8 @@ public class EntityRecordImpl implements EntityRecord {
 
     @Override
     public byte[] toBinary() {
-        BinaryStream stream = new BinaryStream();
-        stream.putByte(EntityRecord.OBJECT_V0);
+        BinaryStream stream = new LittleEndianBinaryStream();
+        stream.putByte(EntityRecord.OBJECT_V1);
         stream.putEntityUniqueId(this.entityId);
         stream.putVarInt(this.networkId);
         stream.putString(this.entityIdentifier);
@@ -156,10 +176,10 @@ public class EntityRecordImpl implements EntityRecord {
      */
     private static class RecordPair {
 
-        private RecordPair(BinaryStream stream) {
+        private RecordPair(BinaryStream stream, int formatVersion) {
             try {
                 this.tick = (int) stream.getUnsignedVarInt();
-                this.updated = EntityUpdated.fromBinaryStream(stream);
+                this.updated = EntityUpdated.fromBinaryStream(stream, formatVersion);
             } catch (Exception e) {
                 Server.getInstance().getLogger().logException(e);
                 throw e;

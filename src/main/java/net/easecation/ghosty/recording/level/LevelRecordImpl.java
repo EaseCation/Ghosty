@@ -4,6 +4,7 @@ import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.recording.level.updated.LevelUpdated;
+import net.easecation.ghosty.util.LittleEndianBinaryStream;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -14,10 +15,25 @@ public class LevelRecordImpl implements LevelRecord {
 
     private final List<RecordPair> rec = new LinkedList<>();
 
-    public LevelRecordImpl(BinaryStream stream) {
-        int len = (int) stream.getUnsignedVarInt();
-        for (int i = 0; i < len; i++) {
-            rec.add(new RecordPair(stream));
+    public LevelRecordImpl(BinaryStream stream, int formatVersion) {
+        switch (formatVersion) {
+            case 1: {
+                stream = new LittleEndianBinaryStream(stream);
+                int len = (int) stream.getUnsignedVarInt();
+                for (int i = 0; i < len; i++) {
+                    rec.add(new RecordPair(stream, formatVersion));
+                }
+                break;
+            }
+            case 0: {
+                int len = (int) stream.getUnsignedVarInt();
+                for (int i = 0; i < len; i++) {
+                    rec.add(new RecordPair(stream, formatVersion));
+                }
+                break;
+            }
+            default:
+                throw new IllegalArgumentException("Unsupported format version: " + formatVersion);
         }
     }
 
@@ -57,8 +73,8 @@ public class LevelRecordImpl implements LevelRecord {
 
     @Override
     public byte[] toBinary() {
-        BinaryStream stream = new BinaryStream();
-        stream.putByte(VERSION_0);
+        BinaryStream stream = new LittleEndianBinaryStream();
+        stream.putByte(VERSION_1);
         stream.putUnsignedVarInt(this.rec.size());
         for (RecordPair pair : this.rec) {
             pair.write(stream);
@@ -75,10 +91,10 @@ public class LevelRecordImpl implements LevelRecord {
             this.updated = updated;
         }
 
-        public RecordPair(BinaryStream stream) {
+        public RecordPair(BinaryStream stream, int formatVersion) {
             try {
                 tick = (int) stream.getUnsignedVarInt();
-                updated = LevelUpdated.fromBinaryStream(stream);
+                updated = LevelUpdated.fromBinaryStream(stream, formatVersion);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

@@ -15,8 +15,10 @@ public interface PlayerRecord {
     /**
      * 用于标识PlayerRecord的类型
      */
-    byte OBJECT_LML = 0;
-    byte OBJECT_SKINLESS = 1;
+    byte OBJECT_LML_V0 = 0;
+    byte OBJECT_SKINLESS_V0 = 1;
+    byte OBJECT_LML_V1 = 2;
+    byte OBJECT_SKINLESS_V1 = 3;
 
     void record(int tick, PlayerRecordNode node);
 
@@ -32,8 +34,10 @@ public interface PlayerRecord {
         BinaryStream stream = new BinaryStream(data);
         byte type = (byte) stream.getByte();
         return switch (type) {
-            case OBJECT_LML -> new LmlPlayerRecord(stream);
-            case OBJECT_SKINLESS -> new SkinlessPlayerRecord(stream);
+            case OBJECT_SKINLESS_V1 -> new SkinlessPlayerRecord(stream, 1);
+            case OBJECT_LML_V1 -> new LmlPlayerRecord(stream, 1);
+            case OBJECT_LML_V0 -> new LmlPlayerRecord(stream, 0);
+            case OBJECT_SKINLESS_V0 -> new SkinlessPlayerRecord(stream, 0);
             default -> null;
         };
     }
