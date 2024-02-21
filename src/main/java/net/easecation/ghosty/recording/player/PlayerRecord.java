@@ -19,10 +19,14 @@ public interface PlayerRecord {
     byte OBJECT_SKINLESS_V0 = 1;
     byte OBJECT_LML_V1 = 2;
     byte OBJECT_SKINLESS_V1 = 3;
+    byte OBJECT_LML_V2 = 4;
+    byte OBJECT_SKINLESS_V2 = 5;
 
     void record(int tick, PlayerRecordNode node);
 
     PlaybackIterator<PlayerUpdated> iterator();
+
+    int getProtocol();
 
     String getPlayerName();
 
@@ -34,10 +38,12 @@ public interface PlayerRecord {
         BinaryStream stream = new BinaryStream(data);
         byte type = (byte) stream.getByte();
         return switch (type) {
+            case OBJECT_SKINLESS_V2 -> new SkinlessPlayerRecord(stream, 2);
+            case OBJECT_LML_V2 -> new LmlPlayerRecord(stream, 2);
             case OBJECT_SKINLESS_V1 -> new SkinlessPlayerRecord(stream, 1);
             case OBJECT_LML_V1 -> new LmlPlayerRecord(stream, 1);
-            case OBJECT_LML_V0 -> new LmlPlayerRecord(stream, 0);
             case OBJECT_SKINLESS_V0 -> new SkinlessPlayerRecord(stream, 0);
+            case OBJECT_LML_V0 -> new LmlPlayerRecord(stream, 0);
             default -> null;
         };
     }

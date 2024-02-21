@@ -27,12 +27,24 @@ public class SkinlessPlayerRecord implements PlayerRecord {
 
     private final List<RecordPair> rec = new LinkedList<>();
 
+    private final int protocol;
     private final String playerName;
 
     private Skin tempSkin = null;
 
     public SkinlessPlayerRecord(BinaryStream stream, int formatVersion) {
         switch (formatVersion) {
+            case 2: {
+                stream = new LittleEndianBinaryStream(stream);
+                this.protocol = stream.getInt();
+                this.playerName = stream.getString();
+                int len = (int) stream.getUnsignedVarInt();
+                for (int i = 0; i < len; i++) {
+                    RecordPair pair = new RecordPair(stream, formatVersion);
+                    rec.add(pair);
+                }
+                break;
+            }
             case 1: {
                 stream = new LittleEndianBinaryStream(stream);
                 this.playerName = stream.getString();
@@ -41,6 +53,7 @@ public class SkinlessPlayerRecord implements PlayerRecord {
                     RecordPair pair = new RecordPair(stream, formatVersion);
                     rec.add(pair);
                 }
+                this.protocol = 0;
                 break;
             }
             case 0: {
@@ -50,6 +63,7 @@ public class SkinlessPlayerRecord implements PlayerRecord {
                     RecordPair pair = new RecordPair(stream, formatVersion);
                     rec.add(pair);
                 }
+                this.protocol = 0;
                 break;
             }
             default:
@@ -58,7 +72,13 @@ public class SkinlessPlayerRecord implements PlayerRecord {
     }
 
     public SkinlessPlayerRecord(Player player) {
+        this.protocol = player.getProtocol();
         this.playerName = player.getName();
+    }
+
+    @Override
+    public int getProtocol() {
+        return protocol;
     }
 
     @Override
@@ -184,7 +204,8 @@ public class SkinlessPlayerRecord implements PlayerRecord {
     @Override
     public byte[] toBinary() {
         BinaryStream stream = new LittleEndianBinaryStream();
-        stream.putByte(PlayerRecord.OBJECT_SKINLESS_V1);
+        stream.putByte(PlayerRecord.OBJECT_SKINLESS_V2);
+        stream.putInt(this.protocol);
         stream.putString(this.playerName);
         stream.putUnsignedVarInt(this.rec.size());
         for (RecordPair pair : this.rec) {
