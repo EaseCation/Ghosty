@@ -118,27 +118,29 @@ public class SimulatedEntity extends Entity {
     }
 
     @Override
-    public void setNameTag(String name) {
+    public boolean setNameTag(String name) {
         if (globalNameTagProcessor == null) {
-            super.setNameTag(name);
+            return super.setNameTag(name);
         }
-        this.setDataProperty(new StringEntityData(DATA_NAMETAG, name), false);
+        boolean result = this.setDataProperty(new StringEntityData(DATA_NAMETAG, name), false);
         for (Player player : this.getViewers().values()) {
             StringEntityData data = new StringEntityData(DATA_NAMETAG, globalNameTagProcessor.getNameTag(player, name));
             this.sendData(new Player[]{player}, new EntityMetadata().put(data));
         }
+        return result;
     }
 
     @Override
-    public void setScoreTag(String score) {
+    public boolean setScoreTag(String score) {
         if (globalNameTagProcessor == null) {
-            super.setScoreTag(score);
+            return super.setScoreTag(score);
         }
-        this.setDataProperty(new StringEntityData(DATA_SCORE_TAG, score), false);
+        boolean result = this.setDataProperty(new StringEntityData(DATA_SCORE_TAG, score), false);
         for (Player player : this.getViewers().values()) {
             StringEntityData data = new StringEntityData(DATA_SCORE_TAG, globalNameTagProcessor.getNameTag(player, score));
             this.sendData(new Player[]{player}, new EntityMetadata().put(data));
         }
+        return result;
     }
 
     public SkinInfo getSkinInfo() {
