@@ -52,7 +52,7 @@ public class GhostyPlugin extends PluginBase implements Listener {
             recordingPlayerEngines.entrySet().removeIf(e -> !e.getKey().isOnline() || e.getValue().isStopped());
             recordingLevelEngines.entrySet().removeIf(e -> e.getKey().getProvider() == null || !e.getValue().isRecording());
         }, 1);
-        this.getLogger().notice("GhostyPlugin enabled!");
+        this.getLogger().info("GhostyPlugin enabled!");
     }
 
     public List<PlayerRecord> getPlayerRecords() {
