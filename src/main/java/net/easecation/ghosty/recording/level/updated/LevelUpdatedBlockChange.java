@@ -18,7 +18,7 @@ public class LevelUpdatedBlockChange implements LevelUpdated {
 
     public LevelUpdatedBlockChange(BinaryStream stream, int formatVersion) {
         switch (formatVersion) {
-            case 1: {
+            case 1, 2: {
                 this.pos = stream.getBlockVector3();
                 this.block = PersistenceBinaryStreamHelper.getBlock(stream);
                 break;

@@ -46,7 +46,7 @@ public class PlayerUpdatedOffhand implements PlayerUpdated {
 
     public PlayerUpdatedOffhand(BinaryStream stream, int formatVersion) {
         switch (formatVersion) {
-            case 1: {
+            case 1, 2: {
                 this.item = PersistenceBinaryStreamHelper.getItem(stream);
                 break;
             }

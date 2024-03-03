@@ -17,6 +17,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class LevelRecordPack {
+    private static final Gson GSON = new Gson();
 
     private final LevelRecord levelRecord;
     private final List<PlayerRecord> playerRecords;
@@ -114,7 +115,7 @@ public class LevelRecordPack {
                     EntityRecord entityRecord = EntityRecord.fromBinary(zis.readAllBytes());
                     entityRecords.add(entityRecord);
                 } else if (entry.getName().equals("metadata.json")) {
-                    metadata = new Gson().fromJson(new InputStreamReader(zis), JsonObject.class);
+                    metadata = GSON.fromJson(new InputStreamReader(zis), JsonObject.class);
                 }
                 zis.closeEntry();
             }
