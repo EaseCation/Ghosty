@@ -31,7 +31,7 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
         this.setSkin(skin == null ? defaultSkin : skin);
         this.setNameTagVisible(true);
         this.setNameTagAlwaysVisible(true);
-        this.getInventory().setHeldItemSlot(0);
+        this.getInventory().setHeldItemIndex(0);
         this.setNameTag(name);
         this.viewers = viewers;
         this.saveNBT();
@@ -101,7 +101,7 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
             pk.item = this.getInventory().getItemInHand();
             pk.metadata = this.dataProperties;
             player.dataPacket(pk);
-            this.inventory.sendArmorContents(player);
+            this.armorInventory.sendContents(player);
             this.getInventory().sendHeldItem(player);
         }
     }

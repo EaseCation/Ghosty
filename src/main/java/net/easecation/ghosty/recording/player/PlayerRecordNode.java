@@ -2,6 +2,7 @@ package net.easecation.ghosty.recording.player;
 
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.inventory.ArmorInventory;
 import cn.nukkit.item.Item;
 import net.easecation.ghosty.recording.player.updated.PlayerUpdated;
 
@@ -46,10 +47,10 @@ public final class PlayerRecordNode {
                 player.getDisplayName(),
                 hand,
                 player.getDataPropertyLong(Entity.DATA_FLAGS),
-                player.getInventory().getArmorItem(0),
-                player.getInventory().getArmorItem(1),
-                player.getInventory().getArmorItem(2),
-                player.getInventory().getArmorItem(3),
+                player.getArmorInventory().getItem(ArmorInventory.SLOT_HEAD),
+                player.getArmorInventory().getItem(ArmorInventory.SLOT_TORSO),
+                player.getArmorInventory().getItem(ArmorInventory.SLOT_LEGS),
+                player.getArmorInventory().getItem(ArmorInventory.SLOT_FEET),
                 player.getOffhandInventory().getItem()
         );
     }

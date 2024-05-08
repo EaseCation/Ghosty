@@ -1,6 +1,6 @@
 package net.easecation.ghosty.recording.player.updated;
 
-import cn.nukkit.inventory.PlayerInventory;
+import cn.nukkit.inventory.ArmorInventory;
 import cn.nukkit.item.Item;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.entity.PlaybackNPC;
@@ -31,10 +31,10 @@ public class PlayerUpdatedArmor2 implements PlayerUpdated {
 
     @Override
     public void processTo(PlaybackNPC ghost) {
-        if (ghost != null && ghost.getInventory() != null) {
-            PlayerInventory inv = ghost.getInventory();
-            inv.setArmorItem(2, item == null ? Item.get(Item.AIR) : item);
-            inv.sendArmorContents(ghost.getViewers().values());
+        if (ghost != null && ghost.getArmorInventory() != null) {
+            ArmorInventory inv = ghost.getArmorInventory();
+            inv.setItem(ArmorInventory.SLOT_LEGS, item == null ? Item.get(Item.AIR) : item);
+            inv.sendContents(ghost.getViewers().values());
         }
     }
 
