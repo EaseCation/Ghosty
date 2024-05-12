@@ -16,6 +16,7 @@ import net.easecation.ghosty.recording.player.updated.PlayerUpdatedAnimate;
 import net.easecation.ghosty.recording.player.updated.PlayerUpdatedEntityEvent;
 import net.easecation.ghosty.recording.player.updated.PlayerUpdatedTakeItemEntity;
 import org.itxtech.synapseapi.SynapsePlayer;
+import org.itxtech.synapseapi.multiprotocol.protocol116100.protocol.EntityEventPacket116100;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,6 +102,10 @@ public class PlayerRecordEngine {
         if (packet instanceof AnimatePacket pk) {
             if (pk.eid == this.player.getId() || pk.eid == SynapsePlayer.SYNAPSE_PLAYER_ENTITY_ID) {
                 this.extraUpdates.add(PlayerUpdatedAnimate.of(pk.action.getId(), pk.rowingTime));
+            }
+        } else if (packet instanceof EntityEventPacket116100 pk) {
+            if (pk.eid == this.player.getId() || pk.eid == SynapsePlayer.SYNAPSE_PLAYER_ENTITY_ID) {
+                this.extraUpdates.add(PlayerUpdatedEntityEvent.of(pk.event, pk.data));
             }
         } else if (packet instanceof EntityEventPacket pk) {
             if (pk.eid == this.player.getId() || pk.eid == SynapsePlayer.SYNAPSE_PLAYER_ENTITY_ID) {
