@@ -21,6 +21,7 @@ public interface PlayerRecord {
     byte OBJECT_SKINLESS_V1 = 3;
     byte OBJECT_LML_V2 = 4;
     byte OBJECT_SKINLESS_V2 = 5;
+    byte OBJECT_SKINLESS_V3 = 6;
 
     void record(int tick, PlayerRecordNode node);
 
@@ -38,6 +39,7 @@ public interface PlayerRecord {
         BinaryStream stream = new BinaryStream(data);
         byte type = (byte) stream.getByte();
         return switch (type) {
+            case OBJECT_SKINLESS_V3 -> new SkinlessPlayerRecord(stream, 3);
             case OBJECT_SKINLESS_V2 -> new SkinlessPlayerRecord(stream, 2);
             case OBJECT_LML_V2 -> new LmlPlayerRecord(stream, 2);
             case OBJECT_SKINLESS_V1 -> new SkinlessPlayerRecord(stream, 1);

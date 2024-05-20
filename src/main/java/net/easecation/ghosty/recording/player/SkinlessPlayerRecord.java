@@ -29,15 +29,29 @@ public class SkinlessPlayerRecord implements PlayerRecord {
 
     private final int protocol;
     private final String playerName;
+    private final long runtimeEntityId;
 
     private Skin tempSkin = null;
 
     public SkinlessPlayerRecord(BinaryStream stream, int formatVersion) {
         switch (formatVersion) {
+            case 3: {
+                stream = new LittleEndianBinaryStream(stream);
+                this.protocol = stream.getInt();
+                this.playerName = stream.getString();
+                this.runtimeEntityId = stream.getEntityRuntimeId();
+                int len = (int) stream.getUnsignedVarInt();
+                for (int i = 0; i < len; i++) {
+                    RecordPair pair = new RecordPair(stream, formatVersion);
+                    rec.add(pair);
+                }
+                break;
+            }
             case 2: {
                 stream = new LittleEndianBinaryStream(stream);
                 this.protocol = stream.getInt();
                 this.playerName = stream.getString();
+                this.runtimeEntityId = 0;
                 int len = (int) stream.getUnsignedVarInt();
                 for (int i = 0; i < len; i++) {
                     RecordPair pair = new RecordPair(stream, formatVersion);
@@ -48,6 +62,7 @@ public class SkinlessPlayerRecord implements PlayerRecord {
             case 1: {
                 stream = new LittleEndianBinaryStream(stream);
                 this.playerName = stream.getString();
+                this.runtimeEntityId = 0;
                 int len = (int) stream.getUnsignedVarInt();
                 for (int i = 0; i < len; i++) {
                     RecordPair pair = new RecordPair(stream, formatVersion);
@@ -58,6 +73,7 @@ public class SkinlessPlayerRecord implements PlayerRecord {
             }
             case 0: {
                 this.playerName = stream.getString();
+                this.runtimeEntityId = 0;
                 int len = (int) stream.getUnsignedVarInt();
                 for (int i = 0; i < len; i++) {
                     RecordPair pair = new RecordPair(stream, formatVersion);
@@ -74,6 +90,7 @@ public class SkinlessPlayerRecord implements PlayerRecord {
     public SkinlessPlayerRecord(Player player) {
         this.protocol = player.getProtocol();
         this.playerName = player.getName();
+        this.runtimeEntityId = player.getId();
     }
 
     @Override
@@ -135,7 +152,10 @@ public class SkinlessPlayerRecord implements PlayerRecord {
         if (!Objects.equals(lo, o)) {
             push(tick, PlayerUpdatedOffhand.of(o));
         }
-
+        int lPing = last.getPing(), ping = node.getPing();
+        if (lPing != ping) {
+            push(tick, PlayerUpdatedPing.of(ping));
+        }
         for (PlayerUpdated extraUpdate : node.getExtraUpdates()) {
             push(tick, extraUpdate);
         }
@@ -204,9 +224,10 @@ public class SkinlessPlayerRecord implements PlayerRecord {
     @Override
     public byte[] toBinary() {
         BinaryStream stream = new LittleEndianBinaryStream();
-        stream.putByte(PlayerRecord.OBJECT_SKINLESS_V2);
+        stream.putByte(PlayerRecord.OBJECT_SKINLESS_V3);
         stream.putInt(this.protocol);
         stream.putString(this.playerName);
+        stream.putEntityRuntimeId(this.runtimeEntityId);
         stream.putUnsignedVarInt(this.rec.size());
         for (RecordPair pair : this.rec) {
             pair.write(stream);

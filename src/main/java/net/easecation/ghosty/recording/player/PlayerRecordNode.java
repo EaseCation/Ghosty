@@ -5,6 +5,7 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.inventory.ArmorInventory;
 import cn.nukkit.item.Item;
 import net.easecation.ghosty.recording.player.updated.PlayerUpdated;
+import org.itxtech.synapseapi.SynapsePlayer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,7 @@ public final class PlayerRecordNode {
     private Item offhand;
 
     private long dataFlags;
+    private int ping;
     private List<PlayerUpdated> extraUpdates = null;
 
     public static PlayerRecordNode of(Player player) {
@@ -51,14 +53,15 @@ public final class PlayerRecordNode {
                 player.getArmorInventory().getItem(ArmorInventory.SLOT_TORSO),
                 player.getArmorInventory().getItem(ArmorInventory.SLOT_LEGS),
                 player.getArmorInventory().getItem(ArmorInventory.SLOT_FEET),
-                player.getOffhandInventory().getItem()
+                player.getOffhandInventory().getItem(),
+                player instanceof SynapsePlayer pl ? (int) (pl.getLatency() / 1_000_000) : -1
         );
     }
 
     static PlayerRecordNode ZERO = createZero();
 
     public static PlayerRecordNode createZero() {
-        return new PlayerRecordNode(0,0,0,0,0,"","",null,0, null, null, null, null, null);
+        return new PlayerRecordNode(0,0,0,0,0,"","",null,0, null, null, null, null, null, -1);
     }
 
     @Override
@@ -79,13 +82,14 @@ public final class PlayerRecordNode {
                             this.armor2.equals(node.armor2) &&
                             this.armor3.equals(node.armor3) &&
                             this.offhand.equals(node.offhand) &&
-                            this.dataFlags == node.dataFlags
+                            this.dataFlags == node.dataFlags &&
+                            this.ping == node.ping
                 ;
         }
         return false;
     }
 
-    private PlayerRecordNode(double x, double y, double z, double yaw, double pitch, String level, String tagName, Item item, long dataFlags, Item armor0, Item armor1, Item armor2, Item armor3, Item offhand) {
+    private PlayerRecordNode(double x, double y, double z, double yaw, double pitch, String level, String tagName, Item item, long dataFlags, Item armor0, Item armor1, Item armor2, Item armor3, Item offhand, int ping) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -100,6 +104,7 @@ public final class PlayerRecordNode {
         this.armor2 = armor2;
         this.armor3 = armor3;
         this.offhand = offhand;
+        this.ping = ping;
     }
 
     public double getX() {
@@ -212,6 +217,14 @@ public final class PlayerRecordNode {
 
     public void setDataFlags(long dataFlags) {
         this.dataFlags = dataFlags;
+    }
+
+    public int getPing() {
+        return ping;
+    }
+
+    public void setPing(int ping) {
+        this.ping = ping;
     }
 
     public List<PlayerUpdated> getExtraUpdates() {

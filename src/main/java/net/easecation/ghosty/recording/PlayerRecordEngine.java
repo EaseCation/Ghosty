@@ -2,21 +2,18 @@ package net.easecation.ghosty.recording;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.network.protocol.AnimatePacket;
-import cn.nukkit.network.protocol.DataPacket;
-import cn.nukkit.network.protocol.EntityEventPacket;
-import cn.nukkit.network.protocol.TakeItemEntityPacket;
+import cn.nukkit.inventory.transaction.data.UseItemOnEntityData;
+import cn.nukkit.network.protocol.*;
 import cn.nukkit.scheduler.TaskHandler;
 import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.recording.player.LmlPlayerRecord;
 import net.easecation.ghosty.recording.player.PlayerRecord;
 import net.easecation.ghosty.recording.player.PlayerRecordNode;
-import net.easecation.ghosty.recording.player.updated.PlayerUpdated;
-import net.easecation.ghosty.recording.player.updated.PlayerUpdatedAnimate;
-import net.easecation.ghosty.recording.player.updated.PlayerUpdatedEntityEvent;
-import net.easecation.ghosty.recording.player.updated.PlayerUpdatedTakeItemEntity;
+import net.easecation.ghosty.recording.player.updated.*;
 import org.itxtech.synapseapi.SynapsePlayer;
+import org.itxtech.synapseapi.multiprotocol.protocol116.protocol.InventoryTransactionPacket116;
 import org.itxtech.synapseapi.multiprotocol.protocol116100.protocol.EntityEventPacket116100;
+import org.itxtech.synapseapi.multiprotocol.protocol12070.protocol.SetEntityMotionPacket12070;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,12 +112,34 @@ public class PlayerRecordEngine {
             if (pk.entityId == this.player.getId() || pk.entityId == SynapsePlayer.SYNAPSE_PLAYER_ENTITY_ID) {
                 this.extraUpdates.add(PlayerUpdatedTakeItemEntity.of(pk.target));
             }
+        } else if (packet instanceof SetEntityMotionPacket pk) {
+            if (pk.eid == this.player.getId() || pk.eid == SynapsePlayer.SYNAPSE_PLAYER_ENTITY_ID) {
+                this.extraUpdates.add(PlayerUpdatedMotion.of(pk.motionX, pk.motionY, pk.motionZ));
+            }
+        } else if (packet instanceof SetEntityMotionPacket12070 pk) {
+            if (pk.eid == this.player.getId() || pk.eid == SynapsePlayer.SYNAPSE_PLAYER_ENTITY_ID) {
+                this.extraUpdates.add(PlayerUpdatedMotion.of(pk.motionX, pk.motionY, pk.motionZ));
+            }
+        } else if (packet instanceof InventoryTransactionPacket116 pk) {
+            if (pk.transactionType == InventoryTransactionPacket116.TYPE_USE_ITEM_ON_ENTITY) {
+                UseItemOnEntityData useItemOnEntityData = (UseItemOnEntityData) pk.transactionData;
+                if (useItemOnEntityData.actionType == InventoryTransactionPacket116.USE_ITEM_ON_ENTITY_ACTION_ATTACK) {
+                    this.extraUpdates.add(PlayerUpdatedAttack.of(useItemOnEntityData.entityRuntimeId));
+                }
+            }
         }
     }
 
     public void onPacketReceiveEvent(DataPacket packet) {
         if (packet instanceof AnimatePacket pk) {
             this.extraUpdates.add(PlayerUpdatedAnimate.of(pk.action.getId(), pk.rowingTime));
+        } else if (packet instanceof InventoryTransactionPacket116 pk) {
+            if (pk.transactionType == InventoryTransactionPacket116.TYPE_USE_ITEM_ON_ENTITY) {
+                UseItemOnEntityData useItemOnEntityData = (UseItemOnEntityData) pk.transactionData;
+                if (useItemOnEntityData.actionType == InventoryTransactionPacket116.USE_ITEM_ON_ENTITY_ACTION_ATTACK) {
+                    this.extraUpdates.add(PlayerUpdatedAttack.of(useItemOnEntityData.entityRuntimeId));
+                }
+            }
         }
     }
 

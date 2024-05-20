@@ -268,7 +268,8 @@ public class PlayerPlaybackEngine {
                 return;
             }
             CompoundTag nbt = Entity.getDefaultNBT(loc);
-            this.npc = new PlaybackNPC(chunk, nbt, this, record.getSkin(), init.getTagName(), null);
+            this.npc = new PlaybackNPC(chunk, nbt, this, record.getSkin(), record.getPlayerName(), null);
+            this.npc.setNameTag(init.getTagName());
             this.npc.spawnToAll();
             if (DEBUG_DUMP) {
                 GhostyPlugin.getInstance().getLogger().debug(record.getPlayerName() + " " + tick + " -> spawn " + record.getPlayerName());
