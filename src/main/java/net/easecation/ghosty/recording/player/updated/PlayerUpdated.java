@@ -70,7 +70,8 @@ public interface PlayerUpdated {
      * @return PlayerUpdated
      */
     static PlayerUpdated fromBinaryStream(BinaryStream stream, int formatVersion) {
-        return switch (stream.getByte()) {
+        int updatedType = stream.getByte();
+        return switch (updatedType) {
             case TYPE_POSITION_XYZ -> new PlayerUpdatedPositionXYZ(stream);
             case TYPE_ROTATION -> new PlayerUpdatedRotation(stream);
             case TYPE_TAG_NAME -> new PlayerUpdatedTagName(stream);
@@ -87,7 +88,8 @@ public interface PlayerUpdated {
             case TYPE_TAKE_ITEM_ENTITY -> new PlayerUpdatedTakeItemEntity(stream);
             case TYPE_PING -> new PlayerUpdatedPing(stream);
             case TYPE_ATTACK -> new PlayerUpdatedAttack(stream);
-            default -> null;
+            case TYPE_MOTION -> new PlayerUpdatedMotion(stream);
+            default -> throw new IllegalArgumentException("Unsupported type id: " + updatedType);
         };
     }
 

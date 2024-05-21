@@ -19,6 +19,7 @@ public interface LevelUpdated {
     int TYPE_CUSTOM_EVENT = 11;
     int TYPE_TIME = 12;
     int TYPE_WEATHER = 13;
+    int TYPE_OVERLOAD = 14;
 
     /**
      * @return the type id of this Updated.
@@ -67,6 +68,7 @@ public interface LevelUpdated {
             case TYPE_CUSTOM_EVENT -> new LevelUpdatedCustom(stream);
             case TYPE_TIME -> new LevelUpdatedTime(stream);
             case TYPE_WEATHER -> new LevelUpdatedWeather(stream);
+            case TYPE_OVERLOAD -> new LevelUpdatedOverload(stream);
             default -> throw new IllegalArgumentException("Unknown LevelUpdated type id: " + type);
         };
     }

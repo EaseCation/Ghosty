@@ -179,6 +179,7 @@ public class SkinlessPlayerRecord implements PlayerRecord {
 
         private RecordPair(BinaryStream stream, int formatVersion) {
             try {
+
                 this.tick = (int) stream.getUnsignedVarInt();
                 this.updated = PlayerUpdated.fromBinaryStream(stream, formatVersion);
             } catch (Exception e) {

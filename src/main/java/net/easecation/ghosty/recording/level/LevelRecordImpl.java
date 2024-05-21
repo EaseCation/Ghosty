@@ -1,10 +1,12 @@
 package net.easecation.ghosty.recording.level;
 
 import cn.nukkit.GameVersion;
+import cn.nukkit.Server;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.recording.level.updated.LevelUpdated;
+import net.easecation.ghosty.recording.level.updated.LevelUpdatedOverload;
 import net.easecation.ghosty.util.LittleEndianBinaryStream;
 
 import java.util.LinkedList;
@@ -69,6 +71,11 @@ public class LevelRecordImpl implements LevelRecord {
     public void record(int tick, LevelRecordNode node) {
         for (LevelUpdated updated : node.toUpdated()) {
             push(tick, updated);
+        }
+        // 服务器过载时（tick用时超过50ms），录制overload
+        long tickUseNano = Server.getInstance().getTickUseNano();
+        if (tickUseNano > 50_000_000) {
+            push(tick, LevelUpdatedOverload.of((int) (tickUseNano / 1_000_000)));
         }
         node.clear();
     }
