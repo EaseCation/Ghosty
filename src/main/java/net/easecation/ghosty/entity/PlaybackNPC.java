@@ -26,6 +26,7 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
     private final String originName;
     private final List<Player> viewers;
     private final Set<Player> hideFrom = new HashSet<>();
+    public int lastPing = 0;
 
     public PlaybackNPC(FullChunk chunk, CompoundTag nbt, PlayerPlaybackEngine engine, Skin skin, long originEntityId, String name, List<Player> viewers) {
         super(chunk, nbt);
@@ -140,6 +141,12 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
 
     public PlayerPlaybackEngine getEngine() {
         return engine;
+    }
+
+    public String getAliasName() {
+        String[] split = this.getNameTag().split("\n");
+        String[] prefixSplit = split[split.length - 1].split("]");
+        return prefixSplit[prefixSplit.length - 1];
     }
 
     @Override

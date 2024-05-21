@@ -36,6 +36,7 @@ public class LevelPlaybackEngine {
     private final PlaybackIterator<LevelUpdated> iterator;
     private final Long2ObjectMap<EntityPlaybackEngine> entityPlaybackEngines = new Long2ObjectOpenHashMap<>();
     private boolean displayAttackDistance = false;
+    private boolean displayPlayerPing = false;
 
     public LevelPlaybackEngine(LevelRecord record, Level level, List<PlayerRecord> playerRecords, Collection<EntityRecord> entityRecords) {
         this.record = record;
@@ -244,6 +245,17 @@ public class LevelPlaybackEngine {
         this.displayAttackDistance = displayAttackDistance;
         for (PlayerPlaybackEngine playerPlaybackEngine : this.playerPlaybackEngines) {
             playerPlaybackEngine.displayAttackDistance = displayAttackDistance;
+        }
+    }
+
+    public boolean isDisplayPlayerPing() {
+        return displayPlayerPing;
+    }
+
+    public void setDisplayPlayerPing(boolean displayPlayerPing) {
+        this.displayPlayerPing = displayPlayerPing;
+        for (PlayerPlaybackEngine playerPlaybackEngine : this.playerPlaybackEngines) {
+            playerPlaybackEngine.displayPlayerPing = displayPlayerPing;
         }
     }
 }

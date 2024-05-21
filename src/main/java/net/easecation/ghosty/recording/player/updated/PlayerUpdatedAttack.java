@@ -39,8 +39,11 @@ public class PlayerUpdatedAttack implements PlayerUpdated {
                     // 计算距离
                     double distance = e.distance(ghost);
                     String distanceStr = getDistanceString(distance);
-                    // 显示距离
-                    String msg = "[Attack] " + distanceStr + TextFormat.WHITE + " " + ghost.getNameTag() + TextFormat.RESET + TextFormat.WHITE + " -> " + e.getNameTag();
+                    // 显示距离（包含双方的Ping数据）
+                    String msg = "[Attack] " + distanceStr + TextFormat.WHITE + " "
+                        + "[" + PlayerUpdatedPing.getDisplayPing(ghost.lastPing) + TextFormat.WHITE + "]" + ghost.getAliasName()
+                        + TextFormat.RESET + TextFormat.WHITE + " -> "
+                        + "[" + PlayerUpdatedPing.getDisplayPing(((PlaybackNPC) e).lastPing) + TextFormat.WHITE + "]" + ((PlaybackNPC) e).getAliasName();
                     for (Player viewer : ghost.getViewers().values()) {
                         viewer.sendMessage(msg);
                     }
