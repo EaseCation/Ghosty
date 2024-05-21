@@ -46,7 +46,7 @@ public class PlayerUpdatedArmor1 implements PlayerUpdated {
 
     public PlayerUpdatedArmor1(BinaryStream stream, int formatVersion) {
         switch (formatVersion) {
-            case 1, 2: {
+            case 1, 2, 3: {
                 this.item = PersistenceBinaryStreamHelper.getItem(stream);
                 break;
             }
