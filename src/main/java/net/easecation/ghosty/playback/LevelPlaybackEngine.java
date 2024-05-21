@@ -35,6 +35,7 @@ public class LevelPlaybackEngine {
     private final Level level;
     private final PlaybackIterator<LevelUpdated> iterator;
     private final Long2ObjectMap<EntityPlaybackEngine> entityPlaybackEngines = new Long2ObjectOpenHashMap<>();
+    private boolean displayAttackDistance = false;
 
     public LevelPlaybackEngine(LevelRecord record, Level level, List<PlayerRecord> playerRecords, Collection<EntityRecord> entityRecords) {
         this.record = record;
@@ -48,7 +49,7 @@ public class LevelPlaybackEngine {
         this.taskHandler = Server.getInstance().getScheduler().scheduleRepeatingTask(GhostyPlugin.getInstance(), this::onTick, 1);
         // 玩家回放
         for (PlayerRecord playerRecord : playerRecords) {
-            this.playerPlaybackEngines.add(new PlayerPlaybackEngine(playerRecord, level));
+            this.playerPlaybackEngines.add(new PlayerPlaybackEngine(playerRecord, level).setLevelPlaybackEngine(this));
         }
         // 实体播放
         entityRecords.forEach(rec -> {
@@ -235,4 +236,14 @@ public class LevelPlaybackEngine {
         }
     }
 
+    public boolean isDisplayAttackDistance() {
+        return displayAttackDistance;
+    }
+
+    public void setDisplayAttackDistance(boolean displayAttackDistance) {
+        this.displayAttackDistance = displayAttackDistance;
+        for (PlayerPlaybackEngine playerPlaybackEngine : this.playerPlaybackEngines) {
+            playerPlaybackEngine.displayAttackDistance = displayAttackDistance;
+        }
+    }
 }

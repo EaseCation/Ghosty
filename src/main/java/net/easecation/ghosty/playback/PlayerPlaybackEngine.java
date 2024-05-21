@@ -22,6 +22,7 @@ import net.easecation.ghosty.recording.player.updated.PlayerUpdated;
 import net.easecation.ghosty.recording.player.updated.PlayerUpdatedPositionXYZ;
 import net.easecation.ghosty.recording.player.updated.PlayerUpdatedRotation;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +40,7 @@ public class PlayerPlaybackEngine {
     public static BiConsumer<PlayerPlaybackEngine, Player> onPlayerUnattach = null;
     public static BiConsumer<PlayerPlaybackEngine, Player> onPlayerAttachTick = null;
 
+    private @Nullable LevelPlaybackEngine levelPlaybackEngine = null;
     private final PlayerRecord record;
     private final Level level;
     private TaskHandler taskHandler;
@@ -53,6 +55,7 @@ public class PlayerPlaybackEngine {
     private PlaybackNPC npc;
     private final PlaybackIterator<PlayerUpdated> iterator;
     private final Set<Player> attachedPlayers = new HashSet<>();
+    public boolean displayAttackDistance = false;
 
     public PlayerPlaybackEngine(PlayerRecord record) {
         this(record, null, null);
@@ -78,6 +81,16 @@ public class PlayerPlaybackEngine {
         }
     }
 
+    public PlayerPlaybackEngine setLevelPlaybackEngine(LevelPlaybackEngine levelPlaybackEngine) {
+        this.levelPlaybackEngine = levelPlaybackEngine;
+        return this;
+    }
+
+    @Nullable
+    public LevelPlaybackEngine getLevelPlaybackEngine() {
+        return levelPlaybackEngine;
+    }
+
     public PlayerPlaybackEngine setOnStopDo(Runnable onStopDo) {
         this.onStopDo = onStopDo;
         return this;
@@ -85,6 +98,10 @@ public class PlayerPlaybackEngine {
 
     public PlayerRecord getRecord() {
         return record;
+    }
+
+    public PlaybackIterator<PlayerUpdated> getIteratorUnsafe() {
+        return iterator;
     }
 
     public PlaybackNPC getNPC() {
@@ -268,7 +285,7 @@ public class PlayerPlaybackEngine {
                 return;
             }
             CompoundTag nbt = Entity.getDefaultNBT(loc);
-            this.npc = new PlaybackNPC(chunk, nbt, this, record.getSkin(), record.getPlayerName(), null);
+            this.npc = new PlaybackNPC(chunk, nbt, this, record.getSkin(), record.getOriginEntityId(), record.getPlayerName(), null);
             this.npc.setNameTag(init.getTagName());
             this.npc.spawnToAll();
             if (DEBUG_DUMP) {

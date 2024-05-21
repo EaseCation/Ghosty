@@ -68,6 +68,12 @@ public class PlaybackIterator<T> {
         return ans;
     }
 
+    /**
+     * 返回当前迭代器位置的所有记录条目，这些条目的tick值与当前位置的tick值相同。
+     * 如果当前迭代器位置已经超过列表的末尾，将返回一个空列表。
+     *
+     * @return 一个包含当前迭代器位置的所有记录条目的列表
+     */
     public List<T> peek() {
         List<T> ans = new LinkedList<>();
         if (currentIndex >= list.size()) return ans;
@@ -84,6 +90,13 @@ public class PlaybackIterator<T> {
         return ans;
     }
 
+    /**
+     * 返回满足给定谓词的第一个记录条目，从当前迭代器位置开始向后查找。
+     * 如果没有找到满足谓词的记录条目，将返回一个空的Optional。
+     *
+     * @param predicate 用于测试记录条目的谓词
+     * @return 一个Optional，可能包含满足谓词的第一个记录条目
+     */
     public Optional<RecordEntry<T>> peekFirstMatch(Predicate<T> predicate) {
         if (currentIndex >= list.size()) return Optional.empty();
 
@@ -98,6 +111,13 @@ public class PlaybackIterator<T> {
         return Optional.empty();
     }
 
+    /**
+     * 返回满足给定谓词的第一个记录条目，从当前迭代器位置开始向前查找。
+     * 如果没有找到满足谓词的记录条目，将返回一个空的Optional。
+     *
+     * @param predicate 用于测试记录条目的谓词
+     * @return 一个Optional，可能包含满足谓词的第一个记录条目
+     */
     public Optional<RecordEntry<T>> peekBackwardFirstMatch(Predicate<T> predicate) {
         if (currentIndex <= 0) return Optional.empty();
 
@@ -112,10 +132,17 @@ public class PlaybackIterator<T> {
         return Optional.empty();
     }
 
+    /**
+     * 返回当前迭代器位置的tick值。
+     * 如果当前迭代器位置已经超过列表的末尾，将返回-1。
+     *
+     * @return 当前迭代器位置的tick值，或-1如果迭代器已经超过列表的末尾
+     */
     public int peekTick() {
         if (currentIndex >= list.size()) return -1;
         return list.get(currentIndex).tick();
     }
+
 
     public int pollTick() {
         if (currentIndex >= list.size()) return -1;
@@ -127,6 +154,12 @@ public class PlaybackIterator<T> {
         return tick;
     }
 
+    /**
+     * 返回当前迭代器位置前一个位置的所有记录条目，这些条目的tick值与前一个位置的tick值相同。
+     * 如果当前迭代器位置已经在列表的开头，将返回一个空列表。
+     *
+     * @return 一个包含当前迭代器位置前一个位置的所有记录条目的列表
+     */
     public List<T> peekBackward() {
         List<T> ans = new LinkedList<>();
         if (currentIndex <= 0) return ans;
@@ -143,6 +176,12 @@ public class PlaybackIterator<T> {
         return ans;
     }
 
+    /**
+     * 返回当前迭代器位置前一个位置的tick值。
+     * 如果当前迭代器位置已经在列表的开头，将返回-1。
+     *
+     * @return 当前迭代器位置前一个位置的tick值，或-1如果迭代器已经在列表的开头
+     */
     public int peekTickBackward() {
         if (currentIndex <= 0) return -1;
         return list.get(currentIndex - 1).tick();

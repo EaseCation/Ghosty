@@ -22,13 +22,15 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
     public static Skin defaultSkin;
 
     private final PlayerPlaybackEngine engine;
+    private final long originEntityId;
     private final String originName;
     private final List<Player> viewers;
     private final Set<Player> hideFrom = new HashSet<>();
 
-    public PlaybackNPC(FullChunk chunk, CompoundTag nbt, PlayerPlaybackEngine engine, Skin skin, String name, List<Player> viewers) {
+    public PlaybackNPC(FullChunk chunk, CompoundTag nbt, PlayerPlaybackEngine engine, Skin skin, long originEntityId, String name, List<Player> viewers) {
         super(chunk, nbt);
         this.engine = engine;
+        this.originEntityId = originEntityId;
         this.originName = name;
         this.setSkin(skin == null ? defaultSkin : skin);
         this.setNameTagVisible(true);
@@ -130,6 +132,14 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
 
     public String getOriginName() {
         return originName;
+    }
+
+    public long getOriginEntityId() {
+        return originEntityId;
+    }
+
+    public PlayerPlaybackEngine getEngine() {
+        return engine;
     }
 
     @Override

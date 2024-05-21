@@ -162,6 +162,11 @@ public class LmlPlayerRecord implements PlayerRecord {
     }
 
     @Override
+    public long getOriginEntityId() {
+        return 0;
+    }
+
+    @Override
     public byte[] toBinary() {
         BinaryStream stream = new LittleEndianBinaryStream();
         stream.putByte(PlayerRecord.OBJECT_LML_V2);

@@ -1,7 +1,11 @@
 package net.easecation.ghosty.recording.player.updated;
 
+import cn.nukkit.Player;
+import cn.nukkit.math.Mth;
 import cn.nukkit.utils.BinaryStream;
+import cn.nukkit.utils.TextFormat;
 import net.easecation.ghosty.entity.PlaybackNPC;
+import net.easecation.ghosty.playback.PlayerPlaybackEngine;
 import net.easecation.ghosty.recording.player.PlayerRecordNode;
 
 public class PlayerUpdatedAttack implements PlayerUpdated {
@@ -24,7 +28,34 @@ public class PlayerUpdatedAttack implements PlayerUpdated {
 
     @Override
     public void processTo(PlaybackNPC ghost) {
-        // 空
+        PlayerPlaybackEngine engine = ghost.getEngine();
+        if (engine != null && engine.displayAttackDistance) {
+            // 从世界中找到目标实体
+            ghost.getLevel().getActors().values().stream()
+                .filter(e -> e instanceof PlaybackNPC)
+                .filter(e -> ((PlaybackNPC) e).getOriginEntityId() == attackTarget)
+                .findFirst()
+                .ifPresent(e -> {
+                    // 计算距离
+                    double distance = e.distance(ghost);
+                    String distanceStr = getDistanceString(distance);
+                    // 显示距离
+                    String msg = "[Attack] " + distanceStr + TextFormat.WHITE + " " + ghost.getNameTag() + TextFormat.RESET + TextFormat.WHITE + " -> " + e.getNameTag();
+                    for (Player viewer : ghost.getViewers().values()) {
+                        viewer.sendMessage(msg);
+                    }
+                });
+        }
+    }
+
+    public static String getDistanceString(double distance) {
+        if (distance >= 3.6) {
+            return TextFormat.RED.toString() + Mth.round(distance, 4);
+        } else if (distance >= 3) {
+            return TextFormat.YELLOW.toString() + Mth.round(distance, 4);
+        } else {
+            return TextFormat.GREEN.toString() + Mth.round(distance, 4);
+        }
     }
 
     @Override

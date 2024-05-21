@@ -27,6 +27,7 @@ public class SkinlessPlayerRecord implements PlayerRecord {
 
     private final List<RecordPair> rec = new LinkedList<>();
 
+    private final int formatVersion;
     private final int protocol;
     private final String playerName;
     private final long runtimeEntityId;
@@ -34,6 +35,7 @@ public class SkinlessPlayerRecord implements PlayerRecord {
     private Skin tempSkin = null;
 
     public SkinlessPlayerRecord(BinaryStream stream, int formatVersion) {
+        this.formatVersion = formatVersion;
         switch (formatVersion) {
             case 3: {
                 stream = new LittleEndianBinaryStream(stream);
@@ -88,6 +90,7 @@ public class SkinlessPlayerRecord implements PlayerRecord {
     }
 
     public SkinlessPlayerRecord(Player player) {
+        this.formatVersion = CURRENT_SKINLESS_FORMAT_VERSION;
         this.protocol = player.getProtocol();
         this.playerName = player.getName();
         this.runtimeEntityId = player.getId();
@@ -101,6 +104,15 @@ public class SkinlessPlayerRecord implements PlayerRecord {
     @Override
     public String getPlayerName() {
         return playerName;
+    }
+
+    @Override
+    public long getOriginEntityId() {
+        return runtimeEntityId;
+    }
+
+    public int getFormatVersion() {
+        return formatVersion;
     }
 
     @Override

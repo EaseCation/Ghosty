@@ -20,6 +20,10 @@ public class PlayerUpdatedAnimate implements PlayerUpdated {
         return PlayerUpdated.TYPE_ANIMATE;
     }
 
+    public int getAction() {
+        return action;
+    }
+
     @Override
     public boolean hasStates() {
         return false;

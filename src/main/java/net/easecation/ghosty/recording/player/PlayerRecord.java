@@ -23,6 +23,8 @@ public interface PlayerRecord {
     byte OBJECT_SKINLESS_V2 = 5;
     byte OBJECT_SKINLESS_V3 = 6;
 
+    byte CURRENT_SKINLESS_FORMAT_VERSION = 3;
+
     void record(int tick, PlayerRecordNode node);
 
     PlaybackIterator<PlayerUpdated> iterator();
@@ -30,6 +32,8 @@ public interface PlayerRecord {
     int getProtocol();
 
     String getPlayerName();
+
+    long getOriginEntityId();
 
     Skin getSkin();
 
