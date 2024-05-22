@@ -52,7 +52,7 @@ public class PlayerUpdatedEntityEvent implements PlayerUpdated {
                             if (playerUpdated.entry() instanceof PlayerUpdatedAnimate updatedAnimate && updatedAnimate.getAction() == AnimatePacket.Action.SWING_ARM.getId()) {
                                 // 找到攻击者
                                 PlaybackNPC attacker = other.getNPC();
-                                if (attacker.getInventory() == null || !attacker.getInventory().getItemInHand().isSword()) {
+                                if (attacker == null || attacker.getInventory() == null || !attacker.getInventory().getItemInHand().isSword()) {
                                     return;
                                 }
                                 // 计算距离
