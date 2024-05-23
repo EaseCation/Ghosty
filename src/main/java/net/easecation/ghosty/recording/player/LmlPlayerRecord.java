@@ -212,4 +212,10 @@ public class LmlPlayerRecord implements PlayerRecord {
         }
         return MathUtil.getVariance(distances);
     }
+
+    @Override
+    public List<PlayerUpdated> getRecDataUnsafe() {
+        return this.rec.stream().map(p -> p.updated).toList();
+    }
+
 }

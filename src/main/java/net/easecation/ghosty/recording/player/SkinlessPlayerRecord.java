@@ -191,7 +191,6 @@ public class SkinlessPlayerRecord implements PlayerRecord {
 
         private RecordPair(BinaryStream stream, int formatVersion) {
             try {
-
                 this.tick = (int) stream.getUnsignedVarInt();
                 this.updated = PlayerUpdated.fromBinaryStream(stream, formatVersion);
             } catch (Exception e) {
@@ -280,4 +279,10 @@ public class SkinlessPlayerRecord implements PlayerRecord {
         }
         return MathUtil.getVariance(distances);
     }
+
+    @Override
+    public List<PlayerUpdated> getRecDataUnsafe() {
+        return this.rec.stream().map(p -> p.updated).toList();
+    }
+
 }

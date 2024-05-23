@@ -8,6 +8,14 @@ public class LevelUpdatedMessage implements LevelUpdated {
 
     private String message;
 
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     private LevelUpdatedMessage(String message) {
         this.message = message;
     }

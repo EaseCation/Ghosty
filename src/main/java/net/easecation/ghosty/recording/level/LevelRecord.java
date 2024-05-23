@@ -4,6 +4,8 @@ import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.recording.level.updated.LevelUpdated;
 
+import java.util.List;
+
 public interface LevelRecord {
 
     byte VERSION_0 = 0;
@@ -11,6 +13,8 @@ public interface LevelRecord {
     byte VERSION_2 = 2;
 
     void record(int tick, LevelRecordNode node);
+
+    List<LevelUpdated> getRecDataUnsafe();
 
     PlaybackIterator<LevelUpdated> iterator();
 

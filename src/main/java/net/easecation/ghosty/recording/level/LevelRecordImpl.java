@@ -90,6 +90,11 @@ public class LevelRecordImpl implements LevelRecord {
     }
 
     @Override
+    public List<LevelUpdated> getRecDataUnsafe() {
+        return this.rec.stream().map(e -> e.updated).toList();
+    }
+
+    @Override
     public PlaybackIterator<LevelUpdated> iterator() {
         PlaybackIterator<LevelUpdated> iterator = new PlaybackIterator<>();
         rec.forEach((e) -> {

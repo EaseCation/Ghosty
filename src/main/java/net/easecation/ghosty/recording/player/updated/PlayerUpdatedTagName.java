@@ -27,6 +27,10 @@ public class PlayerUpdatedTagName implements PlayerUpdated {
 
     private String tn;
 
+    public void setTn(String tn) {
+        this.tn = tn;
+    }
+
     @Override
     public void processTo(PlaybackNPC ghost) {
         ghost.setNameTag(tn);

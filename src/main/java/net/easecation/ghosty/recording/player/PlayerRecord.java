@@ -5,6 +5,8 @@ import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.recording.player.updated.PlayerUpdated;
 
+import java.util.List;
+
 /**
  * PlayerRecord 作为玩家录制的数据的载体
  * 提供二进制的写入和读取方法
@@ -26,6 +28,8 @@ public interface PlayerRecord {
     byte CURRENT_SKINLESS_FORMAT_VERSION = 3;
 
     void record(int tick, PlayerRecordNode node);
+
+    List<PlayerUpdated> getRecDataUnsafe();
 
     PlaybackIterator<PlayerUpdated> iterator();
 

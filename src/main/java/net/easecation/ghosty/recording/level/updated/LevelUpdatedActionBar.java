@@ -11,6 +11,14 @@ public class LevelUpdatedActionBar implements LevelUpdated {
     int stayTime;
     int fadeOutTime;
 
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     private LevelUpdatedActionBar(String message, int fadeInTime, int stayTime, int fadeOutTime) {
         this.message = message;
         this.fadeInTime = fadeInTime;

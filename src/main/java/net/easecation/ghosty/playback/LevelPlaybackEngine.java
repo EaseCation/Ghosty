@@ -35,8 +35,8 @@ public class LevelPlaybackEngine {
     private final Level level;
     private final PlaybackIterator<LevelUpdated> iterator;
     private final Long2ObjectMap<EntityPlaybackEngine> entityPlaybackEngines = new Long2ObjectOpenHashMap<>();
-    private boolean displayAttackDistance = false;
-    private boolean displayPlayerPing = false;
+    private boolean displayAttackDistance = false;  // 打印攻击距离
+    private boolean displayPlayerPing = false;  // 显示玩家的ping
 
     public LevelPlaybackEngine(LevelRecord record, Level level, List<PlayerRecord> playerRecords, Collection<EntityRecord> entityRecords) {
         this.record = record;
