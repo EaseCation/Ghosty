@@ -46,6 +46,22 @@ public class LevelUpdatedTitle implements LevelUpdated {
         // 不需要做任何事
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getSubTitle() {
+        return subTitle;
+    }
+
+    public void setSubTitle(String subTitle) {
+        this.subTitle = subTitle;
+    }
+
     @Override
     public void write(BinaryStream stream) {
         stream.putString(title);
