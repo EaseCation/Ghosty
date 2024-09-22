@@ -3,7 +3,6 @@ package net.easecation.ghosty.entity;
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityID;
-import cn.nukkit.entity.data.EntityData;
 import cn.nukkit.entity.data.EntityMetadata;
 import cn.nukkit.entity.data.Skin;
 import cn.nukkit.entity.data.StringEntityData;
@@ -25,13 +24,6 @@ public class SimulatedEntity extends Entity {
      */
     public interface NameTagProcessor {
         String getNameTag(Player player, String origin);
-    }
-
-    static EntityMetadata cloneEntityMetadata(EntityMetadata metadata) {
-        Map<Integer, EntityData> map = metadata.getMap();
-        EntityMetadata re = new EntityMetadata();
-        map.forEach((i, data) -> re.put(data));
-        return re;
     }
 
     public record SkinInfo(String geoName, String dataHash) {
@@ -197,7 +189,7 @@ public class SimulatedEntity extends Entity {
             addEntity.speedY = (float) this.motionY;
             addEntity.speedZ = (float) this.motionZ;
             if (globalNameTagProcessor != null && !this.getNameTag().isEmpty() || !this.getScoreTag().isEmpty()) {
-                addEntity.metadata = cloneEntityMetadata(this.dataProperties)
+                addEntity.metadata = this.dataProperties.copy()
                     .putString(Entity.DATA_NAMETAG, globalNameTagProcessor.getNameTag(player, this.getNameTag()))
                     .putString(Entity.DATA_SCORE_TAG, globalNameTagProcessor.getNameTag(player, this.getScoreTag()));
             } else {
@@ -222,7 +214,7 @@ public class SimulatedEntity extends Entity {
             pk.pitch = (float) this.pitch;
             pk.item = this.item;
             if (globalNameTagProcessor != null && !this.getNameTag().isEmpty() || !this.getScoreTag().isEmpty()) {
-                pk.metadata = cloneEntityMetadata(this.dataProperties)
+                pk.metadata = this.dataProperties.copy()
                     .putString(Entity.DATA_NAMETAG, globalNameTagProcessor.getNameTag(player, this.getNameTag()))
                     .putString(Entity.DATA_SCORE_TAG, globalNameTagProcessor.getNameTag(player, this.getScoreTag()));
             } else {
@@ -233,7 +225,7 @@ public class SimulatedEntity extends Entity {
             AddEntityPacket addEntityPacket = (AddEntityPacket) super.createAddEntityPacket();
             addEntityPacket.id = this.entityIdentifier;
             if (globalNameTagProcessor != null && !this.getNameTag().isEmpty() || !this.getScoreTag().isEmpty()) {
-                addEntityPacket.metadata = cloneEntityMetadata(this.dataProperties)
+                addEntityPacket.metadata = this.dataProperties.copy()
                     .putString(Entity.DATA_NAMETAG, globalNameTagProcessor.getNameTag(player, this.getNameTag()))
                     .putString(Entity.DATA_SCORE_TAG, globalNameTagProcessor.getNameTag(player, this.getScoreTag()));
             }
@@ -241,7 +233,7 @@ public class SimulatedEntity extends Entity {
         } else {
             AddEntityPacket addEntityPacket = (AddEntityPacket) super.createAddEntityPacket();
             if (globalNameTagProcessor != null && !this.getNameTag().isEmpty() || !this.getScoreTag().isEmpty()) {
-                addEntityPacket.metadata = cloneEntityMetadata(this.dataProperties)
+                addEntityPacket.metadata = this.dataProperties.copy()
                     .putString(Entity.DATA_NAMETAG, globalNameTagProcessor.getNameTag(player, this.getNameTag()))
                     .putString(Entity.DATA_SCORE_TAG, globalNameTagProcessor.getNameTag(player, this.getScoreTag()));
             }
