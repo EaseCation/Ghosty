@@ -9,8 +9,8 @@
     <version>1.0.0</version>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- 本地测试服务端插件目录 -->
         <dir.api>../_api</dir.api>
@@ -67,18 +67,4 @@
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>java21</id>
-
-            <activation>
-                <jdk>21</jdk>
-            </activation>
-
-            <properties>
-                <maven.compiler.source>21</maven.compiler.source>
-                <maven.compiler.target>21</maven.compiler.target>
-            </properties>
-        </profile>
-    </profiles>
 </project>
