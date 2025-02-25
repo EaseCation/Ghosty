@@ -1,9 +1,13 @@
 package net.easecation.ghosty.recording.player.updated;
 
+import cn.nukkit.Player;
 import cn.nukkit.level.Location;
+import cn.nukkit.math.Mth;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.BinaryStream;
+import cn.nukkit.utils.TextFormat;
 import net.easecation.ghosty.entity.PlaybackNPC;
+import net.easecation.ghosty.playback.PlayerPlaybackEngine;
 import net.easecation.ghosty.recording.player.PlayerRecordNode;
 
 /**
@@ -35,6 +39,30 @@ public class PlayerUpdatedPositionXYZ implements PlayerUpdated {
         location.y = y;
         location.z = z;
         ghost.teleport(location);
+        PlayerPlaybackEngine engine = ghost.getEngine();
+        if (engine == null) {
+            return;
+        }
+        if (ghost.lastPosition == null) {
+            ghost.lastPosition = location;
+            ghost.lastMoveTick = engine.getTick();
+        } else {
+            if (engine.displayMovingSpeed && engine.getTick() % 10 == 0) {
+                // 计算距离
+                double distance = location.distance(ghost.lastPosition) / (engine.getTick() - ghost.lastMoveTick) * 20;
+                if (distance >= 0.01) {
+                    String distanceStr = String.valueOf(Mth.round(distance, 3));
+                    // 显示速度（包含双方的Ping数据）
+                    String msg = "[Moving] " + distanceStr + TextFormat.WHITE + " "
+                        + "[" + PlayerUpdatedPing.getDisplayPing(ghost.lastPing) + TextFormat.WHITE + "]" + ghost.getAliasName();
+                    for (Player viewer : ghost.getViewers().values()) {
+                        viewer.sendMessage(msg);
+                    }
+                }
+            }
+
+            ghost.lastPosition = location;
+        }
     }
 
     @Override

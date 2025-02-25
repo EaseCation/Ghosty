@@ -57,6 +57,7 @@ public class PlayerPlaybackEngine {
     private final Set<Player> attachedPlayers = new HashSet<>();
     public boolean displayAttackDistance = false;
     public boolean displayPlayerPing = false;
+    public boolean displayMovingSpeed = false;
 
     public PlayerPlaybackEngine(PlayerRecord record) {
         this(record, null, null);

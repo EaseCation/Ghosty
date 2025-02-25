@@ -5,6 +5,7 @@ import cn.nukkit.level.Level;
 import cn.nukkit.scheduler.TaskHandler;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import lombok.Getter;
 import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.recording.entity.EntityRecord;
@@ -35,8 +36,12 @@ public class LevelPlaybackEngine {
     private final Level level;
     private final PlaybackIterator<LevelUpdated> iterator;
     private final Long2ObjectMap<EntityPlaybackEngine> entityPlaybackEngines = new Long2ObjectOpenHashMap<>();
+    @Getter
     private boolean displayAttackDistance = false;  // 打印攻击距离
+    @Getter
     private boolean displayPlayerPing = false;  // 显示玩家的ping
+    @Getter
+    private boolean displayMovingSpeed = false;  // 显示玩家的移动速度
 
     public LevelPlaybackEngine(LevelRecord record, Level level, List<PlayerRecord> playerRecords, Collection<EntityRecord> entityRecords) {
         this.record = record;
@@ -237,10 +242,6 @@ public class LevelPlaybackEngine {
         }
     }
 
-    public boolean isDisplayAttackDistance() {
-        return displayAttackDistance;
-    }
-
     public void setDisplayAttackDistance(boolean displayAttackDistance) {
         this.displayAttackDistance = displayAttackDistance;
         for (PlayerPlaybackEngine playerPlaybackEngine : this.playerPlaybackEngines) {
@@ -248,14 +249,17 @@ public class LevelPlaybackEngine {
         }
     }
 
-    public boolean isDisplayPlayerPing() {
-        return displayPlayerPing;
-    }
-
     public void setDisplayPlayerPing(boolean displayPlayerPing) {
         this.displayPlayerPing = displayPlayerPing;
         for (PlayerPlaybackEngine playerPlaybackEngine : this.playerPlaybackEngines) {
             playerPlaybackEngine.displayPlayerPing = displayPlayerPing;
+        }
+    }
+
+    public void setDisplayMovingSpeed(boolean displayMovingSpeed) {
+        this.displayMovingSpeed = displayMovingSpeed;
+        for (PlayerPlaybackEngine playerPlaybackEngine : this.playerPlaybackEngines) {
+            playerPlaybackEngine.displayMovingSpeed = displayMovingSpeed;
         }
     }
 }
