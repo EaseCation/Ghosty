@@ -5,6 +5,7 @@ import cn.nukkit.math.Vector3f;
 import cn.nukkit.network.protocol.LevelSoundEventPacket;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.recording.level.LevelRecordNode;
+import org.itxtech.synapseapi.multiprotocol.protocol12170.protocol.LevelSoundEventPacketV312170;
 import org.itxtech.synapseapi.multiprotocol.protocol14.protocol.LevelSoundEventPacket14;
 import org.itxtech.synapseapi.multiprotocol.protocol16.protocol.LevelSoundEventPacket16;
 import org.itxtech.synapseapi.multiprotocol.protocol18.protocol.LevelSoundEventPacket18;
@@ -21,8 +22,13 @@ public class LevelUpdatedLevelSoundEvent implements LevelUpdated {
     public String entityIdentifier = ":";
     public boolean isBabyMob;
     public boolean isGlobal;
+    public long entityUniqueId = -1;
 
     private LevelUpdatedLevelSoundEvent(int sound, float x, float y, float z, int extraData, String entityIdentifier, boolean isBabyMob, boolean isGlobal) {
+        this(sound, x, y, z, extraData, entityIdentifier, isBabyMob, isGlobal, -1);
+    }
+
+    private LevelUpdatedLevelSoundEvent(int sound, float x, float y, float z, int extraData, String entityIdentifier, boolean isBabyMob, boolean isGlobal, long entityUniqueId) {
         this.sound = sound;
         this.x = x;
         this.y = y;
@@ -31,6 +37,7 @@ public class LevelUpdatedLevelSoundEvent implements LevelUpdated {
         this.entityIdentifier = entityIdentifier;
         this.isBabyMob = isBabyMob;
         this.isGlobal = isGlobal;
+        this.entityUniqueId = entityUniqueId;
     }
 
     public static LevelUpdatedLevelSoundEvent of(LevelSoundEventPacket packet) {
@@ -57,8 +64,32 @@ public class LevelUpdatedLevelSoundEvent implements LevelUpdated {
         return new LevelUpdatedLevelSoundEvent(packet.sound, packet.x, packet.y, packet.z, packet.extraData, packet.entityIdentifier, packet.isBabyMob, packet.isGlobal);
     }
 
-    public LevelUpdatedLevelSoundEvent(BinaryStream stream) {
-        this.read(stream);
+    public static LevelUpdatedLevelSoundEvent of(LevelSoundEventPacketV312170 packet) {
+        return new LevelUpdatedLevelSoundEvent(packet.sound, packet.x, packet.y, packet.z, packet.extraData, packet.entityIdentifier, packet.isBabyMob, packet.isGlobal, packet.entityUniqueId);
+    }
+
+    public LevelUpdatedLevelSoundEvent(BinaryStream stream, int formatVersion) {
+        switch (formatVersion) {
+            case 3: {
+                this.sound = (int) stream.getUnsignedVarInt();
+                Vector3f v = stream.getVector3f();
+                this.x = v.x;
+                this.y = v.y;
+                this.z = v.z;
+                this.extraData = stream.getVarInt();
+                this.entityIdentifier = stream.getString();
+                this.isBabyMob = stream.getBoolean();
+                this.isGlobal = stream.getBoolean();
+                this.entityUniqueId = stream.getLLong();
+                break;
+            }
+            case 0, 1, 2: {
+                this.read(stream);
+                break;
+            }
+            default:
+                throw new IllegalArgumentException("Unsupported format version: " + formatVersion);
+        }
     }
 
     @Override
@@ -77,6 +108,7 @@ public class LevelUpdatedLevelSoundEvent implements LevelUpdated {
         packet.entityIdentifier = this.entityIdentifier;
         packet.isBabyMob = this.isBabyMob;
         packet.isGlobal = this.isGlobal;
+        packet.entityUniqueId = this.entityUniqueId;
         node.handleLevelChunkPacket(Level.chunkHash((int) x >> 4, (int) z >> 4), packet);
     }
 
@@ -92,6 +124,7 @@ public class LevelUpdatedLevelSoundEvent implements LevelUpdated {
         stream.putString(entityIdentifier);
         stream.putBoolean(isBabyMob);
         stream.putBoolean(isGlobal);
+        stream.putLLong(entityUniqueId);
     }
 
     @Override

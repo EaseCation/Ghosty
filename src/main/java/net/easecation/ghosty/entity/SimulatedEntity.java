@@ -10,6 +10,9 @@ import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.*;
+import it.unimi.dsi.fastutil.Pair;
+import it.unimi.dsi.fastutil.ints.Int2FloatMap;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import net.easecation.ghosty.MD5Util;
 
 import java.util.HashMap;
@@ -219,6 +222,11 @@ public class SimulatedEntity extends Entity {
                     .putString(Entity.DATA_SCORE_TAG, globalNameTagProcessor.getNameTag(player, this.getScoreTag()));
             } else {
                 pk.metadata = this.dataProperties;
+            }
+            Pair<Int2IntMap, Int2FloatMap> propertyValues = getProperties().getValues();
+            if (propertyValues != null) {
+                pk.intProperties = propertyValues.left();
+                pk.floatProperties = propertyValues.right();
             }
             return pk;
         } else if (networkId == 0 && !this.entityIdentifier.isEmpty()) {

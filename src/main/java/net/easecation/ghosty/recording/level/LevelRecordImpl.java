@@ -22,7 +22,7 @@ public class LevelRecordImpl implements LevelRecord {
 
     public LevelRecordImpl(BinaryStream stream, int formatVersion) {
         switch (formatVersion) {
-            case 2: {
+            case 2, 3: {
                 stream = new LittleEndianBinaryStream(stream);
                 baseGameVersionProtocol = stream.getInt();
                 int len = (int) stream.getUnsignedVarInt();

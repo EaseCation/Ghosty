@@ -57,7 +57,7 @@ public interface LevelUpdated {
             case TYPE_BLOCK_CHANGE -> new LevelUpdatedBlockChange(stream, formatVersion);
             case TYPE_BLOCK_EVENT -> new LevelUpdatedBlockEvent(stream);
             case TYPE_LEVEL_EVENT -> new LevelUpdatedLevelEvent(stream); //TODO: use persistence data instead of runtime data
-            case TYPE_LEVEL_SOUND_EVENT -> new LevelUpdatedLevelSoundEvent(stream); //TODO: use persistence data instead of runtime data
+            case TYPE_LEVEL_SOUND_EVENT -> new LevelUpdatedLevelSoundEvent(stream, formatVersion); //TODO: use persistence data instead of runtime data
             case TYPE_PLAY_SOUND -> new LevelUpdatedPlaySound(stream);
             case TYPE_TITLE -> new LevelUpdatedTitle(stream);
             case TYPE_MESSAGE -> new LevelUpdatedMessage(stream);

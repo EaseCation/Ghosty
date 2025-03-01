@@ -13,6 +13,7 @@ import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.recording.level.updated.*;
 import org.itxtech.synapseapi.multiprotocol.protocol112.protocol.LevelEventPacket112;
 import org.itxtech.synapseapi.multiprotocol.protocol116100.protocol.LevelEventPacket116100;
+import org.itxtech.synapseapi.multiprotocol.protocol12170.protocol.LevelSoundEventPacketV312170;
 import org.itxtech.synapseapi.multiprotocol.protocol14.protocol.LevelEventPacket14;
 import org.itxtech.synapseapi.multiprotocol.protocol14.protocol.LevelSoundEventPacket14;
 import org.itxtech.synapseapi.multiprotocol.protocol16.protocol.LevelEventPacket16;
@@ -107,6 +108,8 @@ public final class LevelRecordNode {
                 } else if (packet instanceof LevelSoundEventPacketV218 pk) {
                     list.add(LevelUpdatedLevelSoundEvent.of(pk));
                 } else if (packet instanceof LevelSoundEventPacketV319 pk) {
+                    list.add(LevelUpdatedLevelSoundEvent.of(pk));
+                } else if (packet instanceof LevelSoundEventPacketV312170 pk) {
                     list.add(LevelUpdatedLevelSoundEvent.of(pk));
                 } else if (packet instanceof PlaySoundPacket pk) {
                     list.add(LevelUpdatedPlaySound.of(pk));
