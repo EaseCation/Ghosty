@@ -7,11 +7,13 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import lombok.Getter;
 import net.easecation.ghosty.GhostyPlugin;
+import net.easecation.ghosty.Logger;
 import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.recording.entity.EntityRecord;
 import net.easecation.ghosty.recording.level.LevelRecord;
 import net.easecation.ghosty.recording.level.LevelRecordNode;
 import net.easecation.ghosty.recording.level.updated.LevelUpdated;
+import net.easecation.ghosty.recording.level.updated.LevelUpdatedLevelEvent;
 import net.easecation.ghosty.recording.player.PlayerRecord;
 
 import java.util.ArrayList;
@@ -62,7 +64,7 @@ public class LevelPlaybackEngine {
             EntityPlaybackEngine engine = new EntityPlaybackEngine(rec, level);
             this.entityPlaybackEngines.put(rec.getEntityId(), engine);
         });
-        GhostyPlugin.getInstance().getLogger().debug(level.getName() + " level playback started!");
+        Logger.get().debug(level.getName() + " level playback started!");
     }
 
     public void setOnStopDo(Runnable onStopDo) {
@@ -141,7 +143,7 @@ public class LevelPlaybackEngine {
         }
         if (this.taskHandler != null) this.taskHandler.cancel();
         if (this.onStopDo != null) this.onStopDo.run();
-        GhostyPlugin.getInstance().getLogger().debug(level.getName() + " level playback stopped!");
+        Logger.get().debug(level.getName() + " level playback stopped!");
     }
 
     public void onTick() {
@@ -177,7 +179,7 @@ public class LevelPlaybackEngine {
             }
             this.processLevelTick(this.getTick(), true, updates);
             if (DEBUG_DUMP) {
-                GhostyPlugin.getInstance().getLogger().debug("level " + tick + " -> reset(回退)");
+                Logger.get().debug("level " + tick + " -> reset(回退)");
             }
         }
     }
@@ -197,12 +199,12 @@ public class LevelPlaybackEngine {
         this.currentNode.applyToLevel(this.getTick(), this.level);
         this.currentNode.clear();
         // debug
-        for (LevelUpdated node : updates) {
-            if (node.getUpdateTypeId() == LevelUpdated.TYPE_LEVEL_EVENT) {
-                continue;
-            }
-            if (DEBUG_DUMP) {
-                GhostyPlugin.getInstance().getLogger().debug("level " + tick + " -> " + node);
+        if (DEBUG_DUMP) {
+            for (LevelUpdated node : updates) {
+                if (node instanceof LevelUpdatedLevelEvent) {
+                    continue;
+                }
+                Logger.get().debug("level {} -> {}", tick, node);
             }
         }
     }

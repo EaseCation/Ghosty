@@ -14,8 +14,10 @@ import cn.nukkit.scheduler.TaskHandler;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.easecation.ghosty.GhostyPlugin;
+import net.easecation.ghosty.Logger;
 import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.entity.PlaybackNPC;
+import net.easecation.ghosty.recording.UpdateWithState;
 import net.easecation.ghosty.recording.player.PlayerRecord;
 import net.easecation.ghosty.recording.player.PlayerRecordNode;
 import net.easecation.ghosty.recording.player.updated.PlayerUpdated;
@@ -77,7 +79,7 @@ public class PlayerPlaybackEngine {
         this.iterator = record.iterator();
         if (level != null) {
             this.taskHandler = Server.getInstance().getScheduler().scheduleRepeatingTask(GhostyPlugin.getInstance(), this::onTick, 1);
-            GhostyPlugin.getInstance().getLogger().debug(record.getPlayerName() + " playBack started!");
+            Logger.get().debug(record.getPlayerName() + " playBack started!");
         } else {
             this.stopPlayback();
         }
@@ -153,7 +155,7 @@ public class PlayerPlaybackEngine {
             this.taskHandler = null;
         }
         if (this.onStopDo != null) this.onStopDo.run();
-        GhostyPlugin.getInstance().getLogger().debug(record.getPlayerName() + " playBack stopped!");
+        Logger.get().debug(record.getPlayerName() + " playBack stopped!");
     }
 
     public void onTick() {
@@ -245,7 +247,7 @@ public class PlayerPlaybackEngine {
                 }
                 this.npc = null;
                 iterator.pollBackwardToTick(this.getTick());
-                GhostyPlugin.getInstance().getLogger().debug(record.getPlayerName() + " " + tick + " -> reset");
+                Logger.get().debug(record.getPlayerName() + " " + tick + " -> reset");
             } else {
                 // 回退到了中间某一帧，需要重置
                 List<PlayerUpdated> updates = iterator.pollBackwardToTick(this.getTick());
@@ -261,13 +263,13 @@ public class PlayerPlaybackEngine {
                         int finalI = i;
                         iterator.peekBackwardFirstMatch(u -> u.getUpdateTypeId() == finalI)
                             .map(PlaybackIterator.RecordEntry::entry)
-                            .filter(PlayerUpdated::hasStates)
+                            .filter(x -> x instanceof UpdateWithState)
                             .ifPresent(realUpdates::add);
                     }
                 }
                 this.processPlayerTick(realUpdates, null);
                 if (DEBUG_DUMP) {
-                    GhostyPlugin.getInstance().getLogger().debug(record.getPlayerName() + " " + tick + " -> reset(回退)");
+                    Logger.get().debug(record.getPlayerName() + " " + tick + " -> reset(回退)");
                 }
             }
         }
@@ -282,7 +284,7 @@ public class PlayerPlaybackEngine {
             BaseFullChunk chunk = level.getChunk(loc.getChunkX(), loc.getChunkZ(), true);
             if (chunk == null) {
                 if (DEBUG_DUMP) {
-                    GhostyPlugin.getInstance().getLogger().debug(record.getPlayerName() + " " + tick + " -> chunk unloaded: " + loc);
+                    Logger.get().debug(record.getPlayerName() + " " + tick + " -> chunk unloaded: " + loc);
                 }
                 return;
             }
@@ -291,7 +293,7 @@ public class PlayerPlaybackEngine {
             this.npc.setNameTag(init.getTagName());
             this.npc.spawnToAll();
             if (DEBUG_DUMP) {
-                GhostyPlugin.getInstance().getLogger().debug(record.getPlayerName() + " " + tick + " -> spawn " + record.getPlayerName());
+                Logger.get().debug(record.getPlayerName() + " " + tick + " -> spawn " + record.getPlayerName());
             }
         }
         // 应用updates到实体上
@@ -319,7 +321,7 @@ public class PlayerPlaybackEngine {
         if (npc != null && npc.isClosed()) {
             this.npc = null;
             if (DEBUG_DUMP) {
-                GhostyPlugin.getInstance().getLogger().debug(record.getPlayerName() + " " + tick + " -> close(被动)");
+                Logger.get().debug(record.getPlayerName() + " " + tick + " -> close(被动)");
             }
         }
         // debug
@@ -328,7 +330,7 @@ public class PlayerPlaybackEngine {
                 if (node.getUpdateTypeId() == PlayerUpdated.TYPE_POSITION_XYZ || node.getUpdateTypeId() == PlayerUpdated.TYPE_ROTATION) {
                     continue;
                 }
-                GhostyPlugin.getInstance().getLogger().debug("player " + tick + " -> " + node);
+                Logger.get().debug("player " + tick + " -> " + node);
             }
         }
     }

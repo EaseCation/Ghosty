@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.easecation.ghosty.GhostyPlugin;
+import net.easecation.ghosty.Logger;
 import net.easecation.ghosty.recording.level.updated.*;
 import org.itxtech.synapseapi.multiprotocol.protocol112.protocol.LevelEventPacket112;
 import org.itxtech.synapseapi.multiprotocol.protocol116100.protocol.LevelEventPacket116100;
@@ -140,7 +141,7 @@ public final class LevelRecordNode {
     public void handleBlockChange(BlockVector3 pos, Block block) {
         blockChanges.put(pos, block);
         if (DEBUG_DUMP) {
-            GhostyPlugin.getInstance().getLogger().debug("Block change: " + pos + " -> " + block);
+            Logger.get().debug("Block change: " + pos + " -> " + block);
         }
     }
 

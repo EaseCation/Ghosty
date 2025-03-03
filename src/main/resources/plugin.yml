@@ -12,3 +12,4 @@ website: http://easecation.net
 
 depend:
   - SynapseAPI
+  - KotlinLib

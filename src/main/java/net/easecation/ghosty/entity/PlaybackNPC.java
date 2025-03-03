@@ -12,6 +12,7 @@ import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.AddPlayerPacket;
+import lombok.Getter;
 import net.easecation.ghosty.playback.PlayerPlaybackEngine;
 
 import javax.annotation.Nullable;
@@ -23,8 +24,11 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
 
     public static Skin defaultSkin;
 
+    @Getter
     private final PlayerPlaybackEngine engine;
+    @Getter
     private final long originEntityId;
+    @Getter
     private final String originName;
     private final List<Player> viewers;
     private final Set<Player> hideFrom = new HashSet<>();
@@ -133,18 +137,6 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
     @Override
     public Skin getSkin() {
         return super.getSkin() == null ? defaultSkin : super.getSkin();
-    }
-
-    public String getOriginName() {
-        return originName;
-    }
-
-    public long getOriginEntityId() {
-        return originEntityId;
-    }
-
-    public PlayerPlaybackEngine getEngine() {
-        return engine;
     }
 
     public String getAliasName() {

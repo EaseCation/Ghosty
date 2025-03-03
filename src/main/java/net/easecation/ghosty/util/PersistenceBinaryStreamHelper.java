@@ -29,8 +29,8 @@ public final class PersistenceBinaryStreamHelper {
         return item;
     }
 
-    public static void putItem(BinaryStream stream, Item block) {
-        CompoundTag nbt = NBTIO.putItemHelper(block);
+    public static void putItem(BinaryStream stream, Item item) {
+        CompoundTag nbt = NBTIO.putItemHelper(item);
         byte[] bytes;
         try {
             bytes = NBTIO.write(nbt, ByteOrder.LITTLE_ENDIAN, false);

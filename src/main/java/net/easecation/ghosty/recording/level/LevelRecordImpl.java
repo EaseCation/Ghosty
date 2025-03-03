@@ -4,8 +4,11 @@ import cn.nukkit.GameVersion;
 import cn.nukkit.Server;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.GhostyPlugin;
+import net.easecation.ghosty.Logger;
 import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.recording.level.updated.LevelUpdated;
+import net.easecation.ghosty.recording.level.updated.LevelUpdatedBlockEvent;
+import net.easecation.ghosty.recording.level.updated.LevelUpdatedLevelEvent;
 import net.easecation.ghosty.recording.level.updated.LevelUpdatedOverload;
 import net.easecation.ghosty.util.LittleEndianBinaryStream;
 
@@ -83,8 +86,8 @@ public class LevelRecordImpl implements LevelRecord {
     private void push(int tick, LevelUpdated updated) {
         rec.add(new RecordPair(tick, updated));
         if (DEBUG_DUMP) {
-            if (updated.getUpdateTypeId() != LevelUpdated.TYPE_LEVEL_EVENT) {
-                GhostyPlugin.getInstance().getLogger().debug(tick + " -> " + updated);
+            if (!(updated instanceof LevelUpdatedLevelEvent)) {
+                Logger.get().debug(tick + " -> " + updated);
             }
         }
     }
@@ -98,7 +101,7 @@ public class LevelRecordImpl implements LevelRecord {
     public PlaybackIterator<LevelUpdated> iterator() {
         PlaybackIterator<LevelUpdated> iterator = new PlaybackIterator<>();
         rec.forEach((e) -> {
-            // GhostyPlugin.getInstance().getLogger().debug("queue: " + e.tick + " -> " + e.updated);
+            // Logger.get().debug("queue: " + e.tick + " -> " + e.updated);
             iterator.insert(e.tick, e.updated);
         });
         return iterator;
@@ -137,7 +140,7 @@ public class LevelRecordImpl implements LevelRecord {
         public void write(BinaryStream stream) {
             stream.putUnsignedVarInt(tick);
             stream.putByte((byte) updated.getUpdateTypeId());
-            updated.write(stream);
+            LevelUpdated.writeBinaryStream(updated, stream);
         }
     }
 

@@ -148,10 +148,10 @@ public class LevelRecordEngine {
         this.level.removeCallbackChunkPacketSend(this.callbackIdChunkPacketSend);
     }
 
-    public LevelRecordPack toRecordPack() {
+    public LevelRecordPack<?> toRecordPack() {
         List<EntityRecord> entityRecords = new ArrayList<>(this.closedEntityRecords);
         entityRecords.addAll(this.entityRecords.values());
-        return new LevelRecordPack(this.levelRecord, this.playerRecords, entityRecords);
+        return new LevelRecordPack<>(this.levelRecord, this.playerRecords, entityRecords);
     }
 
     public Level getLevel() {

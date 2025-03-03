@@ -5,6 +5,7 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.item.Item;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.GhostyPlugin;
+import net.easecation.ghosty.Logger;
 import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.entity.SimulatedEntity;
 import net.easecation.ghosty.recording.entity.updated.*;
@@ -165,8 +166,8 @@ public class EntityRecordImpl implements EntityRecord {
     private void push(int tick, EntityUpdated updated) {
         rec.add(new RecordPair(tick, updated));
         if (DEBUG_DUMP) {
-            if (updated.getUpdateTypeId() != EntityUpdated.TYPE_POSITION_XYZ && updated.getUpdateTypeId() != EntityUpdated.TYPE_ROTATION) {
-                GhostyPlugin.getInstance().getLogger().debug("entity[" + this.entityId + "] " + tick + " -> " + updated);
+            if (!(updated instanceof EntityUpdatedPositionXYZ) && !(updated instanceof EntityUpdatedRotation)) {
+                Logger.get().debug("entity[{}] {} -> {}", this.entityId, tick, updated);
             }
         }
     }
@@ -181,7 +182,7 @@ public class EntityRecordImpl implements EntityRecord {
                 this.tick = (int) stream.getUnsignedVarInt();
                 this.updated = EntityUpdated.fromBinaryStream(stream, formatVersion);
             } catch (Exception e) {
-                Server.getInstance().getLogger().logException(e);
+                Logger.getServer().logException(e);
                 throw e;
             }
         }
@@ -191,12 +192,13 @@ public class EntityRecordImpl implements EntityRecord {
             this.updated = updated;
         }
 
-        int tick; EntityUpdated updated;
+        int tick;
+        EntityUpdated updated;
 
         private void write(BinaryStream stream) {
             stream.putUnsignedVarInt(tick);
             stream.putByte((byte) updated.getUpdateTypeId());
-            updated.write(stream);
+            EntityUpdated.writeBinaryStream(updated, stream);
         }
     }
 
