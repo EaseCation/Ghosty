@@ -28,27 +28,27 @@ object NukkitBlockSerializer : KSerializer<Block> {
         get() = blockDescriptor
 
     override fun deserialize(decoder: Decoder): Block {
-        return decoder.decodeStructure(blockDescriptor) {
-            decodeElementIndex(idDescriptor)
-            val id = this.decodeIntElement(idDescriptor, 0)
-            decodeElementIndex(metaDescriptor)
-            val meta = this.decodeIntElement(metaDescriptor, 1)
-            decodeElementIndex(blockVector3Descriptor)
-            val vector3 = this.decodeSerializableElement(blockVector3Descriptor,2, NukkitBlockVector3Serializer)
-            decodeElementIndex(levelDescriptor)
-            val levelName = this.decodeNullableSerializableElement<String>(levelDescriptor, 3, serializer())
+        return decoder.decodeStructure(descriptor) {
+            decodeElementIndex(descriptor)
+            val id = this.decodeIntElement(descriptor, 0)
+            decodeElementIndex(descriptor)
+            val meta = this.decodeIntElement(descriptor, 1)
+            decodeElementIndex(descriptor)
+            val vector3 = this.decodeSerializableElement(descriptor,2, NukkitBlockVector3Serializer)
+            decodeElementIndex(descriptor)
+            val levelName = this.decodeNullableSerializableElement<String>(descriptor, 3, serializer())
             val level = levelName?.let { Server.getInstance().getLevelByName(levelName) }
             Block.get(id, meta, Position(vector3.x.toDouble(), vector3.y.toDouble(), vector3.z.toDouble(), level))
         }
     }
 
     override fun serialize(encoder: Encoder, value: Block) {
-        encoder.encodeStructure(blockDescriptor) {
-            encodeIntElement(idDescriptor, 0, value.id)
-            encodeIntElement(metaDescriptor, 1, value.damage)
-            encodeSerializableElement(blockVector3Descriptor, 2, NukkitBlockVector3Serializer, value.asBlockVector3())
+        encoder.encodeStructure(descriptor) {
+            encodeIntElement(descriptor, 0, value.id)
+            encodeIntElement(descriptor, 1, value.damage)
+            encodeSerializableElement(descriptor, 2, NukkitBlockVector3Serializer, value.asBlockVector3())
             val levelName = runCatching { value.level.name }.getOrNull()
-            encodeNullableSerializableElement(levelDescriptor, 3, serializer(), levelName)
+            encodeNullableSerializableElement(descriptor, 3, serializer(), levelName)
         }
     }
 }

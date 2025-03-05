@@ -31,13 +31,13 @@ object NukkitItemSerializer : KSerializer<NkItem> {
 
     override fun deserialize(decoder: Decoder): NkItem {
         return decoder.decodeStructure(itemDescriptor) {
-            decodeElementIndex(idDescriptor)
+            decodeElementIndex(itemDescriptor)
             val id = this.decodeIntElement(idDescriptor, 0)
-            decodeElementIndex(countDescriptor)
+            decodeElementIndex(itemDescriptor)
             val count = this.decodeIntElement(countDescriptor, 1)
-            decodeElementIndex(metaDescriptor)
+            decodeElementIndex(itemDescriptor)
             val meta = this.decodeNullableSerializableElement(metaDescriptor, 2, serializer()) ?: 0
-            decodeElementIndex(nameDescriptor)
+            decodeElementIndex(itemDescriptor)
             val name = this.decodeNullableSerializableElement(nameDescriptor, 3, serializer()) ?: UNKNOWN_STR
             NkItem(id, meta, count, name)
         }
@@ -45,10 +45,10 @@ object NukkitItemSerializer : KSerializer<NkItem> {
 
     override fun serialize(encoder: Encoder, value: NkItem) {
         encoder.encodeStructure(itemDescriptor) {
-            encodeIntElement(idDescriptor, 0, value.id)
-            encodeIntElement(countDescriptor, 1, value.count)
-            encodeNullableSerializableElement(metaDescriptor, 2, serializer(), if (value.hasMeta()) value.damage else null)
-            encodeNullableSerializableElement(nameDescriptor, 3, serializer(), if (value.name == UNKNOWN_STR) null else value.name)
+            encodeIntElement(itemDescriptor, 0, value.id)
+            encodeIntElement(itemDescriptor, 1, value.count)
+            encodeNullableSerializableElement(itemDescriptor, 2, serializer(), if (value.hasMeta()) value.damage else null)
+            encodeNullableSerializableElement(itemDescriptor, 3, serializer(), if (value.name == UNKNOWN_STR) null else value.name)
         }
     }
 }

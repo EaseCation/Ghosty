@@ -23,22 +23,22 @@ object NukkitBlockVector3Serializer : KSerializer<BlockVector3> {
         get() = blockVector3Descriptor
 
     override fun deserialize(decoder: Decoder): BlockVector3 {
-        return decoder.decodeStructure(blockVector3Descriptor) {
-            decodeElementIndex(xDescriptor)
-            val x = this.decodeIntElement(xDescriptor, 0)
-            decodeElementIndex(yDescriptor)
-            val y = this.decodeIntElement(yDescriptor, 1)
-            decodeElementIndex(zDescriptor)
-            val z = this.decodeIntElement(zDescriptor, 2)
+        return decoder.decodeStructure(descriptor) {
+            decodeElementIndex(descriptor)
+            val x = this.decodeIntElement(descriptor, 0)
+            decodeElementIndex(descriptor)
+            val y = this.decodeIntElement(descriptor, 1)
+            decodeElementIndex(descriptor)
+            val z = this.decodeIntElement(descriptor, 2)
             BlockVector3(x, y, z)
         }
     }
 
     override fun serialize(encoder: Encoder, value: BlockVector3) {
-        encoder.encodeStructure(blockVector3Descriptor) {
-            encodeIntElement(xDescriptor, 0, value.x)
-            encodeIntElement(yDescriptor, 1, value.y)
-            encodeIntElement(zDescriptor, 2, value.z)
+        encoder.encodeStructure(descriptor) {
+            encodeIntElement(descriptor, 0, value.x)
+            encodeIntElement(descriptor, 1, value.y)
+            encodeIntElement(descriptor, 2, value.z)
         }
     }
 }
