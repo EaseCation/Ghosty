@@ -12,7 +12,11 @@ import kotlinx.serialization.encoding.Encoder
 private val GSON = Gson()
 
 object GsonObjectSerializer : KSerializer<JsonObject> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("JsonObject", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor(
+            serialName = GsonObjectSerializer::class.java.packageName + "." + JsonObject::class.java.simpleName,
+            kind = PrimitiveKind.STRING
+        )
 
     override fun deserialize(decoder: Decoder): JsonObject {
         return GSON.fromJson(decoder.decodeString(), JsonObject::class.java)

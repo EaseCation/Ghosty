@@ -9,10 +9,9 @@ import kotlinx.serialization.encoding.decodeStructure
 import kotlinx.serialization.encoding.encodeStructure
 
 
-private val xDescriptor = PrimitiveSerialDescriptor("x", PrimitiveKind.INT)
-private val yDescriptor = PrimitiveSerialDescriptor("y", PrimitiveKind.INT)
-private val zDescriptor = PrimitiveSerialDescriptor("z", PrimitiveKind.INT)
-internal val blockVector3Descriptor = buildClassSerialDescriptor("BlockVector3") {
+private val blockVector3Descriptor = buildClassSerialDescriptor(
+    serialName = NukkitBlockVector3Serializer::class.java.packageName + "." + BlockVector3::class.java.simpleName
+) {
     element<Int>("x")
     element<Int>("y")
     element<Int>("z")

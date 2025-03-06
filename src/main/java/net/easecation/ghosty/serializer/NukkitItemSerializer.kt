@@ -13,11 +13,9 @@ import cn.nukkit.item.Item as NkItem
 // from nukkit Item.java
 private const val UNKNOWN_STR = "UNKNOWN_STR"
 
-private val idDescriptor = PrimitiveSerialDescriptor("id", PrimitiveKind.INT)
-private val countDescriptor = PrimitiveSerialDescriptor("count", PrimitiveKind.INT)
-private val metaDescriptor = PrimitiveSerialDescriptor("meta", PrimitiveKind.INT)
-private val nameDescriptor = PrimitiveSerialDescriptor("name", PrimitiveKind.STRING)
-private val itemDescriptor = buildClassSerialDescriptor("Item") {
+private val itemDescriptor = buildClassSerialDescriptor(
+    serialName = NukkitItemSerializer::class.java.packageName + "." + NkItem::class.java.simpleName
+) {
     element<Int>("id")
     element<Int>("count")
     element<Int?>("meta", isOptional = true)
@@ -32,13 +30,13 @@ object NukkitItemSerializer : KSerializer<NkItem> {
     override fun deserialize(decoder: Decoder): NkItem {
         return decoder.decodeStructure(itemDescriptor) {
             decodeElementIndex(itemDescriptor)
-            val id = this.decodeIntElement(idDescriptor, 0)
+            val id = this.decodeIntElement(itemDescriptor, 0)
             decodeElementIndex(itemDescriptor)
-            val count = this.decodeIntElement(countDescriptor, 1)
+            val count = this.decodeIntElement(itemDescriptor, 1)
             decodeElementIndex(itemDescriptor)
-            val meta = this.decodeNullableSerializableElement(metaDescriptor, 2, serializer()) ?: 0
+            val meta = this.decodeNullableSerializableElement(itemDescriptor, 2, serializer()) ?: 0
             decodeElementIndex(itemDescriptor)
-            val name = this.decodeNullableSerializableElement(nameDescriptor, 3, serializer()) ?: UNKNOWN_STR
+            val name = this.decodeNullableSerializableElement(itemDescriptor, 3, serializer()) ?: UNKNOWN_STR
             NkItem(id, meta, count, name)
         }
     }
@@ -47,8 +45,18 @@ object NukkitItemSerializer : KSerializer<NkItem> {
         encoder.encodeStructure(itemDescriptor) {
             encodeIntElement(itemDescriptor, 0, value.id)
             encodeIntElement(itemDescriptor, 1, value.count)
-            encodeNullableSerializableElement(itemDescriptor, 2, serializer(), if (value.hasMeta()) value.damage else null)
-            encodeNullableSerializableElement(itemDescriptor, 3, serializer(), if (value.name == UNKNOWN_STR) null else value.name)
+            encodeNullableSerializableElement(
+                itemDescriptor,
+                2,
+                serializer(),
+                if (value.hasMeta()) value.damage else null
+            )
+            encodeNullableSerializableElement(
+                itemDescriptor,
+                3,
+                serializer(),
+                if (value.name == UNKNOWN_STR) null else value.name
+            )
         }
     }
 }

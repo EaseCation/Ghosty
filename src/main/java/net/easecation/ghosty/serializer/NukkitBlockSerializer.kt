@@ -12,10 +12,9 @@ import kotlinx.serialization.encoding.decodeStructure
 import kotlinx.serialization.encoding.encodeStructure
 import kotlinx.serialization.serializer
 
-private val idDescriptor = PrimitiveSerialDescriptor("id", PrimitiveKind.INT)
-private val metaDescriptor = PrimitiveSerialDescriptor("meta", PrimitiveKind.INT)
-private val levelDescriptor = PrimitiveSerialDescriptor("level", PrimitiveKind.STRING)
-private val blockDescriptor = buildClassSerialDescriptor("Block") {
+private val blockDescriptor = buildClassSerialDescriptor(
+    serialName = NukkitBlockSerializer::class.java.packageName + "." + Block::class.java.simpleName
+) {
     element<Int>("id")
     element<Int>("meta")
     element("position", NukkitBlockVector3Serializer.descriptor)
@@ -34,7 +33,7 @@ object NukkitBlockSerializer : KSerializer<Block> {
             decodeElementIndex(descriptor)
             val meta = this.decodeIntElement(descriptor, 1)
             decodeElementIndex(descriptor)
-            val vector3 = this.decodeSerializableElement(descriptor,2, NukkitBlockVector3Serializer)
+            val vector3 = this.decodeSerializableElement(descriptor, 2, NukkitBlockVector3Serializer)
             decodeElementIndex(descriptor)
             val levelName = this.decodeNullableSerializableElement<String>(descriptor, 3, serializer())
             val level = levelName?.let { Server.getInstance().getLevelByName(levelName) }
