@@ -6,10 +6,10 @@ import net.easecation.ghosty.recording.level.LevelRecordNode
 
 @Serializable
 data class LevelUpdatedActionBar(
-    val message: String,
-    val fadeInTime: Int,
-    val stayTime: Int,
-    val fadeOutTime: Int,
+    var message: String,
+    var fadeInTime: Int,
+    var stayTime: Int,
+    var fadeOutTime: Int,
 ) : LevelUpdated {
     override fun getUpdateTypeId(): Int = LevelUpdated.TYPE_ACTION_BAR
 

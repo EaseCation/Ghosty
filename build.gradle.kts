@@ -12,13 +12,13 @@ dependencies {
     compileOnly(projects.kotlinLib)
     compileOnly("cn.nukkit:nukkit")
     compileOnly(libs.apache.commons.compress) // from nukkit
-    implementation(libs.avro4k)
     testImplementation(projects.kotlinLib)
     testImplementation("cn.nukkit:nukkit")
     testImplementation(kotlin("test"))
     val synapse = loadSynapase(project)
     compileOnly(synapse)
     testImplementation(synapse)
+    testImplementation(libs.avro4k)
 }
 
 description = "Ghosty"

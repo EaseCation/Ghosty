@@ -12,6 +12,7 @@ import cn.nukkit.network.protocol.PlaySoundPacket;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.scheduler.TaskHandler;
 import com.google.gson.JsonObject;
+import kotlinx.serialization.KSerializer;
 import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.LevelRecordPack;
 import net.easecation.ghosty.recording.entity.EntityRecord;
@@ -43,11 +44,13 @@ public class LevelRecordEngine {
     private final TaskHandler taskHandler;
     private final int callbackIdBlockSet;
     private final int callbackIdChunkPacketSend;
+    private final KSerializer<?> metadataSerializer;
 
-    public LevelRecordEngine(Level level) {
+    public LevelRecordEngine(Level level, KSerializer<?> metadataSerializer) {
         this.level = level;
         this.levelRecord = new LevelRecordImpl();
         this.levelRecordNode = new LevelRecordNode();
+        this.metadataSerializer = metadataSerializer;
         // 初次录制时间
         this.checkTimeRecord();
         this.callbackIdBlockSet = level.addCallbackBlockSet(this::onLevelBlockSet);
@@ -151,7 +154,7 @@ public class LevelRecordEngine {
     public LevelRecordPack<?> toRecordPack() {
         List<EntityRecord> entityRecords = new ArrayList<>(this.closedEntityRecords);
         entityRecords.addAll(this.entityRecords.values());
-        return new LevelRecordPack<>(this.levelRecord, this.playerRecords, entityRecords);
+        return new LevelRecordPack<>(this.levelRecord, this.playerRecords, entityRecords, metadataSerializer);
     }
 
     public Level getLevel() {

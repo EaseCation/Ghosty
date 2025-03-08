@@ -3,6 +3,7 @@ package net.easecation.ghosty
 import cn.nukkit.level.Level
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.serializer
 import net.easecation.ghosty.playback.LevelPlaybackEngine
 import net.easecation.ghosty.recording.entity.EntityRecord
@@ -35,44 +36,35 @@ class LevelRecordPack<in T : Any> @JvmOverloads constructor(
     val levelRecord: LevelRecord,
     val playerRecords: List<PlayerRecord>,
     val entityRecords: List<EntityRecord>,
+    val metadataSerializer: KSerializer<@UnsafeVariance T>,
     // 元数据，不参与任何的回放和录制逻辑，但是可以用于存储一些额外的信息，比如录制的地图名称，录制时间等
     var metadata: @UnsafeVariance T? = null,
-    val metadataSerializer: KSerializer<@UnsafeVariance T>? = null,
 ) {
     @Throws(IOException::class)
     fun pack(outputStream: OutputStream) {
-        TarArchiveOutputStream(ZstdCompressorOutputStream(outputStream, 19)).use { zos ->
-            // Pack level record
-            val levelEntry = TarArchiveEntry("level_record.ecrecl")
-            zos.putArchiveEntry(levelEntry)
-            zos.write(levelRecord.toBinary())
-            zos.closeArchiveEntry()
-
-            // Pack player records
-            for (i in playerRecords.indices) {
-                val playerRecord = playerRecords[i]
-                val playerEntry =
-                    TarArchiveEntry("player/player_record_" + i + "_" + playerRecord.playerName + ".ecrecp")
-                zos.putArchiveEntry(playerEntry)
-                zos.write(playerRecord.toBinary())
+        TarArchiveOutputStream(ZstdCompressorOutputStream(outputStream.buffered(), 19)).use { zos ->
+            fun insert(name: String, binary: ByteArray) {
+                val entry = TarArchiveEntry(name)
+                entry.size = binary.size.toLong()
+                zos.putArchiveEntry(entry)
+                zos.write(binary)
                 zos.closeArchiveEntry()
             }
 
-            // Pack entity records
-            for (entityRecord in entityRecords) {
-                val entityEntry = TarArchiveEntry("entity/entity_record_" + entityRecord.entityId + ".ecrece")
-                zos.putArchiveEntry(entityEntry)
-                zos.write(entityRecord.toBinary())
-                zos.closeArchiveEntry()
+            insert("level_record.ecrecl", levelRecord.toBinary())
+
+            playerRecords.forEachIndexed { i, playerRecord ->
+                insert("player/player_record_${i}_${playerRecord.playerName}.ecrecp", playerRecord.toBinary())
+            }
+            entityRecords.forEachIndexed { i, entityRecord ->
+                insert("player/player_record_${i}_${entityRecord.entityId}.ecrecp", entityRecord.toBinary())
             }
 
             // Metadata
-            val metadataEntry = TarArchiveEntry("metadata.json")
-            zos.putArchiveEntry(metadataEntry)
-            if (metadataSerializer != null && metadata != null) {
-                zos.write(json.encodeToString(metadataSerializer, metadata!!).encodeToByteArray())
-            }
-            zos.closeArchiveEntry()
+            val metadata = json.encodeToString(metadataSerializer, metadata!!).encodeToByteArray()
+            insert("metadata.json", metadata)
+
+            zos.finish()
         }
     }
 
@@ -100,46 +92,41 @@ class LevelRecordPack<in T : Any> @JvmOverloads constructor(
         fun <MT : Any> unpack(
             inputStream: InputStream,
             format: Format,
-            metadataSerializer: KSerializer<MT>
+            metadataSerializer: KSerializer<MT>,
         ): LevelRecordPack<MT> {
             var levelRecord: LevelRecord? = null
             val playerRecords = ArrayList<PlayerRecord>()
             val entityRecords = ArrayList<EntityRecord>()
             var metadata: MT? = null
 
-            val buffered = if (inputStream is BufferedInputStream) {
-                inputStream
-            } else {
-                BufferedInputStream(inputStream)
-            }
-
             val archiveInput = when (format) {
-                Format.ZIP -> ZipArchiveInputStream(buffered)
-                Format.TAR_ZSTD -> TarArchiveInputStream(ZstdCompressorInputStream(buffered))
+                Format.ZIP -> ZipArchiveInputStream(inputStream.buffered())
+                Format.TAR_ZSTD -> TarArchiveInputStream(ZstdCompressorInputStream(inputStream.buffered()))
             }
 
             archiveInput.use { zis ->
-                var entry = zis.nextEntry
-                do {
-                    if (zis.available() == 0) {
-                        Logger.get().warn("{} is empty", entry.name)
-                        return@use
+                zis.forEach { entry ->
+                    if (entry.isDirectory) return@forEach
+                    when {
+                        entry.name.startsWith("level_record") -> {
+                            val readAllBytes = zis.readAllBytes()
+                            levelRecord = LevelRecord.fromBinary(readAllBytes)
+                        }
+
+                        entry.name.startsWith("player/") -> {
+                            playerRecords.add(PlayerRecord.fromBinary(zis.readAllBytes()))
+                        }
+
+                        entry.name.startsWith("entity/") -> {
+                            entityRecords.add(EntityRecord.fromBinary(zis.readAllBytes()))
+                        }
+
+                        entry.name == "metadata.json" -> {
+                            val decoded = zis.readAllBytes().decodeToString()
+                            metadata = json.decodeFromString(metadataSerializer, decoded)
+                        }
                     }
-                    if (entry.name.startsWith("level_record")) {
-                        val readAllBytes = zis.readAllBytes()
-                        levelRecord = LevelRecord.fromBinary(readAllBytes)
-                    } else if (entry.name.startsWith("player/")) {
-                        playerRecords.add(PlayerRecord.fromBinary(zis.readAllBytes()))
-                    } else if (entry.name.startsWith("entity/")) {
-                        val entityRecord = EntityRecord.fromBinary(zis.readAllBytes())
-                        entityRecords.add(entityRecord)
-                    } else if (entry.name == "metadata.json") {
-                        val decoded = zis.readAllBytes().decodeToString()
-                        metadata = json.decodeFromString(metadataSerializer, decoded)
-                    }
-                    entry = zis.nextEntry
-                } while (entry != null)
-                zis.close()
+                }
             }
 
             return LevelRecordPack(
@@ -168,7 +155,7 @@ class LevelRecordPack<in T : Any> @JvmOverloads constructor(
         fun <MT : Any> unpackFile(
             file: File,
             format: Format,
-            metadataSerializer: KSerializer<MT>
+            metadataSerializer: KSerializer<MT>,
         ): LevelRecordPack<MT> =
             unpack(FileInputStream(file), format, metadataSerializer)
 
