@@ -118,7 +118,7 @@ sealed interface PlayerUpdated {
         const val TYPE_PING: Int = 14
         const val TYPE_ATTACK: Int = 15
         const val TYPE_MOTION: Int = 16
-        const val MAX_TYPE_ID: Int = 16
+        const val MAX_TYPE_ID: Int = 17
     }
 }
 

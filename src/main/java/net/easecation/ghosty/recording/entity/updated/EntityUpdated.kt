@@ -108,7 +108,7 @@ sealed interface EntityUpdated {
         const val TYPE_VARIANT: Int = 11
         const val TYPE_MARK_VARIANT: Int = 12
         const val TYPE_SKIN_INFO: Int = 13
-        const val MAX_TYPE_ID: Int = 13
+        const val MAX_TYPE_ID: Int = 14
     }
 }
 

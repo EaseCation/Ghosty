@@ -57,7 +57,7 @@ class LevelRecordPack<in T : Any> @JvmOverloads constructor(
                 insert("player/player_record_${i}_${playerRecord.playerName}.ecrecp", playerRecord.toBinary())
             }
             entityRecords.forEachIndexed { i, entityRecord ->
-                insert("player/player_record_${i}_${entityRecord.entityId}.ecrecp", entityRecord.toBinary())
+                insert("entity/entity_record_${i}_${entityRecord.entityId}.ecrece", entityRecord.toBinary())
             }
 
             // Metadata
