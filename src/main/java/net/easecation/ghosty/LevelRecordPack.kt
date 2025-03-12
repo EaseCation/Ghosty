@@ -1,5 +1,6 @@
 package net.easecation.ghosty
 
+import cn.nukkit.entity.item.EntityPainting
 import cn.nukkit.level.Level
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
@@ -118,7 +119,11 @@ class LevelRecordPack<in T : Any> @JvmOverloads constructor(
                         }
 
                         entry.name.startsWith("entity/") -> {
-                            entityRecords.add(EntityRecord.fromBinary(zis.readAllBytes()))
+                            val record = EntityRecord.fromBinary(zis.readAllBytes())
+                            if (record.networkId == EntityPainting.NETWORK_ID) {
+                                return@forEach
+                            }
+                            entityRecords.add(record)
                         }
 
                         entry.name == "metadata.json" -> {
