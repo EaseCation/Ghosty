@@ -6,6 +6,7 @@ import cn.nukkit.inventory.transaction.data.UseItemOnEntityData;
 import cn.nukkit.network.protocol.*;
 import cn.nukkit.scheduler.TaskHandler;
 import net.easecation.ghosty.GhostyPlugin;
+import net.easecation.ghosty.Logger;
 import net.easecation.ghosty.recording.player.LmlPlayerRecord;
 import net.easecation.ghosty.recording.player.PlayerRecord;
 import net.easecation.ghosty.recording.player.PlayerRecordNode;
@@ -47,7 +48,7 @@ public class PlayerRecordEngine {
         this.record = recordFactory.apply(player);
         this.taskHandler = Server.getInstance().getScheduler().scheduleRepeatingTask(GhostyPlugin.getInstance(), this::onTick, 1);
         GhostyPlugin.getInstance().recordingPlayerEngines.put(player, this);
-        GhostyPlugin.getInstance().getLogger().debug(player.getName() + " record started!");
+        Logger.get().debug(player.getName() + " record started!");
     }
 
     public void setTick(int tick) {
@@ -146,7 +147,7 @@ public class PlayerRecordEngine {
     public PlayerRecord stopRecord() {
         this.setRecording(false);
         this.stopped = true;
-        GhostyPlugin.getInstance().getLogger().debug(this.player.getName() + " record stopped!");
+        Logger.get().debug(this.player.getName() + " record stopped!");
         this.taskHandler.cancel();
         if (unifySave) GhostyPlugin.getInstance().getPlayerRecords().add(this.record);
         return this.record;

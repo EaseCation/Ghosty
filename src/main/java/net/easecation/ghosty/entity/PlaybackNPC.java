@@ -7,6 +7,7 @@ import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.item.Item;
+import cn.nukkit.level.Location;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
@@ -14,8 +15,10 @@ import cn.nukkit.network.protocol.AddPlayerPacket;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.ints.Int2FloatMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import lombok.Getter;
 import net.easecation.ghosty.playback.PlayerPlaybackEngine;
 
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,12 +27,17 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
 
     public static Skin defaultSkin;
 
+    @Getter
     private final PlayerPlaybackEngine engine;
+    @Getter
     private final long originEntityId;
+    @Getter
     private final String originName;
     private final List<Player> viewers;
     private final Set<Player> hideFrom = new HashSet<>();
     public int lastPing = 0;
+    public @Nullable Location lastPosition = null;
+    public int lastMoveTick = 0;
 
     public PlaybackNPC(FullChunk chunk, CompoundTag nbt, PlayerPlaybackEngine engine, Skin skin, long originEntityId, String name, List<Player> viewers) {
         super(chunk, nbt);
@@ -137,18 +145,6 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
     @Override
     public Skin getSkin() {
         return super.getSkin() == null ? defaultSkin : super.getSkin();
-    }
-
-    public String getOriginName() {
-        return originName;
-    }
-
-    public long getOriginEntityId() {
-        return originEntityId;
-    }
-
-    public PlayerPlaybackEngine getEngine() {
-        return engine;
     }
 
     public String getAliasName() {

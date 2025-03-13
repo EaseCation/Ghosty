@@ -7,6 +7,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.BinaryStream;
 import net.easecation.ghosty.GhostyPlugin;
+import net.easecation.ghosty.Logger;
 import net.easecation.ghosty.MathUtil;
 import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.recording.player.updated.*;
@@ -179,7 +180,7 @@ public class SkinlessPlayerRecord implements PlayerRecord {
         rec.add(new RecordPair(tick, updated));
         if (DEBUG_DUMP) {
             if (updated.getUpdateTypeId() != PlayerUpdated.TYPE_POSITION_XYZ && updated.getUpdateTypeId() != PlayerUpdated.TYPE_ROTATION) {
-                GhostyPlugin.getInstance().getLogger().debug(tick + " -> " + updated);
+                Logger.get().debug(tick + " -> " + updated);
             }
         }
     }
@@ -194,7 +195,7 @@ public class SkinlessPlayerRecord implements PlayerRecord {
                 this.tick = (int) stream.getUnsignedVarInt();
                 this.updated = PlayerUpdated.fromBinaryStream(stream, formatVersion);
             } catch (Exception e) {
-                Server.getInstance().getLogger().logException(e);
+                Logger.getServer().logException(e);
                 throw e;
             }
         }
@@ -209,7 +210,7 @@ public class SkinlessPlayerRecord implements PlayerRecord {
         private void write(BinaryStream stream) {
             stream.putUnsignedVarInt(tick);
             stream.putByte((byte) updated.getUpdateTypeId());
-            updated.write(stream);
+            PlayerUpdated.writeBinaryStream(updated, stream);
         }
     }
 

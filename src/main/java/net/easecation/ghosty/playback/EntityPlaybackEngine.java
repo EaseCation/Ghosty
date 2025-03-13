@@ -6,15 +6,17 @@ import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import lombok.Getter;
 import net.easecation.ghosty.GhostyPlugin;
+import net.easecation.ghosty.Logger;
 import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.entity.SimulatedEntity;
 import net.easecation.ghosty.recording.entity.EntityRecord;
 import net.easecation.ghosty.recording.entity.EntityRecordNode;
 import net.easecation.ghosty.recording.entity.updated.EntityUpdated;
-import net.easecation.ghosty.recording.player.updated.PlayerUpdated;
-import net.easecation.ghosty.recording.player.updated.PlayerUpdatedPositionXYZ;
-import net.easecation.ghosty.recording.player.updated.PlayerUpdatedRotation;
+import net.easecation.ghosty.recording.entity.updated.EntityUpdatedPositionXYZ;
+import net.easecation.ghosty.recording.entity.updated.EntityUpdatedRotation;
+import net.easecation.ghosty.recording.UpdateWithState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,7 @@ public class EntityPlaybackEngine {
     private final PlaybackIterator<EntityUpdated> iterator;
     private SimulatedEntity entity;
 
+    @Getter
     private boolean playing = true;
     private float lastTick = -1;
 
@@ -83,22 +86,22 @@ public class EntityPlaybackEngine {
             // 补间
             if (!realFrame) {
                 InterpolationNext interpolationNext0 = new InterpolationNext();
-                iterator.peekFirstMatch(u -> u.getUpdateTypeId() == PlayerUpdated.TYPE_POSITION_XYZ).ifPresent(u -> {
+                iterator.peekFirstMatch(u -> u instanceof EntityUpdatedPositionXYZ).ifPresent(u -> {
                     int tick0 = u.tick();
                     if (tick0 - intTick > 20) {
                         // 20tick以上的补间不做
                         return;
                     }
-                    PlayerUpdatedPositionXYZ xyz = (PlayerUpdatedPositionXYZ) u.entry();
+                    var xyz = (EntityUpdatedPositionXYZ) u.entry();
                     interpolationNext0.setXYZ(tick0, xyz.getX(), xyz.getY(), xyz.getZ());
                 });
-                iterator.peekFirstMatch(u -> u.getUpdateTypeId() == PlayerUpdated.TYPE_ROTATION).ifPresent(u -> {
+                iterator.peekFirstMatch(u -> u instanceof EntityUpdatedRotation).ifPresent(u -> {
                     int tick0 = u.tick();
                     if (tick0 - intTick > 20) {
                         // 20tick以上的补间不做
                         return;
                     }
-                    PlayerUpdatedRotation xyz = (PlayerUpdatedRotation) u.entry();
+                    var xyz = (EntityUpdatedRotation) u.entry();
                     interpolationNext0.setRotation(tick0, xyz.getYaw(), xyz.getPitch());
                 });
                 interpolationNext = interpolationNext0;
@@ -114,7 +117,7 @@ public class EntityPlaybackEngine {
                 this.entity = null;
                 iterator.pollBackwardToTick((int) tick);
                 if (DEBUG_DUMP) {
-                    GhostyPlugin.getInstance().getLogger().debug("entity[" + record.getEntityId() + "] " + tick + " -> reset");GhostyPlugin.getInstance().getLogger().debug("entity[" + record.getEntityId() + "] " + tick + " -> reset");
+                    Logger.get().debug("entity[" + record.getEntityId() + "] " + tick + " -> reset");Logger.get().debug("entity[" + record.getEntityId() + "] " + tick + " -> reset");
                 }
             } else {
                 // 回退到了中间某一帧，需要重置
@@ -131,13 +134,13 @@ public class EntityPlaybackEngine {
                         int finalI = i;
                         iterator.peekBackwardFirstMatch(u -> u.getUpdateTypeId() == finalI)
                             .map(PlaybackIterator.RecordEntry::entry)
-                            .filter(EntityUpdated::hasStates)
+                            .filter(x -> x instanceof UpdateWithState)
                             .ifPresent(realUpdates::add);
                     }
                 }
                 this.processEntityTick(tick, realUpdates, null);
                 if (DEBUG_DUMP) {
-                    GhostyPlugin.getInstance().getLogger().debug("entity[" + record.getEntityId() + "] " + tick + " -> reset(回退)");
+                    Logger.get().debug("entity[{}] {} -> reset(回退)", record.getEntityId(), tick);
                 }
             }
         }
@@ -158,7 +161,7 @@ public class EntityPlaybackEngine {
             }
             entity.spawnToAll();
             if (DEBUG_DUMP) {
-                GhostyPlugin.getInstance().getLogger().debug("entity[" + record.getEntityIdentifier() + "] " + tick + " -> spawn " + record.getNetworkId() + " item=" + entity.item);
+                Logger.get().debug("entity[" + record.getEntityIdentifier() + "] " + tick + " -> spawn " + record.getNetworkId() + " item=" + entity.item);
             }
         } else {
             // 应用updates到实体上
@@ -187,21 +190,17 @@ public class EntityPlaybackEngine {
         if (entity != null && entity.isClosed()) {
             this.entity = null;
             if (DEBUG_DUMP) {
-                GhostyPlugin.getInstance().getLogger().debug("entity[" + record.getEntityId() + "] " + tick + " -> close(被动)");
+                Logger.get().debug("entity[" + record.getEntityId() + "] " + tick + " -> close(被动)");
             }
         }
         // debug
         if (DEBUG_DUMP) {
             for (EntityUpdated node : updates) {
                 if (node.getUpdateTypeId() == EntityUpdated.TYPE_POSITION_XYZ || node.getUpdateTypeId() == EntityUpdated.TYPE_ROTATION) {
-                    GhostyPlugin.getInstance().getLogger().debug("entity[" + record.getEntityId() + "] " + tick + " -> " + node);
+                    Logger.get().debug("entity[" + record.getEntityId() + "] " + tick + " -> " + node);
                 }
             }
         }
-    }
-
-    public boolean isPlaying() {
-        return playing;
     }
 
     public void pause() {

@@ -6,6 +6,7 @@ import cn.nukkit.entity.data.Skin;
 import cn.nukkit.item.Item;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.BinaryStream;
+import net.easecation.ghosty.Logger;
 import net.easecation.ghosty.MathUtil;
 import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.recording.player.updated.*;
@@ -130,7 +131,7 @@ public class LmlPlayerRecord implements PlayerRecord {
                 this.tick = (int) stream.getUnsignedVarInt();
                 this.updated = PlayerUpdated.fromBinaryStream(stream, formatVersion);
             } catch (Exception e) {
-                Server.getInstance().getLogger().logException(e);
+                Logger.getServer().logException(e);
                 throw e;
             }
         }
@@ -145,7 +146,7 @@ public class LmlPlayerRecord implements PlayerRecord {
         private void write(BinaryStream stream) {
             stream.putUnsignedVarInt(tick);
             stream.putByte((byte) updated.getUpdateTypeId());
-            updated.write(stream);
+            PlayerUpdated.writeBinaryStream(updated, stream);
         }
     }
 

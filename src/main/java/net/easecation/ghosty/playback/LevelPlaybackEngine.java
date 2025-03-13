@@ -5,12 +5,15 @@ import cn.nukkit.level.Level;
 import cn.nukkit.scheduler.TaskHandler;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import lombok.Getter;
 import net.easecation.ghosty.GhostyPlugin;
+import net.easecation.ghosty.Logger;
 import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.recording.entity.EntityRecord;
 import net.easecation.ghosty.recording.level.LevelRecord;
 import net.easecation.ghosty.recording.level.LevelRecordNode;
 import net.easecation.ghosty.recording.level.updated.LevelUpdated;
+import net.easecation.ghosty.recording.level.updated.LevelUpdatedLevelEvent;
 import net.easecation.ghosty.recording.player.PlayerRecord;
 
 import java.util.ArrayList;
@@ -35,8 +38,12 @@ public class LevelPlaybackEngine {
     private final Level level;
     private final PlaybackIterator<LevelUpdated> iterator;
     private final Long2ObjectMap<EntityPlaybackEngine> entityPlaybackEngines = new Long2ObjectOpenHashMap<>();
+    @Getter
     private boolean displayAttackDistance = false;  // 打印攻击距离
+    @Getter
     private boolean displayPlayerPing = false;  // 显示玩家的ping
+    @Getter
+    private boolean displayMovingSpeed = false;  // 显示玩家的移动速度
 
     public LevelPlaybackEngine(LevelRecord record, Level level, List<PlayerRecord> playerRecords, Collection<EntityRecord> entityRecords) {
         this.record = record;
@@ -57,7 +64,7 @@ public class LevelPlaybackEngine {
             EntityPlaybackEngine engine = new EntityPlaybackEngine(rec, level);
             this.entityPlaybackEngines.put(rec.getEntityId(), engine);
         });
-        GhostyPlugin.getInstance().getLogger().debug(level.getName() + " level playback started!");
+        Logger.get().debug(level.getName() + " level playback started!");
     }
 
     public void setOnStopDo(Runnable onStopDo) {
@@ -136,7 +143,7 @@ public class LevelPlaybackEngine {
         }
         if (this.taskHandler != null) this.taskHandler.cancel();
         if (this.onStopDo != null) this.onStopDo.run();
-        GhostyPlugin.getInstance().getLogger().debug(level.getName() + " level playback stopped!");
+        Logger.get().debug(level.getName() + " level playback stopped!");
     }
 
     public void onTick() {
@@ -172,7 +179,7 @@ public class LevelPlaybackEngine {
             }
             this.processLevelTick(this.getTick(), true, updates);
             if (DEBUG_DUMP) {
-                GhostyPlugin.getInstance().getLogger().debug("level " + tick + " -> reset(回退)");
+                Logger.get().debug("level " + tick + " -> reset(回退)");
             }
         }
     }
@@ -192,12 +199,12 @@ public class LevelPlaybackEngine {
         this.currentNode.applyToLevel(this.getTick(), this.level);
         this.currentNode.clear();
         // debug
-        for (LevelUpdated node : updates) {
-            if (node.getUpdateTypeId() == LevelUpdated.TYPE_LEVEL_EVENT) {
-                continue;
-            }
-            if (DEBUG_DUMP) {
-                GhostyPlugin.getInstance().getLogger().debug("level " + tick + " -> " + node);
+        if (DEBUG_DUMP) {
+            for (LevelUpdated node : updates) {
+                if (node instanceof LevelUpdatedLevelEvent) {
+                    continue;
+                }
+                Logger.get().debug("level {} -> {}", tick, node);
             }
         }
     }
@@ -237,10 +244,6 @@ public class LevelPlaybackEngine {
         }
     }
 
-    public boolean isDisplayAttackDistance() {
-        return displayAttackDistance;
-    }
-
     public void setDisplayAttackDistance(boolean displayAttackDistance) {
         this.displayAttackDistance = displayAttackDistance;
         for (PlayerPlaybackEngine playerPlaybackEngine : this.playerPlaybackEngines) {
@@ -248,14 +251,17 @@ public class LevelPlaybackEngine {
         }
     }
 
-    public boolean isDisplayPlayerPing() {
-        return displayPlayerPing;
-    }
-
     public void setDisplayPlayerPing(boolean displayPlayerPing) {
         this.displayPlayerPing = displayPlayerPing;
         for (PlayerPlaybackEngine playerPlaybackEngine : this.playerPlaybackEngines) {
             playerPlaybackEngine.displayPlayerPing = displayPlayerPing;
+        }
+    }
+
+    public void setDisplayMovingSpeed(boolean displayMovingSpeed) {
+        this.displayMovingSpeed = displayMovingSpeed;
+        for (PlayerPlaybackEngine playerPlaybackEngine : this.playerPlaybackEngines) {
+            playerPlaybackEngine.displayMovingSpeed = displayMovingSpeed;
         }
     }
 }

@@ -13,6 +13,7 @@ import cn.nukkit.event.server.DataPacketReceiveEvent;
 import cn.nukkit.event.server.DataPacketSendEvent;
 import cn.nukkit.level.Level;
 import cn.nukkit.plugin.PluginBase;
+import lombok.Getter;
 import net.easecation.ghosty.entity.PlaybackNPC;
 import net.easecation.ghosty.recording.LevelRecordEngine;
 import net.easecation.ghosty.recording.PlayerRecordEngine;
@@ -25,18 +26,18 @@ import java.util.List;
 import java.util.Map;
 
 public class GhostyPlugin extends PluginBase implements Listener {
-
     private static GhostyPlugin instance;
     public static final boolean DEBUG_DUMP = false;
-
-    /* 录制完成的成品 */
-    private final List<PlayerRecord> playerRecords = new ArrayList<>();
-    public final Map<Player, PlayerRecordEngine> recordingPlayerEngines = new HashMap<>();
-    public final Map<Level, LevelRecordEngine> recordingLevelEngines = new HashMap<>();
 
     public static GhostyPlugin getInstance() {
         return instance;
     }
+
+    /* 录制完成的成品 */
+    @Getter
+    private final List<PlayerRecord> playerRecords = new ArrayList<>();
+    public final Map<Player, PlayerRecordEngine> recordingPlayerEngines = new HashMap<>();
+    public final Map<Level, LevelRecordEngine> recordingLevelEngines = new HashMap<>();
 
     @Override
     public void onLoad() {
@@ -53,10 +54,6 @@ public class GhostyPlugin extends PluginBase implements Listener {
             recordingLevelEngines.entrySet().removeIf(e -> e.getKey().getProvider() == null || !e.getValue().isRecording());
         }, 1);
         this.getLogger().info("GhostyPlugin enabled!");
-    }
-
-    public List<PlayerRecord> getPlayerRecords() {
-        return playerRecords;
     }
 
     @EventHandler

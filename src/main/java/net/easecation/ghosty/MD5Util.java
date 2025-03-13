@@ -22,7 +22,7 @@ public class MD5Util {
             byte[] bytes = md5.digest(password.getBytes(StandardCharsets.UTF_8));
             passwordMd5 = Binary.bytesToHexString(bytes).toLowerCase();
         } catch (NoSuchAlgorithmException e) {
-            Server.getInstance().getLogger().logException(e);
+            Logger.getServer().logException(e);
         }
         return passwordMd5;
     }
