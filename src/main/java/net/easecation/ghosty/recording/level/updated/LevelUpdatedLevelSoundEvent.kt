@@ -1,16 +1,17 @@
 package net.easecation.ghosty.recording.level.updated
 
 import cn.nukkit.level.Level
-import cn.nukkit.math.Vector3f
 import cn.nukkit.network.protocol.LevelSoundEventPacket
 import cn.nukkit.utils.BinaryStream
 import kotlinx.serialization.Serializable
 import net.easecation.ghosty.recording.level.LevelRecordNode
+import org.itxtech.synapseapi.multiprotocol.protocol12170.protocol.LevelSoundEventPacketV312170
 import org.itxtech.synapseapi.multiprotocol.protocol14.protocol.LevelSoundEventPacket14
 import org.itxtech.synapseapi.multiprotocol.protocol16.protocol.LevelSoundEventPacket16
 import org.itxtech.synapseapi.multiprotocol.protocol18.protocol.LevelSoundEventPacket18
 import org.itxtech.synapseapi.multiprotocol.protocol18.protocol.LevelSoundEventPacketV218
 import org.itxtech.synapseapi.multiprotocol.protocol19.protocol.LevelSoundEventPacketV319
+
 
 @Serializable
 data class LevelUpdatedLevelSoundEvent(
@@ -22,6 +23,7 @@ data class LevelUpdatedLevelSoundEvent(
     val entityIdentifier: String,
     val isBabyMob: Boolean,
     val isGlobal: Boolean,
+    val entityUniqueId: Long = -1,
 ) : LevelUpdated {
 
     override fun getUpdateTypeId(): Int = LevelUpdated.TYPE_LEVEL_SOUND_EVENT
@@ -86,6 +88,22 @@ data class LevelUpdatedLevelSoundEvent(
             )
 
         @JvmStatic
+        fun of(packet: LevelSoundEventPacketV312170): LevelUpdatedLevelSoundEvent {
+            return LevelUpdatedLevelSoundEvent(
+                packet.sound,
+                packet.x,
+                packet.y,
+                packet.z,
+                packet.extraData,
+                packet.entityIdentifier,
+                packet.isBabyMob,
+                packet.isGlobal,
+                packet.entityUniqueId
+            )
+        }
+
+
+        @JvmStatic
         val ADAPTER: LevelUpdateAdapter<LevelUpdatedLevelSoundEvent> = Adapter
     }
 
@@ -106,7 +124,29 @@ data class LevelUpdatedLevelSoundEvent(
             val entityIdentifier = stream.string
             val isBabyMob = stream.boolean
             val isGlobal = stream.boolean
-            return LevelUpdatedLevelSoundEvent(sound, vector.x, vector.y, vector.z, extraData, entityIdentifier, isBabyMob, isGlobal)
+            val entityUniqueId: Long
+            when (formatVersion) {
+                3 -> {
+                    entityUniqueId = stream.lLong
+                }
+
+                0, 1, 2 -> {
+                    entityUniqueId = -1
+                }
+
+                else -> throw IllegalArgumentException("Unsupported format version: $formatVersion")
+            }
+            return LevelUpdatedLevelSoundEvent(
+                sound,
+                vector.x,
+                vector.y,
+                vector.z,
+                extraData,
+                entityIdentifier,
+                isBabyMob,
+                isGlobal,
+                entityUniqueId,
+            )
         }
     }
 }

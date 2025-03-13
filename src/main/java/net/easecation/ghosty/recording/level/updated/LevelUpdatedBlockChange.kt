@@ -41,7 +41,7 @@ data class LevelUpdatedBlockChange(
 
         override fun read(stream: BinaryStream, formatVersion: Int): LevelUpdatedBlockChange {
             return when (formatVersion) {
-                1, 2 -> LevelUpdatedBlockChange(
+                1, 2, 3 -> LevelUpdatedBlockChange(
                     pos = stream.blockVector3,
                     block = PersistenceBinaryStreamHelper.getBlock(stream)
                 )
