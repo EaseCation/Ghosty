@@ -10,10 +10,10 @@ extra.set("copyTo", "{server}/plugins")
 
 dependencies {
     compileOnly(projects.kotlinLib)
-    compileOnly(project(":Nukkit"))
+    compileOnly(project(":nukkit"))
     compileOnly(libs.apache.commons.compress) // from nukkit
     testImplementation(projects.kotlinLib)
-    testImplementation(project(":Nukkit"))
+    testImplementation(project(":nukkit"))
     testImplementation(kotlin("test"))
     val synapse = loadSynapase(project)
     compileOnly(synapse)
