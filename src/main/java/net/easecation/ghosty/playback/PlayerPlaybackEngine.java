@@ -108,6 +108,7 @@ public class PlayerPlaybackEngine {
         return iterator;
     }
 
+    @Nullable
     public PlaybackNPC getNPC() {
         return npc;
     }

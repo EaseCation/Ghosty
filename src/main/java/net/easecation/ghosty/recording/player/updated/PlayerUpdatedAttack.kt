@@ -5,7 +5,6 @@ import cn.nukkit.utils.BinaryStream
 import cn.nukkit.utils.TextFormat
 import kotlinx.serialization.Serializable
 import net.easecation.ghosty.entity.PlaybackNPC
-import net.easecation.ghosty.serializer.NukkitItemSerializer
 
 internal fun Double.getDistanceString(): String {
     val color = when {
@@ -26,7 +25,7 @@ data class PlayerUpdatedAttack(
     override fun processTo(ghost: PlaybackNPC) {
         val engine = ghost.engine ?: return
         if (!engine.displayAttackDistance) return
-        val target = ghost.level?.actors?.values
+        val target = ghost.level?.entities
             ?.filterIsInstance<PlaybackNPC>()
             ?.firstOrNull { it.originEntityId == attackTarget } ?: return
         val message = buildString {
