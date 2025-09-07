@@ -283,7 +283,7 @@ public class PlayerPlaybackEngine {
             updates.forEach(e -> e.applyTo(init));
             Location loc = new Location(init.getX(), init.getY(), init.getZ(), init.getYaw(), init.getPitch(), level);
             BaseFullChunk chunk = level.getChunk(loc.getChunkX(), loc.getChunkZ(), true);
-            if (chunk == null) {
+            if (chunk == null || chunk.getProvider() == null) {
                 if (DEBUG_DUMP) {
                     Logger.get().debug(record.getPlayerName() + " " + tick + " -> chunk unloaded: " + loc);
                 }
