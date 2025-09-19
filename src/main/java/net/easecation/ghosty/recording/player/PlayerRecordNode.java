@@ -46,7 +46,7 @@ public final class PlayerRecordNode {
                 player.getYaw(),
                 player.getPitch(),
                 player.getLevel().getName(),
-                player.getDisplayName(),
+                player.getNameTag(),
                 hand,
                 player.getDataPropertyLong(Entity.DATA_FLAGS),
                 player.getArmorInventory().getItem(ArmorInventory.SLOT_HEAD),
