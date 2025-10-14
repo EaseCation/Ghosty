@@ -1,12 +1,10 @@
 package net.easecation.ghosty.recording.player;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.entity.data.Skin;
 import cn.nukkit.item.Item;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.BinaryStream;
-import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.Logger;
 import net.easecation.ghosty.MathUtil;
 import net.easecation.ghosty.PlaybackIterator;
@@ -188,9 +186,9 @@ public class SkinlessPlayerRecord implements PlayerRecord {
     /**
      * tick 与 PlayerUpdated 对的封装类
      */
-    private static class RecordPair {
+    public static class RecordPair {
 
-        private RecordPair(BinaryStream stream, int formatVersion) {
+        public RecordPair(BinaryStream stream, int formatVersion) {
             try {
                 this.tick = (int) stream.getUnsignedVarInt();
                 this.updated = PlayerUpdated.fromBinaryStream(stream, formatVersion);
@@ -200,7 +198,7 @@ public class SkinlessPlayerRecord implements PlayerRecord {
             }
         }
 
-        private RecordPair(int tick, PlayerUpdated updated) {
+        public RecordPair(int tick, PlayerUpdated updated) {
             this.tick = tick;
             this.updated = updated;
         }
@@ -279,6 +277,10 @@ public class SkinlessPlayerRecord implements PlayerRecord {
             lastPos = newPos;
         }
         return MathUtil.getVariance(distances);
+    }
+
+    public List<RecordPair> getRecUnsafe() {
+        return rec;
     }
 
     @Override
