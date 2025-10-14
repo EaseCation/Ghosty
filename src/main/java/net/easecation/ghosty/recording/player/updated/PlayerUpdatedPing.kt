@@ -16,8 +16,7 @@ data class PlayerUpdatedPing(
     override fun processTo(ghost: PlaybackNPC) {
         ghost.lastPing = ping
         if (ghost.engine?.displayPlayerPing == true) {
-            val parts = ghost.nameTag.split("\n")
-            ghost.nameTag = "${getDisplayPing(ping)}${WHITE}\n${parts.lastOrNull()}"
+            ghost.nameTag = "${getDisplayPing(ping)}${WHITE}\n${ghost.nameTag}"
         }
     }
 
