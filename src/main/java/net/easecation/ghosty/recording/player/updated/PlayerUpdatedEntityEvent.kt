@@ -51,8 +51,11 @@ data class PlayerUpdatedEntityEvent(
                         ?.takeIf { it.inventory?.itemInHand?.isSword == true } ?: return@forEach
                     val distance = attacker.distance(ghost)
                     val distanceStr = distance.getDistanceString()
+                    // 名字可能包含换行，显示时需要替换为单行
+                    val attackerName = attacker.nameTag.replace('\n', ' ')
+                    val victimName = ghost.nameTag.replace('\n', ' ')
                     val message =
-                        "[Attack] $distanceStr${TextFormat.WHITE} ${attacker.nameTag}${TextFormat.RESET}${TextFormat.WHITE} -> ${ghost.nameTag}"
+                        "[Attack] $distanceStr${TextFormat.WHITE} $attackerName${TextFormat.RESET}${TextFormat.WHITE} -> $victimName"
                     ghost.viewers.values.forEach { it.sendMessage(message) }
 
                 }
