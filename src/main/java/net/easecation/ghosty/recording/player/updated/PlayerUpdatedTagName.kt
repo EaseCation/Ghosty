@@ -14,6 +14,8 @@ data class PlayerUpdatedTagName(
     override fun getUpdateTypeId() = PlayerUpdated.TYPE_TAG_NAME
 
     override fun processTo(ghost: PlaybackNPC) {
+        // 同步更新基础名与显示名，防止后续Ping叠加造成重复换行
+        ghost.setBaseNameTag(tn)
         ghost.nameTag = tn
     }
 

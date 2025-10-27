@@ -38,6 +38,8 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
     public int lastPing = 0;
     public @Nullable Location lastPosition = null;
     public int lastMoveTick = 0;
+    // 基础名（不包含Ping）
+    private String baseNameTag;
 
     public PlaybackNPC(FullChunk chunk, CompoundTag nbt, PlayerPlaybackEngine engine, Skin skin, long originEntityId, String name, List<Player> viewers) {
         super(chunk, nbt);
@@ -151,6 +153,20 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
         String[] split = this.getNameTag().split("\n");
         String[] prefixSplit = split[split.length - 1].split("]");
         return prefixSplit[prefixSplit.length - 1];
+    }
+
+    /**
+     * 获取基础名（不包含Ping附加行）
+     */
+    public String getBaseNameTag() {
+        return baseNameTag == null ? this.getNameTag() : baseNameTag;
+    }
+
+    /**
+     * 设置基础名（不包含Ping附加行）
+     */
+    public void setBaseNameTag(String baseNameTag) {
+        this.baseNameTag = baseNameTag;
     }
 
     @Override

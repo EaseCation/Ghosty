@@ -16,7 +16,9 @@ data class PlayerUpdatedPing(
     override fun processTo(ghost: PlaybackNPC) {
         ghost.lastPing = ping
         if (ghost.engine?.displayPlayerPing == true) {
-            ghost.nameTag = "${getDisplayPing(ping)}${WHITE}\n${ghost.nameTag}"
+            // 基于基础名渲染Ping，避免重复叠加换行
+            val base = ghost.baseNameTag
+            ghost.nameTag = "${getDisplayPing(ping)}${WHITE}\n$base"
         }
     }
 

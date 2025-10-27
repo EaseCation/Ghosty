@@ -291,6 +291,8 @@ public class PlayerPlaybackEngine {
             }
             CompoundTag nbt = Entity.getDefaultNBT(loc);
             this.npc = new PlaybackNPC(chunk, nbt, this, record.getSkin(), record.getOriginEntityId(), record.getPlayerName(), null);
+            // 初始化名牌：先设置基础名，再设置显示名
+            this.npc.setBaseNameTag(init.getTagName());
             this.npc.setNameTag(init.getTagName());
             this.npc.spawnToAll();
             if (DEBUG_DUMP) {
