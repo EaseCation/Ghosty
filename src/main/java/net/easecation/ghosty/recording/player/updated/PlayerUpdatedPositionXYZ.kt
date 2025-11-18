@@ -25,10 +25,11 @@ data class PlayerUpdatedPositionXYZ(
             if (engine.displayMovingSpeed && engine.tick % 10 == 0) {
                 val delta = engine.tick - ghost.lastMoveTick
                 val distance = ghost.location.distance(ghost.lastPosition) / delta * 20
+                val ghostName = ghost.nameTag.replace('\n', ' ')
                 if (distance >= 0.01) {
                     val msg = buildString {
                         append("[Moving] ${Mth.round(distance, 3)}${TextFormat.WHITE} ")
-                        append("[${PlayerUpdatedPing.getDisplayPing(ghost.lastPing)}${TextFormat.WHITE}]${ghost.aliasName}")
+                        append("[${PlayerUpdatedPing.getDisplayPing(ghost.lastPing)}${TextFormat.WHITE}]${ghostName}")
                     }
                     ghost.viewers.values.forEach { it.sendMessage(msg) }
                 }
