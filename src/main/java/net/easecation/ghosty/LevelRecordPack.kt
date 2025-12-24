@@ -1,5 +1,6 @@
 package net.easecation.ghosty
 
+import cn.nukkit.entity.EntityID
 import cn.nukkit.entity.item.EntityPainting
 import cn.nukkit.level.Level
 import kotlinx.serialization.KSerializer
@@ -120,7 +121,7 @@ class LevelRecordPack<in T : Any> @JvmOverloads constructor(
 
                         entry.name.startsWith("entity/") -> {
                             val record = EntityRecord.fromBinary(zis.readAllBytes())
-                            if (record.networkId == EntityPainting.NETWORK_ID) {
+                            if (record.networkId == EntityID.PAINTING) {
                                 return@forEach
                             }
                             entityRecords.add(record)
