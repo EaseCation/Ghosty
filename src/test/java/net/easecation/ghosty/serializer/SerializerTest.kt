@@ -2,6 +2,7 @@ package net.easecation.ghosty.serializer
 
 import cn.nukkit.block.Block
 import cn.nukkit.item.Item
+import cn.nukkit.item.ItemBlockID
 import cn.nukkit.math.BlockVector3
 import com.github.avrokotlin.avro4k.Avro
 import com.github.avrokotlin.avro4k.schema
@@ -33,7 +34,7 @@ class SerializerTest {
     fun `test item avro serialize`() {
         println(Avro.schema<EntityUpdatedItem>().toString())
         val values = listOf(
-            EntityUpdatedItem(Item(Item.PLANKS, 0, 64)),
+            EntityUpdatedItem(Item(ItemBlockID.OAK_PLANKS, 0, 64)),
             EntityUpdatedItem(Item(Item.IRON_AXE, 5)),
             EntityUpdatedItem(Item(Item.IRON_AXE, 0, 1)),
             EntityUpdatedItem(Item(Item.IRON_AXE, 0, 1, "MyIronAxe")),
@@ -83,7 +84,7 @@ class SerializerTest {
         val values = listOf(
             LevelUpdatedBlockChange(
                 pos = BlockVector3(114, 514, 191),
-                block = Block.get(Block.PLANKS, 1),
+                block = Block.get(Block.SPRUCE_PLANKS),
             ),
         )
         values.forEach { value ->
