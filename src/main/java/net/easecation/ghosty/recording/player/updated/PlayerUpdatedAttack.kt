@@ -25,18 +25,19 @@ data class PlayerUpdatedAttack(
     override fun processTo(ghost: PlaybackNPC) {
         val engine = ghost.engine ?: return
         if (!engine.displayAttackDistance) return
-        val target = ghost.level?.entities
+        val victim = ghost.level?.entities
             ?.filterIsInstance<PlaybackNPC>()
             ?.firstOrNull { it.originEntityId == attackTarget } ?: return
         // 名字可能包含换行，显示时需要替换为单行
-        val attackerName = target.nameTag.replace('\n', ' ')
-        val victimName = ghost.nameTag.replace('\n', ' ')
+        // ghost是攻击者，victim是受击者
+        val attackerName = ghost.nameTag.replace('\n', ' ')
+        val victimName = victim.nameTag.replace('\n', ' ')
         val message = buildString {
-            val distance = target.distance(ghost).getDistanceString()
+            val distance = ghost.distance(victim).getDistanceString()
             append("[Attack] ").append(distance).append(TextFormat.WHITE).append(" ")
             append("[${PlayerUpdatedPing.getDisplayPing(ghost.lastPing)}${TextFormat.WHITE}]${attackerName}")
             append("${TextFormat.RESET}${TextFormat.WHITE} -> ")
-            append("[${PlayerUpdatedPing.getDisplayPing(target.lastPing)}${TextFormat.WHITE}]${victimName}")
+            append("[${PlayerUpdatedPing.getDisplayPing(victim.lastPing)}${TextFormat.WHITE}]${victimName}")
         }
         ghost.viewers.values.forEach { it.sendMessage(message) }
     }
