@@ -24,7 +24,7 @@ public class SkinlessPlayerRecord implements PlayerRecord {
 
     private PlayerRecordNode last = PlayerRecordNode.ZERO;
 
-    private final List<RecordPair> rec = new LinkedList<>();
+    private final LinkedList<RecordPair> rec = new LinkedList<>();
 
     private final int formatVersion;
     private final int protocol;
@@ -181,6 +181,10 @@ public class SkinlessPlayerRecord implements PlayerRecord {
                 Logger.get().debug(tick + " -> " + updated);
             }
         }
+    }
+
+    public void pushFirst(int tick, PlayerUpdated updated) {
+        rec.addFirst(new RecordPair(tick, updated));
     }
 
     /**
