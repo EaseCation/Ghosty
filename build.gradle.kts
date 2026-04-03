@@ -15,6 +15,7 @@ dependencies {
     testImplementation(projects.kotlinLib)
     testImplementation(project(":nukkit"))
     testImplementation(kotlin("test"))
+    testImplementation(libs.jupiter.engine)
     val synapse = loadSynapase(project)
     compileOnly(synapse)
     testImplementation(synapse)
