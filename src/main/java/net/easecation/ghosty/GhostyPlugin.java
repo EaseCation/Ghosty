@@ -101,6 +101,9 @@ public class GhostyPlugin extends PluginBase implements Listener {
 
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent event) {
+        if (event.isCancelled()) {
+            return;
+        }
         if (event.getChunk().getEntities().values().stream().anyMatch(e -> e instanceof PlaybackNPC)) {
             event.setCancelled(true);
         }
