@@ -1,6 +1,7 @@
 package net.easecation.ghosty.playback
 
 import cn.nukkit.entity.data.Skin
+import cn.nukkit.math.Vector3
 import net.easecation.ghosty.PlaybackIterator
 import net.easecation.ghosty.recording.player.PlayerRecord
 import net.easecation.ghosty.recording.player.PlayerRecordNode
@@ -13,6 +14,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class AttackDistanceCompensatorTest {
+
+    @Test
+    fun `calculates attack distance from attacker eye to target hitbox`() {
+        assertEquals(0.0, AttackDistanceCalculator.calculate(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 0.0)), 0.0001)
+        assertEquals(2.7, AttackDistanceCalculator.calculate(Vector3(0.0, 0.0, 0.0), Vector3(3.0, 0.0, 0.0)), 0.0001)
+        assertEquals(3.52, AttackDistanceCalculator.calculate(Vector3(0.0, 4.0, 0.0), Vector3(0.0, 0.0, 0.0)), 0.0001)
+    }
 
     @Test
     fun `compensates target position by attacker ping`() {
@@ -35,7 +43,7 @@ class AttackDistanceCompensatorTest {
         val available = assertIs<AttackDistanceCompensationResult.Available>(result)
         assertEquals(200, available.attackerPingMs)
         assertEquals(6.0, available.visualTargetTick, 0.0001)
-        assertEquals(2.4, available.distance, 0.0001)
+        assertEquals(2.1, available.distance, 0.0001)
     }
 
     @Test
@@ -55,7 +63,7 @@ class AttackDistanceCompensatorTest {
 
         val available = assertIs<AttackDistanceCompensationResult.Available>(result)
         assertEquals(7.5, available.visualTargetTick, 0.0001)
-        assertEquals(2.5, available.distance, 0.0001)
+        assertEquals(2.2, available.distance, 0.0001)
     }
 
     @Test
@@ -126,7 +134,7 @@ class AttackDistanceCompensatorTest {
 
         val available = assertIs<AttackDistanceCompensationResult.Available>(result)
         assertEquals(10.0, available.visualTargetTick, 0.0001)
-        assertEquals(5.0, available.distance, 0.0001)
+        assertEquals(4.7, available.distance, 0.0001)
     }
 
     @Test

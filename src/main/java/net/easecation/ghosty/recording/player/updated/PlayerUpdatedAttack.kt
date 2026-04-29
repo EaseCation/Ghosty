@@ -6,6 +6,7 @@ import cn.nukkit.utils.BinaryStream
 import cn.nukkit.utils.TextFormat
 import kotlinx.serialization.Serializable
 import net.easecation.ghosty.entity.PlaybackNPC
+import net.easecation.ghosty.playback.AttackDistanceCalculator
 import net.easecation.ghosty.playback.AttackDistanceCompensationResult
 
 internal fun Double.getDistanceString(): String {
@@ -35,7 +36,7 @@ data class PlayerUpdatedAttack(
         val attackerName = ghost.nameTag.replace('\n', ' ')
         val victimName = victim.nameTag.replace('\n', ' ')
         val message = buildString {
-            val distance = ghost.distance(victim).getDistanceString()
+            val distance = AttackDistanceCalculator.calculate(ghost, victim).getDistanceString()
             val compensatedDistance = when (
                 val compensation = engine.levelPlaybackEngine?.attackDistanceCompensator?.calculate(
                     engine,

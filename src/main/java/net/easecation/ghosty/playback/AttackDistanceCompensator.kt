@@ -60,7 +60,7 @@ class AttackDistanceCompensator private constructor(playerRecords: Collection<Pl
             return AttackDistanceCompensationResult.Unavailable(AttackDistanceCompensationUnavailableReason.WORLD_MISMATCH)
         }
         return AttackDistanceCompensationResult.Available(
-            distance = attackerPosition.distance(victimPosition),
+            distance = AttackDistanceCalculator.calculate(attackerPosition, victimPosition),
             attackerPingMs = attackerPingMs,
             visualTargetTick = visualTargetTick,
         )

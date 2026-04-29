@@ -7,6 +7,7 @@ import cn.nukkit.utils.BinaryStream
 import cn.nukkit.utils.TextFormat
 import kotlinx.serialization.Serializable
 import net.easecation.ghosty.entity.PlaybackNPC
+import net.easecation.ghosty.playback.AttackDistanceCalculator
 import net.easecation.ghosty.playback.PlayerPlaybackEngine
 import net.easecation.ghosty.recording.player.PlayerRecordNode
 import net.easecation.ghosty.recording.player.SkinlessPlayerRecord
@@ -49,7 +50,7 @@ data class PlayerUpdatedEntityEvent(
                     if ((first.entry as PlayerUpdatedAnimate).action != AnimatePacket.Action.SWING_ARM.id) return@forEach
                     val attacker = otherEngine.npc
                         ?.takeIf { it.inventory?.itemInHand?.isSword == true } ?: return@forEach
-                    val distance = attacker.distance(ghost)
+                    val distance = AttackDistanceCalculator.calculate(attacker, ghost)
                     val distanceStr = distance.getDistanceString()
                     // 名字可能包含换行，显示时需要替换为单行
                     val attackerName = attacker.nameTag.replace('\n', ' ')
