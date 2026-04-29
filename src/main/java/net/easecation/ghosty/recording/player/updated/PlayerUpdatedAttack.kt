@@ -1,10 +1,12 @@
 package net.easecation.ghosty.recording.player.updated
 
 import cn.nukkit.math.Mth
+import cn.nukkit.math.Vector3
 import cn.nukkit.utils.BinaryStream
 import cn.nukkit.utils.TextFormat
 import kotlinx.serialization.Serializable
 import net.easecation.ghosty.entity.PlaybackNPC
+import net.easecation.ghosty.playback.AttackDistanceCompensationResult
 
 internal fun Double.getDistanceString(): String {
     val color = when {
@@ -34,7 +36,21 @@ data class PlayerUpdatedAttack(
         val victimName = victim.nameTag.replace('\n', ' ')
         val message = buildString {
             val distance = ghost.distance(victim).getDistanceString()
-            append("[Attack] ").append(distance).append(TextFormat.WHITE).append(" ")
+            val compensatedDistance = when (
+                val compensation = engine.levelPlaybackEngine?.attackDistanceCompensator?.calculate(
+                    engine,
+                    attackTarget,
+                    engine.tick,
+                    Vector3(ghost.x, ghost.y, ghost.z),
+                )
+            ) {
+                is AttackDistanceCompensationResult.Available -> compensation.distance.getDistanceString()
+                is AttackDistanceCompensationResult.Unavailable,
+                null -> TextFormat.GRAY.toString() + "N/A"
+            }
+            append("[Attack] ")
+            append("标准:").append(distance).append(TextFormat.WHITE).append(" ")
+            append("延迟补偿攻击距离:").append(compensatedDistance).append(TextFormat.WHITE).append(" ")
             append("[${PlayerUpdatedPing.getDisplayPing(ghost.lastPing)}${TextFormat.WHITE}]${attackerName}")
             append("${TextFormat.RESET}${TextFormat.WHITE} -> ")
             append("[${PlayerUpdatedPing.getDisplayPing(victim.lastPing)}${TextFormat.WHITE}]${victimName}")

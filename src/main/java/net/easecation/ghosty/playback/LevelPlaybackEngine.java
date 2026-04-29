@@ -38,6 +38,7 @@ public class LevelPlaybackEngine {
     private final Level level;
     private final PlaybackIterator<LevelUpdated> iterator;
     private final Long2ObjectMap<EntityPlaybackEngine> entityPlaybackEngines = new Long2ObjectOpenHashMap<>();
+    private final AttackDistanceCompensator attackDistanceCompensator;
     @Getter
     private boolean displayAttackDistance = false;  // 打印攻击距离
     @Getter
@@ -59,6 +60,7 @@ public class LevelPlaybackEngine {
         for (PlayerRecord playerRecord : playerRecords) {
             this.playerPlaybackEngines.add(new PlayerPlaybackEngine(playerRecord, level).setLevelPlaybackEngine(this));
         }
+        this.attackDistanceCompensator = AttackDistanceCompensator.fromPlaybackEngines(this.playerPlaybackEngines);
         // 实体播放
         entityRecords.forEach(rec -> {
             EntityPlaybackEngine engine = new EntityPlaybackEngine(rec, level);
@@ -81,6 +83,10 @@ public class LevelPlaybackEngine {
 
     public List<PlayerPlaybackEngine> getPlayerPlaybackEngines() {
         return playerPlaybackEngines;
+    }
+
+    public AttackDistanceCompensator getAttackDistanceCompensator() {
+        return attackDistanceCompensator;
     }
 
     public boolean isPlaying() {
