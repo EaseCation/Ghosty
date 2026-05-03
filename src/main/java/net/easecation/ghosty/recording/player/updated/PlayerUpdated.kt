@@ -42,7 +42,7 @@ sealed interface PlayerUpdated {
                 TYPE_DATA_FLAGS -> PlayerUpdatedDataFlags.ADAPTER.read(stream)
                 TYPE_ITEM -> PlayerUpdatedItem.ADAPTER.read(stream, formatVersion)
                 TYPE_ANIMATE -> PlayerUpdatedAnimate.ADAPTER.read(stream)
-                TYPE_ENTITY_EVENT -> PlayerUpdatedEntityEvent.ADAPTER.read(stream)
+                TYPE_ENTITY_EVENT -> PlayerUpdatedEntityEvent.ADAPTER.read(stream, formatVersion)
                 TYPE_ARMOR_0 -> PlayerUpdatedArmor0.ADAPTER.read(stream, formatVersion)
                 TYPE_ARMOR_1 -> PlayerUpdatedArmor1.ADAPTER.read(stream, formatVersion)
                 TYPE_ARMOR_2 -> PlayerUpdatedArmor2.ADAPTER.read(stream, formatVersion)

@@ -12,6 +12,7 @@ public interface LevelRecord {
     byte VERSION_1 = 1;
     byte VERSION_2 = 2;
     byte VERSION_3 = 3;
+    byte VERSION_4 = 4;
 
     void record(int tick, LevelRecordNode node);
 
@@ -27,6 +28,7 @@ public interface LevelRecord {
         BinaryStream stream = new BinaryStream(data);
         byte type = (byte) stream.getByte();
         return switch (type) {
+            case VERSION_4 -> new LevelRecordImpl(stream, 4);
             case VERSION_3 -> new LevelRecordImpl(stream, 3);
             case VERSION_2 -> new LevelRecordImpl(stream, 2);
             case VERSION_1 -> new LevelRecordImpl(stream, 1);

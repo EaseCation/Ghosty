@@ -1,11 +1,14 @@
 package net.easecation.ghosty.recording.level.updated
 
 import cn.nukkit.level.Level
+import cn.nukkit.math.Vector3f
 import cn.nukkit.network.protocol.LevelSoundEventPacket
 import cn.nukkit.utils.BinaryStream
 import kotlinx.serialization.Serializable
 import net.easecation.ghosty.recording.level.LevelRecordNode
+import net.easecation.ghosty.serializer.NukkitVector3fSerializer
 import org.itxtech.synapseapi.multiprotocol.protocol12170.protocol.LevelSoundEventPacketV312170
+import org.itxtech.synapseapi.multiprotocol.protocol12620.protocol.LevelSoundEventPacketV312620
 import org.itxtech.synapseapi.multiprotocol.protocol14.protocol.LevelSoundEventPacket14
 import org.itxtech.synapseapi.multiprotocol.protocol16.protocol.LevelSoundEventPacket16
 import org.itxtech.synapseapi.multiprotocol.protocol18.protocol.LevelSoundEventPacket18
@@ -24,6 +27,8 @@ data class LevelUpdatedLevelSoundEvent(
     val isBabyMob: Boolean,
     val isGlobal: Boolean,
     val entityUniqueId: Long = -1,
+    @Serializable(with = NukkitVector3fSerializer::class)
+    val fireAtPosition: Vector3f? = null,
 ) : LevelUpdated {
 
     override fun getUpdateTypeId(): Int = LevelUpdated.TYPE_LEVEL_SOUND_EVENT
@@ -102,6 +107,22 @@ data class LevelUpdatedLevelSoundEvent(
             )
         }
 
+        @JvmStatic
+        fun of(packet: LevelSoundEventPacketV312620): LevelUpdatedLevelSoundEvent {
+            return LevelUpdatedLevelSoundEvent(
+                packet.sound,
+                packet.x,
+                packet.y,
+                packet.z,
+                packet.extraData,
+                packet.entityIdentifier,
+                packet.isBabyMob,
+                packet.isGlobal,
+                packet.entityUniqueId,
+                packet.fireAtPosition
+            )
+        }
+
 
         @JvmStatic
         val ADAPTER: LevelUpdateAdapter<LevelUpdatedLevelSoundEvent> = Adapter
@@ -115,6 +136,8 @@ data class LevelUpdatedLevelSoundEvent(
             stream.putString(updated.entityIdentifier)
             stream.putBoolean(updated.isBabyMob)
             stream.putBoolean(updated.isGlobal)
+            stream.putLLong(updated.entityUniqueId)
+            stream.putOptional(updated.fireAtPosition, BinaryStream::putVector3f)
         }
 
         override fun read(stream: BinaryStream, formatVersion: Int): LevelUpdatedLevelSoundEvent {
@@ -125,13 +148,21 @@ data class LevelUpdatedLevelSoundEvent(
             val isBabyMob = stream.boolean
             val isGlobal = stream.boolean
             val entityUniqueId: Long
+            val fireAtPosition: Vector3f?
             when (formatVersion) {
+                4 -> {
+                    entityUniqueId = stream.lLong
+                    fireAtPosition = stream.getOptional(BinaryStream::getVector3f)
+                }
+
                 3 -> {
                     entityUniqueId = stream.lLong
+                    fireAtPosition = null
                 }
 
                 0, 1, 2 -> {
                     entityUniqueId = -1
+                    fireAtPosition = null
                 }
 
                 else -> throw IllegalArgumentException("Unsupported format version: $formatVersion")
@@ -146,6 +177,7 @@ data class LevelUpdatedLevelSoundEvent(
                 isBabyMob,
                 isGlobal,
                 entityUniqueId,
+                fireAtPosition,
             )
         }
     }

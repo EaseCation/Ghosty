@@ -1,6 +1,7 @@
 package net.easecation.ghosty.recording.player.updated
 
 import cn.nukkit.Server
+import cn.nukkit.math.Vector3f
 import cn.nukkit.network.protocol.AnimatePacket
 import cn.nukkit.network.protocol.EntityEventPacket
 import cn.nukkit.utils.BinaryStream
@@ -11,12 +12,15 @@ import net.easecation.ghosty.playback.AttackDistanceCalculator
 import net.easecation.ghosty.playback.PlayerPlaybackEngine
 import net.easecation.ghosty.recording.player.PlayerRecordNode
 import net.easecation.ghosty.recording.player.SkinlessPlayerRecord
+import net.easecation.ghosty.serializer.NukkitVector3fSerializer
 import kotlin.jvm.optionals.getOrNull
 
 @Serializable
 data class PlayerUpdatedEntityEvent(
     val event: Int,
     val data: Int,
+    @Serializable(with = NukkitVector3fSerializer::class)
+    val fireAtPosition: Vector3f?,
 ) : PlayerUpdated {
 
     override fun getUpdateTypeId() = PlayerUpdated.TYPE_ENTITY_EVENT
@@ -67,7 +71,10 @@ data class PlayerUpdatedEntityEvent(
 
     companion object {
         @JvmStatic
-        fun of(event: Int, data: Int) = PlayerUpdatedEntityEvent(event, data)
+        fun of(event: Int, data: Int) = of(event, data, null)
+
+        @JvmStatic
+        fun of(event: Int, data: Int, fireAtPosition: Vector3f? = null) = PlayerUpdatedEntityEvent(event, data, fireAtPosition)
 
         @JvmStatic
         val ADAPTER: PlayerUpdateAdapter<PlayerUpdatedEntityEvent> = Adapter
@@ -77,12 +84,20 @@ data class PlayerUpdatedEntityEvent(
         override fun write(updated: PlayerUpdatedEntityEvent, stream: BinaryStream) {
             stream.putByte(updated.event.toByte())
             stream.putVarInt(updated.data)
+            stream.putOptional(updated.fireAtPosition, BinaryStream::putVector3f)
         }
 
-        override fun read(stream: BinaryStream): PlayerUpdatedEntityEvent {
+        override fun read(stream: BinaryStream): PlayerUpdatedEntityEvent = read(stream, 4)
+
+        override fun read(stream: BinaryStream, version: Int): PlayerUpdatedEntityEvent {
             val event = stream.byte
             val data = stream.varInt
-            return PlayerUpdatedEntityEvent(event, data)
+            val fireAtPosition: Vector3f? = if (version >= 4) {
+                stream.getOptional(BinaryStream::getVector3f)
+            } else {
+                null
+            }
+            return PlayerUpdatedEntityEvent(event, data, fireAtPosition)
         }
     }
 }

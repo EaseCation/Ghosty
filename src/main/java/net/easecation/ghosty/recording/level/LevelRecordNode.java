@@ -9,12 +9,12 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.Logger;
 import net.easecation.ghosty.recording.level.updated.*;
 import org.itxtech.synapseapi.multiprotocol.protocol112.protocol.LevelEventPacket112;
 import org.itxtech.synapseapi.multiprotocol.protocol116100.protocol.LevelEventPacket116100;
 import org.itxtech.synapseapi.multiprotocol.protocol12170.protocol.LevelSoundEventPacketV312170;
+import org.itxtech.synapseapi.multiprotocol.protocol12620.protocol.LevelSoundEventPacketV312620;
 import org.itxtech.synapseapi.multiprotocol.protocol14.protocol.LevelEventPacket14;
 import org.itxtech.synapseapi.multiprotocol.protocol14.protocol.LevelSoundEventPacket14;
 import org.itxtech.synapseapi.multiprotocol.protocol16.protocol.LevelEventPacket16;
@@ -111,6 +111,8 @@ public final class LevelRecordNode {
                 } else if (packet instanceof LevelSoundEventPacketV319 pk) {
                     list.add(LevelUpdatedLevelSoundEvent.of(pk));
                 } else if (packet instanceof LevelSoundEventPacketV312170 pk) {
+                    list.add(LevelUpdatedLevelSoundEvent.of(pk));
+                } else if (packet instanceof LevelSoundEventPacketV312620 pk) {
                     list.add(LevelUpdatedLevelSoundEvent.of(pk));
                 } else if (packet instanceof PlaySoundPacket pk) {
                     list.add(LevelUpdatedPlaySound.of(pk));

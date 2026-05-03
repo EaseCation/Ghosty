@@ -18,6 +18,11 @@ public class LittleEndianBinaryStream extends BinaryStream {
     }
 
     @Override
+    public short getSignedShort() {
+        return getLSignedShort();
+    }
+
+    @Override
     public void putShort(int s) {
         putLShort(s);
     }

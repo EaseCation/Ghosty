@@ -36,7 +36,7 @@ public class SkinlessPlayerRecord implements PlayerRecord {
     public SkinlessPlayerRecord(BinaryStream stream, int formatVersion) {
         this.formatVersion = formatVersion;
         switch (formatVersion) {
-            case 3: {
+            case 3, 4: {
                 stream = new LittleEndianBinaryStream(stream);
                 this.protocol = stream.getInt();
                 this.playerName = stream.getString();
@@ -239,7 +239,7 @@ public class SkinlessPlayerRecord implements PlayerRecord {
     @Override
     public byte[] toBinary() {
         BinaryStream stream = new LittleEndianBinaryStream();
-        stream.putByte(PlayerRecord.OBJECT_SKINLESS_V3);
+        stream.putByte(PlayerRecord.OBJECT_SKINLESS_V4);
         stream.putInt(this.protocol);
         stream.putString(this.playerName);
         stream.putEntityRuntimeId(this.runtimeEntityId);

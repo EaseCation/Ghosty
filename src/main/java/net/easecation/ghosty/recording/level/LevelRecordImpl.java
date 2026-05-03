@@ -3,11 +3,9 @@ package net.easecation.ghosty.recording.level;
 import cn.nukkit.GameVersion;
 import cn.nukkit.Server;
 import cn.nukkit.utils.BinaryStream;
-import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.Logger;
 import net.easecation.ghosty.PlaybackIterator;
 import net.easecation.ghosty.recording.level.updated.LevelUpdated;
-import net.easecation.ghosty.recording.level.updated.LevelUpdatedBlockEvent;
 import net.easecation.ghosty.recording.level.updated.LevelUpdatedLevelEvent;
 import net.easecation.ghosty.recording.level.updated.LevelUpdatedOverload;
 import net.easecation.ghosty.util.LittleEndianBinaryStream;
@@ -25,7 +23,7 @@ public class LevelRecordImpl implements LevelRecord {
 
     public LevelRecordImpl(BinaryStream stream, int formatVersion) {
         switch (formatVersion) {
-            case 2, 3: {
+            case 2, 3, 4: {
                 stream = new LittleEndianBinaryStream(stream);
                 baseGameVersionProtocol = stream.getInt();
                 int len = (int) stream.getUnsignedVarInt();
@@ -110,7 +108,7 @@ public class LevelRecordImpl implements LevelRecord {
     @Override
     public byte[] toBinary() {
         BinaryStream stream = new LittleEndianBinaryStream();
-        stream.putByte(VERSION_2);
+        stream.putByte(VERSION_4);
         stream.putInt(baseGameVersionProtocol);
         stream.putUnsignedVarInt(this.rec.size());
         for (RecordPair pair : this.rec) {

@@ -45,7 +45,7 @@ data class PlayerUpdatedOffhand(
         override fun read(stream: BinaryStream, version: Int): PlayerUpdatedOffhand {
             return when (version) {
                 0 -> PlayerUpdatedOffhand(stream.slot)
-                1, 2, 3 -> PlayerUpdatedOffhand(PersistenceBinaryStreamHelper.getItem(stream))
+                1, 2, 3, 4 -> PlayerUpdatedOffhand(PersistenceBinaryStreamHelper.getItem(stream))
                 else -> throw IllegalArgumentException("Unsupported format version: $version")
             }
         }

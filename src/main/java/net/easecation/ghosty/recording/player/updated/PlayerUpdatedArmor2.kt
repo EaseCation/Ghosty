@@ -44,7 +44,7 @@ data class PlayerUpdatedArmor2(
         override fun read(stream: BinaryStream, version: Int): PlayerUpdatedArmor2 {
             return when (version) {
                 0 -> PlayerUpdatedArmor2(stream.slot)
-                1, 2, 3 -> PlayerUpdatedArmor2(PersistenceBinaryStreamHelper.getItem(stream))
+                1, 2, 3, 4 -> PlayerUpdatedArmor2(PersistenceBinaryStreamHelper.getItem(stream))
                 else -> throw IllegalArgumentException("unknown format version: $version")
             }
         }

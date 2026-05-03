@@ -15,6 +15,7 @@ import org.itxtech.synapseapi.SynapsePlayer;
 import org.itxtech.synapseapi.multiprotocol.protocol116.protocol.InventoryTransactionPacket116;
 import org.itxtech.synapseapi.multiprotocol.protocol116100.protocol.EntityEventPacket116100;
 import org.itxtech.synapseapi.multiprotocol.protocol12070.protocol.SetEntityMotionPacket12070;
+import org.itxtech.synapseapi.multiprotocol.protocol12620.protocol.EntityEventPacket12620;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,6 +101,10 @@ public class PlayerRecordEngine {
         if (packet instanceof AnimatePacket pk) {
             if (pk.eid == this.player.getId() || pk.eid == SynapsePlayer.SYNAPSE_PLAYER_ENTITY_ID) {
                 this.extraUpdates.add(PlayerUpdatedAnimate.of(pk.action.getId(), pk.rowingTime));
+            }
+        } else if (packet instanceof EntityEventPacket12620 pk) {
+            if (pk.eid == this.player.getId() || pk.eid == SynapsePlayer.SYNAPSE_PLAYER_ENTITY_ID) {
+                this.extraUpdates.add(PlayerUpdatedEntityEvent.of(pk.event, pk.data, pk.fireAtPosition));
             }
         } else if (packet instanceof EntityEventPacket116100 pk) {
             if (pk.eid == this.player.getId() || pk.eid == SynapsePlayer.SYNAPSE_PLAYER_ENTITY_ID) {
