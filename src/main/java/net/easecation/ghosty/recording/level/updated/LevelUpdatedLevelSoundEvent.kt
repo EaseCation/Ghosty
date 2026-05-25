@@ -9,11 +9,13 @@ import net.easecation.ghosty.recording.level.LevelRecordNode
 import net.easecation.ghosty.serializer.NukkitVector3fSerializer
 import org.itxtech.synapseapi.multiprotocol.protocol12170.protocol.LevelSoundEventPacketV312170
 import org.itxtech.synapseapi.multiprotocol.protocol12620.protocol.LevelSoundEventPacketV312620
+import org.itxtech.synapseapi.multiprotocol.protocol12630.protocol.LevelSoundEventPacketV312630
 import org.itxtech.synapseapi.multiprotocol.protocol14.protocol.LevelSoundEventPacket14
 import org.itxtech.synapseapi.multiprotocol.protocol16.protocol.LevelSoundEventPacket16
 import org.itxtech.synapseapi.multiprotocol.protocol18.protocol.LevelSoundEventPacket18
 import org.itxtech.synapseapi.multiprotocol.protocol18.protocol.LevelSoundEventPacketV218
 import org.itxtech.synapseapi.multiprotocol.protocol19.protocol.LevelSoundEventPacketV319
+import org.itxtech.synapseapi.multiprotocol.utils.LevelSoundEventMap
 
 
 @Serializable
@@ -111,6 +113,22 @@ data class LevelUpdatedLevelSoundEvent(
         fun of(packet: LevelSoundEventPacketV312620): LevelUpdatedLevelSoundEvent {
             return LevelUpdatedLevelSoundEvent(
                 packet.sound,
+                packet.x,
+                packet.y,
+                packet.z,
+                packet.extraData,
+                packet.entityIdentifier,
+                packet.isBabyMob,
+                packet.isGlobal,
+                packet.entityUniqueId,
+                packet.fireAtPosition
+            )
+        }
+
+        @JvmStatic
+        fun of(packet: LevelSoundEventPacketV312630): LevelUpdatedLevelSoundEvent {
+            return LevelUpdatedLevelSoundEvent(
+                LevelSoundEventMap.getId(packet.sound),
                 packet.x,
                 packet.y,
                 packet.z,

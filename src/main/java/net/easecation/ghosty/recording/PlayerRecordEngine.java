@@ -16,6 +16,7 @@ import org.itxtech.synapseapi.multiprotocol.protocol116.protocol.InventoryTransa
 import org.itxtech.synapseapi.multiprotocol.protocol116100.protocol.EntityEventPacket116100;
 import org.itxtech.synapseapi.multiprotocol.protocol12070.protocol.SetEntityMotionPacket12070;
 import org.itxtech.synapseapi.multiprotocol.protocol12620.protocol.EntityEventPacket12620;
+import org.itxtech.synapseapi.multiprotocol.protocol12630.protocol.InventoryTransactionPacket12630;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,10 +127,17 @@ public class PlayerRecordEngine {
             if (pk.eid == this.player.getId() || pk.eid == SynapsePlayer.SYNAPSE_PLAYER_ENTITY_ID) {
                 this.extraUpdates.add(PlayerUpdatedMotion.of(pk.motionX, pk.motionY, pk.motionZ));
             }
-        } else if (packet instanceof InventoryTransactionPacket116 pk) {
-            if (pk.transactionType == InventoryTransactionPacket116.TYPE_USE_ITEM_ON_ENTITY) {
+        } else if (packet instanceof InventoryTransactionPacket12630 pk) {
+            if (pk.transactionType == InventoryTransactionPacket.TYPE_USE_ITEM_ON_ENTITY) {
                 UseItemOnEntityData useItemOnEntityData = (UseItemOnEntityData) pk.transactionData;
-                if (useItemOnEntityData.actionType == InventoryTransactionPacket116.USE_ITEM_ON_ENTITY_ACTION_ATTACK) {
+                if (useItemOnEntityData.actionType == InventoryTransactionPacket.USE_ITEM_ON_ENTITY_ACTION_ATTACK) {
+                    this.extraUpdates.add(PlayerUpdatedAttack.of(useItemOnEntityData.entityRuntimeId));
+                }
+            }
+        } else if (packet instanceof InventoryTransactionPacket116 pk) {
+            if (pk.transactionType == InventoryTransactionPacket.TYPE_USE_ITEM_ON_ENTITY) {
+                UseItemOnEntityData useItemOnEntityData = (UseItemOnEntityData) pk.transactionData;
+                if (useItemOnEntityData.actionType == InventoryTransactionPacket.USE_ITEM_ON_ENTITY_ACTION_ATTACK) {
                     this.extraUpdates.add(PlayerUpdatedAttack.of(useItemOnEntityData.entityRuntimeId));
                 }
             }
@@ -139,10 +147,17 @@ public class PlayerRecordEngine {
     public void onPacketReceiveEvent(DataPacket packet) {
         if (packet instanceof AnimatePacket pk) {
             this.extraUpdates.add(PlayerUpdatedAnimate.of(pk.action.getId(), pk.rowingTime));
-        } else if (packet instanceof InventoryTransactionPacket116 pk) {
-            if (pk.transactionType == InventoryTransactionPacket116.TYPE_USE_ITEM_ON_ENTITY) {
+        } else if (packet instanceof InventoryTransactionPacket12630 pk) {
+            if (pk.transactionType == InventoryTransactionPacket.TYPE_USE_ITEM_ON_ENTITY) {
                 UseItemOnEntityData useItemOnEntityData = (UseItemOnEntityData) pk.transactionData;
-                if (useItemOnEntityData.actionType == InventoryTransactionPacket116.USE_ITEM_ON_ENTITY_ACTION_ATTACK) {
+                if (useItemOnEntityData.actionType == InventoryTransactionPacket.USE_ITEM_ON_ENTITY_ACTION_ATTACK) {
+                    this.extraUpdates.add(PlayerUpdatedAttack.of(useItemOnEntityData.entityRuntimeId));
+                }
+            }
+        } else if (packet instanceof InventoryTransactionPacket116 pk) {
+            if (pk.transactionType == InventoryTransactionPacket.TYPE_USE_ITEM_ON_ENTITY) {
+                UseItemOnEntityData useItemOnEntityData = (UseItemOnEntityData) pk.transactionData;
+                if (useItemOnEntityData.actionType == InventoryTransactionPacket.USE_ITEM_ON_ENTITY_ACTION_ATTACK) {
                     this.extraUpdates.add(PlayerUpdatedAttack.of(useItemOnEntityData.entityRuntimeId));
                 }
             }
