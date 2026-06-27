@@ -46,7 +46,7 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
         this.engine = engine;
         this.originEntityId = originEntityId;
         this.originName = name;
-        this.setSkin(skin == null ? defaultSkin : skin);
+        this.setSkin(skin == null || !skin.isValid() ? defaultSkin : skin);
         this.setNameTagVisible(true);
         this.setNameTagAlwaysVisible(true);
         this.getInventory().setHeldItemIndex(0);
