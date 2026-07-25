@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PlaybackNPC extends EntityHuman implements InventoryHolder {
 
@@ -100,7 +101,9 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
             if (!this.skin.isValid()) {
                 throw new IllegalStateException(this.getClass().getSimpleName() + " must have a valid skin set");
             }
-            this.server.updatePlayerListData(this.getUniqueId(), this.getId(), this.getName(), this.skin, new Player[]{player});
+            if (player.sentSkins.add(this.getUniqueId())) {
+                this.server.updatePlayerListData(true, this.getUniqueId(), this.getId(), this.getName(), this.skin, player);
+            }
             AddPlayerPacket pk = new AddPlayerPacket();
             pk.uuid = this.getUniqueId();
             pk.username = this.getNameTag();
@@ -128,11 +131,11 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
         }
     }
 
-    @Override
+    /*@Override
     public void despawnFrom(Player player) {
         super.despawnFrom(player);
-        this.server.removePlayerListData(this.getUniqueId());
-    }
+        this.server.removePlayerListData(this.getUniqueId(), getViewers().values());
+    }*/
 
     @Override
     public void kill() {
@@ -171,6 +174,9 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
 
     @Override
     public void close() {
+        List<Player> sentSkinPlayers = this.getServer().getOnlinePlayers().values().stream().filter(e -> e.sentSkins.contains(this.uuid)).collect(Collectors.toList());
+        this.getServer().removePlayerListData(this.uuid, sentSkinPlayers);
+        sentSkinPlayers.forEach(p -> p.sentSkins.remove(this.uuid));
         super.close();
     }
 }
