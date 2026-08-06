@@ -38,8 +38,11 @@ import static net.easecation.ghosty.GhostyPlugin.DEBUG_DUMP;
  */
 public class PlayerPlaybackEngine {
 
+    @Deprecated
     public static BiConsumer<PlayerPlaybackEngine, Player> onPlayerAttach = null;
+    @Deprecated
     public static BiConsumer<PlayerPlaybackEngine, Player> onPlayerUnattach = null;
+    @Deprecated
     public static BiConsumer<PlayerPlaybackEngine, Player> onPlayerAttachTick = null;
 
     private @Nullable LevelPlaybackEngine levelPlaybackEngine = null;
@@ -48,6 +51,7 @@ public class PlayerPlaybackEngine {
     private TaskHandler taskHandler;
     private Runnable onStopDo;
     private BiConsumer<PlayerPlaybackEngine, Player> interactNPCCallback = null;
+    private @Nullable AttachmentListener attachmentListener;
 
     private boolean playing = true;
     private float speed = 1;
@@ -100,6 +104,11 @@ public class PlayerPlaybackEngine {
         return this;
     }
 
+    public PlayerPlaybackEngine setAttachmentListener(@Nullable AttachmentListener attachmentListener) {
+        this.attachmentListener = attachmentListener;
+        return this;
+    }
+
     public PlayerRecord getRecord() {
         return record;
     }
@@ -148,6 +157,7 @@ public class PlayerPlaybackEngine {
     public void stopPlayback() {
         this.playing = false;
         this.stopped = true;
+        this.detachAllPlayers();
         if (this.npc != null) this.npc.kill();
         this.npc = null;
         // this.iterator = null;
@@ -343,31 +353,68 @@ public class PlayerPlaybackEngine {
             return;
         }
         if (this.npc == null || this.npc.isClosed()) {
-            if (onPlayerUnattach != null) {
-                for (Player player : this.attachedPlayers) {
-                    onPlayerUnattach.accept(this, player);
-                }
-            }
-            this.attachedPlayers.clear();
+            this.detachAllPlayers();
             return;
         }
         for (Player player : this.attachedPlayers) {
             player.setPosition(this.npc);
-            player.sendPosition(player.getPlayer(), player.getYaw(), player.getPitch(), player.isNetEaseClient() ? MovePlayerPacket.MODE_NORMAL : MovePlayerPacket.MODE_TELEPORT);
-            if (onPlayerAttachTick != null) {
-                onPlayerAttachTick.accept(this, player);
+            if (this.positionSyncMode(player) == AttachmentPositionSyncMode.CLIENT_TELEPORT) {
+                player.sendPosition(player.getPlayer(), player.getYaw(), player.getPitch(), player.isNetEaseClient() ? MovePlayerPacket.MODE_NORMAL : MovePlayerPacket.MODE_TELEPORT);
             }
+            this.notifyAttachTick(player);
         }
     }
 
-    public void attach(Player player) {
-        this.attachedPlayers.add(player);
-        if (onPlayerAttach != null) onPlayerAttach.accept(this, player);
+    public boolean attach(Player player) {
+        if (this.npc == null || this.npc.isClosed() || !this.attachedPlayers.add(player)) {
+            return false;
+        }
+        this.notifyAttached(player);
+        return true;
     }
 
-    public void unattach(Player player) {
-        this.attachedPlayers.remove(player);
-        if (onPlayerUnattach != null) onPlayerUnattach.accept(this, player);
+    public boolean unattach(Player player) {
+        if (!this.attachedPlayers.remove(player)) {
+            return false;
+        }
+        this.notifyUnattached(player);
+        return true;
+    }
+
+    public void detachAllPlayers() {
+        for (Player player : List.copyOf(this.attachedPlayers)) {
+            this.unattach(player);
+        }
+    }
+
+    private void notifyAttached(Player player) {
+        if (this.attachmentListener != null) {
+            this.attachmentListener.onAttached(this, player);
+        } else if (onPlayerAttach != null) {
+            onPlayerAttach.accept(this, player);
+        }
+    }
+
+    private void notifyUnattached(Player player) {
+        if (this.attachmentListener != null) {
+            this.attachmentListener.onUnattached(this, player);
+        } else if (onPlayerUnattach != null) {
+            onPlayerUnattach.accept(this, player);
+        }
+    }
+
+    private void notifyAttachTick(Player player) {
+        if (this.attachmentListener != null) {
+            this.attachmentListener.onAttachTick(this, player);
+        } else if (onPlayerAttachTick != null) {
+            onPlayerAttachTick.accept(this, player);
+        }
+    }
+
+    private AttachmentPositionSyncMode positionSyncMode(Player player) {
+        return this.attachmentListener != null
+                ? this.attachmentListener.positionSyncMode(this, player)
+                : AttachmentPositionSyncMode.CLIENT_TELEPORT;
     }
 
     public void backward(int ticks) {
@@ -396,6 +443,24 @@ public class PlayerPlaybackEngine {
         if (this.taskHandler == null) {
             this.taskHandler = Server.getInstance().getScheduler().scheduleRepeatingTask(GhostyPlugin.getInstance(), this::onTick, 1);
         }
+    }
+
+    public interface AttachmentListener {
+
+        default AttachmentPositionSyncMode positionSyncMode(PlayerPlaybackEngine engine, Player player) {
+            return AttachmentPositionSyncMode.CLIENT_TELEPORT;
+        }
+
+        void onAttached(PlayerPlaybackEngine engine, Player player);
+
+        void onUnattached(PlayerPlaybackEngine engine, Player player);
+
+        void onAttachTick(PlayerPlaybackEngine engine, Player player);
+    }
+
+    public enum AttachmentPositionSyncMode {
+        CLIENT_TELEPORT,
+        SERVER_ONLY
     }
 
 }
