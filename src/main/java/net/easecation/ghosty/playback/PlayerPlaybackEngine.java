@@ -357,8 +357,15 @@ public class PlayerPlaybackEngine {
             return;
         }
         for (Player player : this.attachedPlayers) {
+            int previousChunkX = player.getChunkX();
+            int previousChunkZ = player.getChunkZ();
             player.setPosition(this.npc);
-            if (this.positionSyncMode(player) == AttachmentPositionSyncMode.CLIENT_TELEPORT) {
+            AttachmentPositionSyncMode syncMode = this.positionSyncMode(player);
+            if (syncMode != AttachmentPositionSyncMode.SERVER_ONLY) {
+                if (syncMode == AttachmentPositionSyncMode.CLIENT_TELEPORT_WITH_IMMEDIATE_CHUNK_ORDER
+                        && (player.getChunkX() != previousChunkX || player.getChunkZ() != previousChunkZ)) {
+                    player.requestChunkOrder();
+                }
                 player.sendPosition(player.getPlayer(), player.getYaw(), player.getPitch(), player.isNetEaseClient() ? MovePlayerPacket.MODE_NORMAL : MovePlayerPacket.MODE_TELEPORT);
             }
             this.notifyAttachTick(player);
@@ -460,6 +467,7 @@ public class PlayerPlaybackEngine {
 
     public enum AttachmentPositionSyncMode {
         CLIENT_TELEPORT,
+        CLIENT_TELEPORT_WITH_IMMEDIATE_CHUNK_ORDER,
         SERVER_ONLY
     }
 
