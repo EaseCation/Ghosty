@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static net.easecation.ghosty.GhostyPlugin.DEBUG_DUMP;
 
@@ -179,6 +180,7 @@ public class PlayerPlaybackEngine {
             return;
         }
         this.tickPlayerPlayback();
+        this.presentationUpdater.accept(this);
         this.processAttach();
         this.lastTick = this.tick;
         this.tick += this.speed;
@@ -186,6 +188,12 @@ public class PlayerPlaybackEngine {
 
     public BiConsumer<PlayerPlaybackEngine, Player> getInteractNPCCallback() {
         return interactNPCCallback;
+    }
+
+    private Consumer<PlayerPlaybackEngine> presentationUpdater = engine -> {};
+
+    public void setPresentationUpdater(Consumer<PlayerPlaybackEngine> updater) {
+        this.presentationUpdater = updater;
     }
 
     public PlayerPlaybackEngine setInteractNPCCallback(BiConsumer<PlayerPlaybackEngine, Player> interactNPCCallback) {
@@ -304,6 +312,7 @@ public class PlayerPlaybackEngine {
             // 初始化名牌：先设置基础名，再设置显示名
             this.npc.setBaseNameTag(init.getTagName());
             this.npc.setNameTag(init.getTagName());
+            this.presentationUpdater.accept(this);
             this.npc.spawnToAll();
             if (DEBUG_DUMP) {
                 Logger.get().debug(record.getPlayerName() + " " + tick + " -> spawn " + record.getPlayerName());
@@ -445,6 +454,7 @@ public class PlayerPlaybackEngine {
         this.stopped = false;
         if (!this.playing) {
             this.tickPlayerPlayback();
+            this.presentationUpdater.accept(this);
             this.lastTick = tick;
         }
         if (this.taskHandler == null) {

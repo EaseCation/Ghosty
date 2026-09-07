@@ -27,10 +27,16 @@ import net.easecation.ghosty.recording.player.SkinlessPlayerRecord;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.ObjIntConsumer;
 
 public class LevelRecordEngine {
 
     private int tick = 0;
+    private ObjIntConsumer<Player> playerSnapshotConsumer = (player, tick) -> {};
+
+    public void setPlayerSnapshotConsumer(ObjIntConsumer<Player> consumer) {
+        this.playerSnapshotConsumer = consumer;
+    }
     private final Level level;
     private int lastTime = -1;
     private boolean recording = true;
@@ -114,6 +120,7 @@ public class LevelRecordEngine {
             }
         }
         for (Player player : level.getPlayers().values()) {
+            this.playerSnapshotConsumer.accept(player, this.tick);
             // 添加玩家到录制器中
             if (!playerRecordEngines.containsKey(player)) {
                 this.addPlayer(player, SkinlessPlayerRecord::new);
@@ -140,6 +147,8 @@ public class LevelRecordEngine {
     }
 
     public void stopRecord() {
+        if (!this.recording) return;
+        this.levelRecord.record(this.tick, this.levelRecordNode);
         this.recording = false;
         for (PlayerRecordEngine engine : playerRecordEngines.values()) {
             PlayerRecord playerRecord = engine.stopRecord();
