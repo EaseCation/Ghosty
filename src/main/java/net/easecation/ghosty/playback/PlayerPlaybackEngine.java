@@ -11,8 +11,6 @@ import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.MovePlayerPacket;
 import cn.nukkit.scheduler.TaskHandler;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.easecation.ghosty.GhostyPlugin;
 import net.easecation.ghosty.Logger;
 import net.easecation.ghosty.PlaybackIterator;
@@ -269,22 +267,16 @@ public class PlayerPlaybackEngine {
                 Logger.get().debug(record.getPlayerName() + " " + tick + " -> reset");
             } else {
                 // 回退到了中间某一帧，需要重置
-                List<PlayerUpdated> updates = iterator.pollBackwardToTick(this.getTick());
-                if (updates.isEmpty()) {
-                    return;
-                }
-                // 回退时，需要补充所有带有状态的Updated，因为回退时，可能会丢失某些状态
-                Int2ObjectMap<PlayerUpdated> updatedByType = new Int2ObjectOpenHashMap<>();
-                updates.forEach(e -> updatedByType.put(e.getUpdateTypeId(), e));
-                List<PlayerUpdated> realUpdates = new ArrayList<>(updatedByType.values());
+                iterator.pollBackwardToTick(this.getTick());
+                iterator.pollToTick(this.getTick());
+                // 按目标帧的历史状态还原，不能应用正在撤销的更新。
+                List<PlayerUpdated> realUpdates = new ArrayList<>();
                 for (int i = 0; i <= PlayerUpdated.MAX_TYPE_ID; i++) {
-                    if (!updatedByType.containsKey(i)) {
-                        int finalI = i;
-                        iterator.peekBackwardFirstMatch(u -> u.getUpdateTypeId() == finalI)
-                            .map(PlaybackIterator.RecordEntry::entry)
-                            .filter(x -> x instanceof UpdateWithState)
-                            .ifPresent(realUpdates::add);
-                    }
+                    int type = i;
+                    iterator.peekBackwardFirstMatch(u -> u.getUpdateTypeId() == type)
+                        .map(PlaybackIterator.RecordEntry::entry)
+                        .filter(x -> x instanceof UpdateWithState)
+                        .ifPresent(realUpdates::add);
                 }
                 this.processPlayerTick(realUpdates, null);
                 if (DEBUG_DUMP) {
