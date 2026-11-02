@@ -17,6 +17,7 @@ data class PlayerUpdatedDataFlags(
 
     override fun processTo(ghost: PlaybackNPC) {
         ghost.setDataProperty(LongEntityData(Entity.DATA_FLAGS, flags))
+        ghost.recalculateBoundingBox()
     }
 
     override fun applyTo(node: PlayerRecordNode) = node.apply { dataFlags = flags }

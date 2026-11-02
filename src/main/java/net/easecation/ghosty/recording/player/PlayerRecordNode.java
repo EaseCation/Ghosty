@@ -33,6 +33,7 @@ public final class PlayerRecordNode {
     private Item offhand;
 
     private long dataFlags;
+    private long dataFlagsExtended;
     private int ping;
     private List<PlayerUpdated> extraUpdates = null;
 
@@ -49,6 +50,7 @@ public final class PlayerRecordNode {
                 player.getNameTag(),
                 hand,
                 player.getDataPropertyLong(Entity.DATA_FLAGS),
+                player.getDataPropertyLong(Entity.DATA_FLAGS_EXTENDED),
                 player.getArmorInventory().getItem(ArmorInventory.SLOT_HEAD),
                 player.getArmorInventory().getItem(ArmorInventory.SLOT_TORSO),
                 player.getArmorInventory().getItem(ArmorInventory.SLOT_LEGS),
@@ -61,7 +63,7 @@ public final class PlayerRecordNode {
     static PlayerRecordNode ZERO = createZero();
 
     public static PlayerRecordNode createZero() {
-        return new PlayerRecordNode(0,0,0,0,0,"","",null,0, null, null, null, null, null, -1);
+        return new PlayerRecordNode(0,0,0,0,0,"","",null,0,0, null, null, null, null, null, -1);
     }
 
     @Override
@@ -83,13 +85,14 @@ public final class PlayerRecordNode {
                             this.armor3.equals(node.armor3) &&
                             this.offhand.equals(node.offhand) &&
                             this.dataFlags == node.dataFlags &&
+                            this.dataFlagsExtended == node.dataFlagsExtended &&
                             this.ping == node.ping
                 ;
         }
         return false;
     }
 
-    private PlayerRecordNode(double x, double y, double z, double yaw, double pitch, String level, String tagName, Item item, long dataFlags, Item armor0, Item armor1, Item armor2, Item armor3, Item offhand, int ping) {
+    private PlayerRecordNode(double x, double y, double z, double yaw, double pitch, String level, String tagName, Item item, long dataFlags, long dataFlagsExtended, Item armor0, Item armor1, Item armor2, Item armor3, Item offhand, int ping) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -99,6 +102,7 @@ public final class PlayerRecordNode {
         this.tagName = tagName;
         this.item = item;
         this.dataFlags = dataFlags;
+        this.dataFlagsExtended = dataFlagsExtended;
         this.armor0 = armor0;
         this.armor1 = armor1;
         this.armor2 = armor2;
@@ -217,6 +221,14 @@ public final class PlayerRecordNode {
 
     public void setDataFlags(long dataFlags) {
         this.dataFlags = dataFlags;
+    }
+
+    public long getDataFlagsExtended() {
+        return dataFlagsExtended;
+    }
+
+    public void setDataFlagsExtended(long dataFlagsExtended) {
+        this.dataFlagsExtended = dataFlagsExtended;
     }
 
     public int getPing() {

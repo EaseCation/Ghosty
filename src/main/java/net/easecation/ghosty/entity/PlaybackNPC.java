@@ -62,7 +62,8 @@ public class PlaybackNPC extends EntityHuman implements InventoryHolder {
                 this.engine.getInteractNPCCallback().accept(engine, player);
             }
         }
-        return super.attack(source);
+        // Replay damage animations come from the recording, not the playback world.
+        return false;
     }
 
     @Override

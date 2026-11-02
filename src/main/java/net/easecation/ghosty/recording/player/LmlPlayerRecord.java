@@ -115,8 +115,12 @@ public class LmlPlayerRecord implements PlayerRecord {
         if(!Objects.equals(li, i))
             push(tick, PlayerUpdatedItem.of(i));
         long lastFlags = last.getDataFlags(), flags = node.getDataFlags();
-        if(lastFlags != flags)
+        if (last == PlayerRecordNode.ZERO || lastFlags != flags)
             push(tick, PlayerUpdatedDataFlags.of(flags));
+        long lastFlagsExtended = last.getDataFlagsExtended(), flagsExtended = node.getDataFlagsExtended();
+        if (last == PlayerRecordNode.ZERO || lastFlagsExtended != flagsExtended) {
+            push(tick, PlayerUpdatedDataFlagsExtended.of(flagsExtended));
+        }
         last = node;
     }
 

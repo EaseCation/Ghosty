@@ -40,6 +40,7 @@ sealed interface PlayerUpdated {
                 TYPE_TAG_NAME -> PlayerUpdatedTagName.ADAPTER.read(stream)
                 TYPE_WORLD -> PlayerUpdatedWorldChanged.ADAPTER.read(stream)
                 TYPE_DATA_FLAGS -> PlayerUpdatedDataFlags.ADAPTER.read(stream)
+                TYPE_DATA_FLAGS_EXTENDED -> PlayerUpdatedDataFlagsExtended.ADAPTER.read(stream)
                 TYPE_ITEM -> PlayerUpdatedItem.ADAPTER.read(stream, formatVersion)
                 TYPE_ANIMATE -> PlayerUpdatedAnimate.ADAPTER.read(stream)
                 TYPE_ENTITY_EVENT -> PlayerUpdatedEntityEvent.ADAPTER.read(stream, formatVersion)
@@ -64,6 +65,7 @@ sealed interface PlayerUpdated {
                 is PlayerUpdatedTagName -> PlayerUpdatedTagName.ADAPTER.write(updated, stream)
                 is PlayerUpdatedWorldChanged -> PlayerUpdatedWorldChanged.ADAPTER.write(updated, stream)
                 is PlayerUpdatedDataFlags -> PlayerUpdatedDataFlags.ADAPTER.write(updated, stream)
+                is PlayerUpdatedDataFlagsExtended -> PlayerUpdatedDataFlagsExtended.ADAPTER.write(updated, stream)
                 is PlayerUpdatedItem -> PlayerUpdatedItem.ADAPTER.write(updated, stream)
                 is PlayerUpdatedAnimate -> PlayerUpdatedAnimate.ADAPTER.write(updated, stream)
                 is PlayerUpdatedEntityEvent -> PlayerUpdatedEntityEvent.ADAPTER.write(updated, stream)
@@ -88,6 +90,7 @@ sealed interface PlayerUpdated {
                 is PlayerUpdatedArmor3 -> PlayerUpdatedArmor3.serializer()
                 is PlayerUpdatedAttack -> PlayerUpdatedAttack.serializer()
                 is PlayerUpdatedDataFlags -> PlayerUpdatedDataFlags.serializer()
+                is PlayerUpdatedDataFlagsExtended -> PlayerUpdatedDataFlagsExtended.serializer()
                 is PlayerUpdatedEntityEvent -> PlayerUpdatedEntityEvent.serializer()
                 is PlayerUpdatedItem -> PlayerUpdatedItem.serializer()
                 is PlayerUpdatedMotion -> PlayerUpdatedMotion.serializer()
@@ -118,6 +121,7 @@ sealed interface PlayerUpdated {
         const val TYPE_PING: Int = 14
         const val TYPE_ATTACK: Int = 15
         const val TYPE_MOTION: Int = 16
+        const val TYPE_DATA_FLAGS_EXTENDED: Int = 17
         const val MAX_TYPE_ID: Int = 17
     }
 }
